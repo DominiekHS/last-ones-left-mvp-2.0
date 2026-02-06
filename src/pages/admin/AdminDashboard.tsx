@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,19 +7,37 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { Ban, CheckCircle, Trash2 } from "lucide-react";
+import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
+import { CATEGORY_LABELS } from "@/lib/constants";
 
 export default function AdminDashboard() {
   const { user, roles, loading } = useAuth();
   const queryClient = useQueryClient();
+  const [merchantSearch, setMerchantSearch] = useState("");
+  const [dealSearch, setDealSearch] = useState("");
 
   const { data: merchants } = useQuery({
     queryKey: ["admin-merchants"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("merchants").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("merchants")
+        .select("*")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -28,7 +47,10 @@ export default function AdminDashboard() {
   const { data: deals } = useQuery({
     queryKey: ["admin-deals"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("deals").select("*, merchants(company_name)").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("deals")
+        .select("*, merchants(company_name)")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -48,12 +70,12 @@ export default function AdminDashboard() {
       toast({ title: "Fout", description: error.message, variant: "destructive" });
     } else {
       queryClient.invalidateQueries({ queryKey: ["admin-merchants"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
       toast({ title: currentlyBlocked ? "Merchant gedeblokkeerd" : "Merchant geblokkeerd" });
     }
   };
 
   const deleteDeal = async (dealId: string) => {
-    if (!confirm("Deal verwijderen?")) return;
     const { error } = await supabase.from("deals").delete().eq("id", dealId);
     if (error) {
       toast({ title: "Fout", description: error.message, variant: "destructive" });
@@ -63,9 +85,31 @@ export default function AdminDashboard() {
     }
   };
 
+  const activeDeals = deals?.filter((d) => new Date(d.expiry_time) > new Date()).length || 0;
+  const blockedMerchants = merchants?.filter((m) => m.blocked).length || 0;
+
+  const filteredMerchants = merchants?.filter((m) =>
+    m.company_name.toLowerCase().includes(merchantSearch.toLowerCase()) ||
+    m.city.toLowerCase().includes(merchantSearch.toLowerCase())
+  );
+
+  const filteredDeals = deals?.filter((d) =>
+    d.title.toLowerCase().includes(dealSearch.toLowerCase()) ||
+    d.city.toLowerCase().includes(dealSearch.toLowerCase()) ||
+    (d.merchants as any)?.company_name?.toLowerCase().includes(dealSearch.toLowerCase())
+  );
+
   return (
     <div className="container py-6 space-y-6">
       <h1 className="font-display text-2xl font-bold">Admin Panel</h1>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <StatCard icon={<Store className="h-4 w-4" />} label="Ondernemers" value={merchants?.length || 0} />
+        <StatCard icon={<Ban className="h-4 w-4" />} label="Geblokkeerd" value={blockedMerchants} variant="destructive" />
+        <StatCard icon={<Tag className="h-4 w-4" />} label="Totaal deals" value={deals?.length || 0} />
+        <StatCard icon={<Users className="h-4 w-4" />} label="Actieve deals" value={activeDeals} variant="success" />
+      </div>
 
       <Tabs defaultValue="merchants">
         <TabsList>
@@ -74,47 +118,131 @@ export default function AdminDashboard() {
         </TabsList>
 
         <TabsContent value="merchants" className="space-y-3 mt-4">
-          {merchants?.map((m) => (
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Zoek op naam of stad..."
+              value={merchantSearch}
+              onChange={(e) => setMerchantSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          {filteredMerchants?.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">Geen ondernemers gevonden.</p>
+          )}
+          {filteredMerchants?.map((m) => (
             <Card key={m.id}>
-              <CardContent className="p-4 flex items-center justify-between">
-                <div>
-                  <h3 className="font-display font-semibold">{m.company_name}</h3>
-                  <p className="text-xs text-muted-foreground">{m.city} · {m.venue_type}</p>
+              <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-display font-semibold">{m.company_name}</h3>
+                    {m.blocked && <Badge variant="destructive">Geblokkeerd</Badge>}
+                    <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[m.venue_type] || m.venue_type}</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {m.city} · {m.address} · Lid sinds {format(new Date(m.created_at), "d MMM yyyy", { locale: nl })}
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  {m.blocked && <Badge variant="destructive">Geblokkeerd</Badge>}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleBlock(m.id, m.blocked)}
-                  >
-                    {m.blocked ? <CheckCircle className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
-                  </Button>
-                </div>
+                <Button
+                  variant={m.blocked ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => toggleBlock(m.id, m.blocked)}
+                >
+                  {m.blocked ? (
+                    <><CheckCircle className="mr-1 h-4 w-4" />Deblokkeer</>
+                  ) : (
+                    <><Ban className="mr-1 h-4 w-4" />Blokkeer</>
+                  )}
+                </Button>
               </CardContent>
             </Card>
           ))}
         </TabsContent>
 
         <TabsContent value="deals" className="space-y-3 mt-4">
-          {deals?.map((d) => (
-            <Card key={d.id}>
-              <CardContent className="p-4 flex items-center justify-between">
-                <div>
-                  <h3 className="font-display font-semibold">{d.title}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    {(d.merchants as any)?.company_name} · {d.city} ·{" "}
-                    {format(new Date(d.start_time), "d MMM HH:mm", { locale: nl })}
-                  </p>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => deleteDeal(d.id)}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Zoek op titel, stad of ondernemer..."
+              value={dealSearch}
+              onChange={(e) => setDealSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          {filteredDeals?.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">Geen deals gevonden.</p>
+          )}
+          {filteredDeals?.map((d) => {
+            const isExpired = new Date(d.expiry_time) < new Date();
+            return (
+              <Card key={d.id}>
+                <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-display font-semibold">{d.title}</h3>
+                      <Badge variant={isExpired ? "secondary" : "default"} className="text-xs">
+                        {isExpired ? "Verlopen" : "Actief"}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[d.category]}</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {(d.merchants as any)?.company_name} · {d.city} · -{d.discount_percentage}% ·{" "}
+                      {format(new Date(d.start_time), "d MMM HH:mm", { locale: nl })} -{" "}
+                      {format(new Date(d.expiry_time), "d MMM HH:mm", { locale: nl })}
+                    </p>
+                  </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Trash2 className="mr-1 h-4 w-4" />Verwijder
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Deal verwijderen?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Weet je zeker dat je "{d.title}" wilt verwijderen? Dit kan niet ongedaan worden gemaakt.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Annuleren</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => deleteDeal(d.id)}>
+                          Verwijderen
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </CardContent>
+              </Card>
+            );
+          })}
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+function StatCard({ icon, label, value, variant }: {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  variant?: "destructive" | "success";
+}) {
+  return (
+    <Card>
+      <CardContent className="p-4 flex items-center gap-3">
+        <div className={`rounded-full p-2 ${
+          variant === "destructive" ? "bg-destructive/10 text-destructive" :
+          variant === "success" ? "bg-green-500/10 text-green-600" :
+          "bg-primary/10 text-primary"
+        }`}>
+          {icon}
+        </div>
+        <div>
+          <p className="text-2xl font-bold">{value}</p>
+          <p className="text-xs text-muted-foreground">{label}</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
