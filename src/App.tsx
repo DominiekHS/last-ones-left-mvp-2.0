@@ -27,6 +27,8 @@ import AdForm from "./pages/merchant/AdForm";
 import MerchantProfile from "./pages/merchant/MerchantProfile";
 import MerchantPublicProfile from "./pages/merchant/MerchantPublicProfile";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminDealDetail from "./pages/admin/AdminDealDetail";
+import AdminMerchantDetail from "./pages/admin/AdminMerchantDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -62,6 +64,8 @@ const App = () => (
               <Route path="/merchant/profiel" element={<MerchantProfile />} />
               <Route path="/bedrijf/:merchantId" element={<MerchantPublicProfile />} />
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/deals/:dealId" element={<AdminDealDetail />} />
+              <Route path="/admin/ondernemers/:merchantId" element={<AdminMerchantDetail />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>

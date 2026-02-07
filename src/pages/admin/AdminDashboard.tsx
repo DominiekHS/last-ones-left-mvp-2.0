@@ -20,14 +20,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search } from "lucide-react";
+import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { CATEGORY_LABELS } from "@/lib/constants";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
   const { user, roles, loading } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [merchantSearch, setMerchantSearch] = useState("");
   const [dealSearch, setDealSearch] = useState("");
 
@@ -131,7 +133,7 @@ export default function AdminDashboard() {
             <p className="text-sm text-muted-foreground text-center py-4">Geen ondernemers gevonden.</p>
           )}
           {filteredMerchants?.map((m) => (
-            <Card key={m.id}>
+            <Card key={m.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/ondernemers/${m.id}`)}>
               <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -143,17 +145,20 @@ export default function AdminDashboard() {
                     {m.city} · {m.address} · Lid sinds {format(new Date(m.created_at), "d MMM yyyy", { locale: nl })}
                   </p>
                 </div>
-                <Button
-                  variant={m.blocked ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleBlock(m.id, m.blocked)}
-                >
-                  {m.blocked ? (
-                    <><CheckCircle className="mr-1 h-4 w-4" />Deblokkeer</>
-                  ) : (
-                    <><Ban className="mr-1 h-4 w-4" />Blokkeer</>
-                  )}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={m.blocked ? "default" : "outline"}
+                    size="sm"
+                    onClick={(e) => { e.stopPropagation(); toggleBlock(m.id, m.blocked); }}
+                  >
+                    {m.blocked ? (
+                      <><CheckCircle className="mr-1 h-4 w-4" />Deblokkeer</>
+                    ) : (
+                      <><Ban className="mr-1 h-4 w-4" />Blokkeer</>
+                    )}
+                  </Button>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -175,7 +180,7 @@ export default function AdminDashboard() {
           {filteredDeals?.map((d) => {
             const isExpired = new Date(d.expiry_time) < new Date();
             return (
-              <Card key={d.id}>
+              <Card key={d.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/deals/${d.id}`)}>
                 <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -191,27 +196,30 @@ export default function AdminDashboard() {
                       {format(new Date(d.expiry_time), "d MMM HH:mm", { locale: nl })}
                     </p>
                   </div>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <Trash2 className="mr-1 h-4 w-4" />Verwijder
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Deal verwijderen?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Weet je zeker dat je "{d.title}" wilt verwijderen? Dit kan niet ongedaan worden gemaakt.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Annuleren</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => deleteDeal(d.id)}>
-                          Verwijderen
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  <div className="flex items-center gap-2">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
+                          <Trash2 className="mr-1 h-4 w-4" />Verwijder
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Deal verwijderen?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Weet je zeker dat je "{d.title}" wilt verwijderen? Dit kan niet ongedaan worden gemaakt.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuleren</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => deleteDeal(d.id)}>
+                            Verwijderen
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </div>
                 </CardContent>
               </Card>
             );
