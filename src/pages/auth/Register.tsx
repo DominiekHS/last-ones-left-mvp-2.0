@@ -61,6 +61,7 @@ export default function Register() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleRegister} className="space-y-4">
+            <p className="text-sm text-muted-foreground">* Verplicht veld</p>
             <div className="space-y-2">
               <Label htmlFor="name">Volledige naam *</Label>
               <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
