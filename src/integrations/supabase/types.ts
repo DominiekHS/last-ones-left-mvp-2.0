@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_actions: {
+        Row: {
+          action_type: string
+          admin_id: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          notes: string | null
+          reason: string | null
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          action_type: string
+          admin_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          reason?: string | null
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          action_type?: string
+          admin_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          reason?: string | null
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
+      }
       deal_events: {
         Row: {
           created_at: string
@@ -241,6 +277,53 @@ export type Database = {
         }
         Relationships: []
       }
+      merchant_communications: {
+        Row: {
+          channel: string
+          contact_at: string
+          created_at: string
+          created_by: string
+          id: string
+          merchant_id: string
+          notes: string
+          outcome_status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          channel?: string
+          contact_at?: string
+          created_at?: string
+          created_by: string
+          id?: string
+          merchant_id: string
+          notes?: string
+          outcome_status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          contact_at?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          merchant_id?: string
+          notes?: string
+          outcome_status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merchant_communications_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       merchants: {
         Row: {
           address: string
@@ -255,6 +338,12 @@ export type Database = {
           logo_url: string | null
           opening_hours: Json | null
           postcode: string | null
+          status: string
+          status_notes: string | null
+          status_reason: string | null
+          status_updated_at: string | null
+          status_updated_by: string | null
+          suspended_until: string | null
           updated_at: string
           user_id: string
           venue_type: Database["public"]["Enums"]["venue_category"]
@@ -273,6 +362,12 @@ export type Database = {
           logo_url?: string | null
           opening_hours?: Json | null
           postcode?: string | null
+          status?: string
+          status_notes?: string | null
+          status_reason?: string | null
+          status_updated_at?: string | null
+          status_updated_by?: string | null
+          suspended_until?: string | null
           updated_at?: string
           user_id: string
           venue_type?: Database["public"]["Enums"]["venue_category"]
@@ -291,6 +386,12 @@ export type Database = {
           logo_url?: string | null
           opening_hours?: Json | null
           postcode?: string | null
+          status?: string
+          status_notes?: string | null
+          status_reason?: string | null
+          status_updated_at?: string | null
+          status_updated_by?: string | null
+          suspended_until?: string | null
           updated_at?: string
           user_id?: string
           venue_type?: Database["public"]["Enums"]["venue_category"]
