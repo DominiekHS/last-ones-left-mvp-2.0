@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link, Navigate } from "react-router-dom";
-import { Plus, Trash2, Pencil, Eye, MousePointerClick } from "lucide-react";
+import { Plus, Trash2, Pencil, Eye, MousePointerClick, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -94,6 +95,7 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
   merchantId: string;
   onDelete: () => void;
 }) {
+  const navigate = useNavigate();
   const { data: stats } = useQuery({
     queryKey: ["deal-stats", deal.id],
     queryFn: async () => {
@@ -109,7 +111,10 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
   });
 
   return (
-    <Card>
+    <Card
+      className="cursor-pointer hover:border-primary/40 transition-colors"
+      onClick={() => navigate(`/deal/${deal.id}`)}
+    >
       <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex-1 space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
@@ -128,13 +133,14 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
             <span className="flex items-center gap-1"><MousePointerClick className="h-3 w-3" />{stats?.clicks || 0} klikken</span>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" asChild>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild onClick={(e: React.MouseEvent) => e.stopPropagation()}>
             <Link to={`/merchant/ads/${deal.id}/edit`}><Pencil className="h-3 w-3" /></Link>
           </Button>
-          <Button variant="outline" size="sm" onClick={onDelete}>
+          <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
             <Trash2 className="h-3 w-3" />
           </Button>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </div>
       </CardContent>
     </Card>
