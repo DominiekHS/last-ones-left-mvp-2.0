@@ -31,7 +31,7 @@ export function useDeal(id: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("deals")
-        .select("*, merchants(company_name, city, address)")
+        .select("*, merchants(company_name, city, address, description)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;

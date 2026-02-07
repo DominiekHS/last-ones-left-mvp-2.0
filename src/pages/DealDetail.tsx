@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { MapPin, Clock, ArrowLeft, Copy, ExternalLink, Share2, FileText } from "lucide-react";
+import MerchantInfoSheet from "@/components/deals/MerchantInfoSheet";
 import { format, formatDistanceToNow } from "date-fns";
 import { nl } from "date-fns/locale";
 import { useEffect, useState } from "react";
@@ -125,7 +126,9 @@ export default function DealDetail() {
         <h1 className="font-display text-2xl font-bold">{deal.title}</h1>
 
         {deal.merchants && (
-          <p className="text-muted-foreground">{(deal.merchants as any).company_name}</p>
+          <p className="text-muted-foreground">
+            Aanbieder: <MerchantInfoSheet merchant={deal.merchants as any} />
+          </p>
         )}
 
         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
