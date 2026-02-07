@@ -99,22 +99,9 @@ export default function MerchantPublicProfile() {
           <h2 className="font-display font-semibold text-lg flex items-center gap-2">
             <MapPin className="h-4 w-4 text-primary" />Locatie
           </h2>
-          {fullAddress ? (
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">{fullAddress}</p>
-              <Button variant="outline" size="sm" asChild>
-                <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(fullAddress)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Open in Maps
-                </a>
-              </Button>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">Adres niet ingevuld.</p>
-          )}
+          <p className="text-sm text-muted-foreground">
+            {fullAddress || "Adres niet ingevuld."}
+          </p>
         </CardContent>
       </Card>
 
