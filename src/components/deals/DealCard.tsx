@@ -56,7 +56,13 @@ export function DealCard({ deal }: { deal: Deal }) {
             {deal.title}
           </h3>
           {deal.merchants?.company_name && (
-            <p className="text-xs text-muted-foreground">{deal.merchants.company_name}</p>
+            <Link
+              to={`/bedrijf/${deal.merchant_id}`}
+              className="text-xs text-muted-foreground hover:text-primary hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {deal.merchants.company_name}
+            </Link>
           )}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <MapPin className="h-3 w-3" />

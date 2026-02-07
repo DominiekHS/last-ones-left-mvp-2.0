@@ -132,36 +132,54 @@ export type Database = {
           blocked: boolean
           city: string
           company_name: string
+          contact_email: string | null
+          contact_phone: string | null
           created_at: string
           description: string
           id: string
+          logo_url: string | null
+          opening_hours: Json | null
+          postcode: string | null
           updated_at: string
           user_id: string
           venue_type: Database["public"]["Enums"]["venue_category"]
+          website_url: string | null
         }
         Insert: {
           address?: string
           blocked?: boolean
           city?: string
           company_name: string
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           description?: string
           id?: string
+          logo_url?: string | null
+          opening_hours?: Json | null
+          postcode?: string | null
           updated_at?: string
           user_id: string
           venue_type?: Database["public"]["Enums"]["venue_category"]
+          website_url?: string | null
         }
         Update: {
           address?: string
           blocked?: boolean
           city?: string
           company_name?: string
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           description?: string
           id?: string
+          logo_url?: string | null
+          opening_hours?: Json | null
+          postcode?: string | null
           updated_at?: string
           user_id?: string
           venue_type?: Database["public"]["Enums"]["venue_category"]
+          website_url?: string | null
         }
         Relationships: []
       }
