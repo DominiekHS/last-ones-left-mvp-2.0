@@ -11,6 +11,7 @@ export default function Register() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [dob, setDob] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export default function Register() {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: fullName },
+        data: { full_name: fullName, phone },
       },
     });
 
@@ -47,7 +48,7 @@ export default function Register() {
       title: "Account aangemaakt!",
       description: "Controleer je e-mail om je account te verifiëren.",
     });
-    navigate("/login");
+    navigate("/verify-email");
     setLoading(false);
   };
 
@@ -67,6 +68,10 @@ export default function Register() {
             <div className="space-y-2">
               <Label htmlFor="dob">Geboortedatum</Label>
               <Input id="dob" type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Telefoonnummer</Label>
+              <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+31 6 12345678" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">E-mailadres</Label>

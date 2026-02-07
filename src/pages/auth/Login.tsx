@@ -45,6 +45,11 @@ export default function Login() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Bezig..." : "Inloggen"}
             </Button>
+            <div className="text-right">
+              <Link to="/wachtwoord-vergeten" className="text-sm text-muted-foreground underline">
+                Wachtwoord vergeten?
+              </Link>
+            </div>
           </form>
           <div className="mt-4 text-center text-sm text-muted-foreground">
             Nog geen account?{" "}
