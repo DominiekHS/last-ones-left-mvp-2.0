@@ -46,6 +46,47 @@ export type Database = {
           },
         ]
       }
+      deal_sales_daily: {
+        Row: {
+          created_at: string
+          date: string
+          deal_id: string
+          id: string
+          redeemed: number
+          refunds: number
+          sales: number
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          deal_id: string
+          id?: string
+          redeemed?: number
+          refunds?: number
+          sales?: number
+          source?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          deal_id?: string
+          id?: string
+          redeemed?: number
+          refunds?: number
+          sales?: number
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_sales_daily_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deals: {
         Row: {
           address: string

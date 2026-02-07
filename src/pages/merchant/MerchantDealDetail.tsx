@@ -11,7 +11,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
-import { ArrowLeft, Pencil, Trash2, ExternalLink, Eye, MousePointerClick } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, ExternalLink, Eye, MousePointerClick, BarChart3 } from "lucide-react";
 
 export default function MerchantDealDetail() {
   const { dealId } = useParams<{ dealId: string }>();
@@ -125,6 +125,9 @@ export default function MerchantDealDetail() {
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" asChild>
               <Link to={`/deal/${deal.id}`}><Eye className="mr-1 h-4 w-4" />Bekijk advertentie</Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to={`/merchant/deals/${deal.id}/analytics`}><BarChart3 className="mr-1 h-4 w-4" />Analytics</Link>
             </Button>
             <Button variant="outline" size="sm" asChild>
               <Link to={`/merchant/ads/${deal.id}/edit`}><Pencil className="mr-1 h-4 w-4" />Bewerk</Link>

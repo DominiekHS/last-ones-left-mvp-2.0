@@ -26,6 +26,7 @@ import DealForm from "./pages/merchant/DealForm";
 import AdForm from "./pages/merchant/AdForm";
 import MerchantProfile from "./pages/merchant/MerchantProfile";
 import MerchantDealDetail from "./pages/merchant/MerchantDealDetail";
+import DealAnalytics from "./pages/merchant/DealAnalytics";
 import MerchantPublicProfile from "./pages/merchant/MerchantPublicProfile";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDealDetail from "./pages/admin/AdminDealDetail";
@@ -62,6 +63,7 @@ const App = () => (
               <Route path="/merchant/deal/:id" element={<DealForm />} />
               <Route path="/merchant/ads/new" element={<AdForm />} />
               <Route path="/merchant/deals/:dealId" element={<MerchantDealDetail />} />
+              <Route path="/merchant/deals/:dealId/analytics" element={<DealAnalytics />} />
               <Route path="/merchant/ads/:id/edit" element={<AdForm />} />
               <Route path="/merchant/profiel" element={<MerchantProfile />} />
               <Route path="/bedrijf/:merchantId" element={<MerchantPublicProfile />} />
