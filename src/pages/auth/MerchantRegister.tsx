@@ -74,11 +74,11 @@ export default function MerchantRegister() {
         <CardContent>
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="company">Bedrijfsnaam</Label>
+              <Label htmlFor="company">Bedrijfsnaam *</Label>
               <Input id="company" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
             </div>
             <div className="space-y-2">
-              <Label>Type locatie</Label>
+              <Label>Type locatie *</Label>
               <Select value={venueType} onValueChange={(v) => setVenueType(v as VenueCategory)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -89,11 +89,11 @@ export default function MerchantRegister() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="address">Adres</Label>
+              <Label htmlFor="address">Adres *</Label>
               <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="city">Stad</Label>
+              <Label htmlFor="city">Stad *</Label>
               <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} required />
             </div>
             <div className="space-y-2">
@@ -101,11 +101,11 @@ export default function MerchantRegister() {
               <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+31 6 12345678" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">E-mailadres</Label>
+              <Label htmlFor="email">E-mailadres *</Label>
               <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Wachtwoord</Label>
+              <Label htmlFor="password">Wachtwoord *</Label>
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
