@@ -8,6 +8,7 @@ export function Footer() {
         <nav className="flex gap-4">
           <Link to="/contact" className="hover:text-foreground">Contact</Link>
           <Link to="/algemene-voorwaarden" className="hover:text-foreground">Voorwaarden</Link>
+          <Link to="/privacybeleid" className="hover:text-foreground">Privacy</Link>
           <Link to="/merchant/registreren" className="hover:text-foreground">Voor ondernemers</Link>
         </nav>
         <p>© {new Date().getFullYear()} Last Ones Left</p>
