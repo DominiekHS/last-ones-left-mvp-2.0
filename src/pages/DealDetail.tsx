@@ -117,7 +117,7 @@ export default function DealDetail() {
       )}
 
       <Button variant="ghost" size="sm" asChild>
-        <Link to={isMerchantOwner ? "/merchant" : "/"}><ArrowLeft className="mr-1 h-4 w-4" />{isMerchantOwner ? "Terug naar dashboard" : "Terug"}</Link>
+        <Link to={isMerchantOwner ? `/merchant/deals/${id}` : "/"}><ArrowLeft className="mr-1 h-4 w-4" />{isMerchantOwner ? "Terug naar advertentiebeheer" : "Terug"}</Link>
       </Button>
 
       {deal.image_url && (
@@ -299,7 +299,7 @@ function MerchantPreviewCTA({ dealId }: { dealId: string }) {
           <Link to={`/merchant/ads/${dealId}/edit`}><Pencil className="mr-1 h-4 w-4" />Bewerk advertentie</Link>
         </Button>
         <Button variant="outline" asChild className="flex-1">
-          <Link to="/merchant"><ArrowLeft className="mr-1 h-4 w-4" />Terug naar dashboard</Link>
+          <Link to={`/merchant/deals/${dealId}`}><ArrowLeft className="mr-1 h-4 w-4" />Terug naar advertentiebeheer</Link>
         </Button>
       </div>
     </>
