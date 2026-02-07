@@ -73,6 +73,7 @@ export default function MerchantRegister() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleRegister} className="space-y-4">
+            <p className="text-sm text-muted-foreground">* Verplicht veld</p>
             <div className="space-y-2">
               <Label htmlFor="company">Bedrijfsnaam *</Label>
               <Input id="company" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
