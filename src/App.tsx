@@ -14,6 +14,7 @@ import MerchantRegister from "./pages/auth/MerchantRegister";
 import Vouchers from "./pages/consumer/Vouchers";
 import Profile from "./pages/consumer/Profile";
 import Contact from "./pages/Contact";
+import Terms from "./pages/Terms";
 import MerchantDashboard from "./pages/merchant/MerchantDashboard";
 import DealForm from "./pages/merchant/DealForm";
 import AdForm from "./pages/merchant/AdForm";
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/vouchers" element={<Vouchers />} />
               <Route path="/profiel" element={<Profile />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/algemene-voorwaarden" element={<Terms />} />
               <Route path="/merchant" element={<MerchantDashboard />} />
               <Route path="/merchant/deal/:id" element={<DealForm />} />
               <Route path="/merchant/ads/new" element={<AdForm />} />
