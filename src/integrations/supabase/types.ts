@@ -133,6 +133,7 @@ export type Database = {
           city: string
           company_name: string
           created_at: string
+          description: string
           id: string
           updated_at: string
           user_id: string
@@ -144,6 +145,7 @@ export type Database = {
           city?: string
           company_name: string
           created_at?: string
+          description?: string
           id?: string
           updated_at?: string
           user_id: string
@@ -155,6 +157,7 @@ export type Database = {
           city?: string
           company_name?: string
           created_at?: string
+          description?: string
           id?: string
           updated_at?: string
           user_id?: string

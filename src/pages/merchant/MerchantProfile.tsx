@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Navigate } from "react-router-dom";
@@ -15,6 +16,7 @@ export default function MerchantProfile() {
   const [companyName, setCompanyName] = useState("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
+  const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -22,6 +24,7 @@ export default function MerchantProfile() {
       setCompanyName(merchant.company_name);
       setCity(merchant.city);
       setAddress(merchant.address);
+      setDescription((merchant as any).description || "");
     }
   }, [merchant]);
 
@@ -36,7 +39,7 @@ export default function MerchantProfile() {
 
     const { error } = await supabase
       .from("merchants")
-      .update({ company_name: companyName, city, address })
+      .update({ company_name: companyName, city, address, description: description.trim() })
       .eq("id", merchant.id);
 
     if (error) {
@@ -95,6 +98,18 @@ export default function MerchantProfile() {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Omschrijving</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Korte 'Over ons' tekst (max 600 tekens)"
+                maxLength={600}
+                rows={4}
+              />
+              <p className="text-xs text-muted-foreground">{description.length}/600 tekens</p>
             </div>
             <Button type="submit" disabled={saving} className="w-full">
               {saving ? "Opslaan..." : "Opslaan"}
