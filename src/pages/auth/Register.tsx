@@ -62,7 +62,7 @@ export default function Register() {
         <CardContent>
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Volledige naam</Label>
+              <Label htmlFor="name">Volledige naam *</Label>
               <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
             </div>
             <div className="space-y-2">
@@ -74,11 +74,11 @@ export default function Register() {
               <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+31 6 12345678" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">E-mailadres</Label>
+              <Label htmlFor="email">E-mailadres *</Label>
               <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Wachtwoord</Label>
+              <Label htmlFor="password">Wachtwoord *</Label>
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
