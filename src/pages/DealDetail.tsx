@@ -6,12 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Clock, ArrowLeft, Copy, ExternalLink, Share2 } from "lucide-react";
+import { MapPin, Clock, ArrowLeft, Copy, ExternalLink, Share2, FileText } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { nl } from "date-fns/locale";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function DealDetail() {
   const { id } = useParams<{ id: string }>();
@@ -143,6 +149,47 @@ export default function DealDetail() {
           </Button>
         </div>
       </div>
+
+      {/* Kleine lettertjes */}
+      <Card>
+        <CardContent className="p-4">
+          <Accordion type="single" collapsible>
+            <AccordionItem value="fine-print" className="border-0">
+              <AccordionTrigger className="py-2 hover:no-underline">
+                <div className="flex items-center gap-2 text-left">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium text-sm">Kleine lettertjes</p>
+                    <p className="text-xs text-muted-foreground font-normal">Inwisselen, annuleren en voorwaarden</p>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 pt-2">
+                  <div>
+                    <h4 className="font-semibold text-sm mb-1">📋 Inwisselinstructies</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {(deal as any).redemption_instructions || "Je ontvangt na claimen een kortingscode. Gebruik deze op de betaalpagina van de aanbieder, of toon je voucher als dat bij deze deal geldt."}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm mb-1">🚫 Annuleringsbeleid</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {(deal as any).cancellation_policy || "Annuleren en wijzigingen lopen via de aanbieder. Last-minute deals kunnen beperkingen hebben."}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm mb-1">📜 Algemene voorwaarden</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {(deal as any).terms_summary || "Door deze deal te claimen ga je akkoord met de voorwaarden van Last Ones Left en de aanbieder."}
+                    </p>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent className="p-4 space-y-3">
