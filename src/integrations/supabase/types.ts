@@ -48,6 +48,7 @@ export type Database = {
       }
       deals: {
         Row: {
+          address: string
           category: Database["public"]["Enums"]["venue_category"]
           checkout_link: string
           city: string
@@ -55,16 +56,19 @@ export type Database = {
           description: string
           discount_code: string
           discount_percentage: number
+          discount_type: string
           expiry_time: string
           id: string
           image_url: string | null
           merchant_id: string
           original_price: number
+          redemption_method: string
           start_time: string
           title: string
           updated_at: string
         }
         Insert: {
+          address?: string
           category?: Database["public"]["Enums"]["venue_category"]
           checkout_link?: string
           city?: string
@@ -72,16 +76,19 @@ export type Database = {
           description?: string
           discount_code?: string
           discount_percentage: number
+          discount_type?: string
           expiry_time: string
           id?: string
           image_url?: string | null
           merchant_id: string
           original_price: number
+          redemption_method?: string
           start_time: string
           title: string
           updated_at?: string
         }
         Update: {
+          address?: string
           category?: Database["public"]["Enums"]["venue_category"]
           checkout_link?: string
           city?: string
@@ -89,11 +96,13 @@ export type Database = {
           description?: string
           discount_code?: string
           discount_percentage?: number
+          discount_type?: string
           expiry_time?: string
           id?: string
           image_url?: string | null
           merchant_id?: string
           original_price?: number
+          redemption_method?: string
           start_time?: string
           title?: string
           updated_at?: string
@@ -173,6 +182,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      unique_codes: {
+        Row: {
+          assigned_at: string | null
+          assigned_to_user_id: string | null
+          code: string
+          created_at: string
+          deal_id: string
+          id: string
+          status: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_to_user_id?: string | null
+          code: string
+          created_at?: string
+          deal_id: string
+          id?: string
+          status?: string
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_to_user_id?: string | null
+          code?: string
+          created_at?: string
+          deal_id?: string
+          id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unique_codes_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
