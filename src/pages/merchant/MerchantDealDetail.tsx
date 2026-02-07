@@ -122,7 +122,10 @@ export default function MerchantDealDetail() {
             </Badge>
             <Badge variant="outline">{CATEGORY_LABELS[deal.category]}</Badge>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" size="sm" asChild>
+              <Link to={`/deal/${deal.id}`}><Eye className="mr-1 h-4 w-4" />Bekijk advertentie</Link>
+            </Button>
             <Button variant="outline" size="sm" asChild>
               <Link to={`/merchant/ads/${deal.id}/edit`}><Pencil className="mr-1 h-4 w-4" />Bewerk</Link>
             </Button>
