@@ -48,7 +48,7 @@ export default function MerchantDashboard() {
           <p className="text-muted-foreground">{merchant.company_name}</p>
         </div>
         <Button asChild>
-          <Link to="/merchant/deal/nieuw"><Plus className="mr-1 h-4 w-4" />Nieuwe deal</Link>
+          <Link to="/merchant/ads/new"><Plus className="mr-1 h-4 w-4" />Advertentie maken</Link>
         </Button>
       </div>
 
@@ -74,7 +74,7 @@ export default function MerchantDashboard() {
           <CardContent className="py-8 text-center">
             <p className="text-muted-foreground mb-4">Je hebt nog geen deals geplaatst.</p>
             <Button asChild>
-              <Link to="/merchant/deal/nieuw">Eerste deal plaatsen</Link>
+              <Link to="/merchant/ads/new">Eerste advertentie plaatsen</Link>
             </Button>
           </CardContent>
         </Card>
@@ -125,7 +125,7 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link to={`/merchant/deal/${deal.id}`}><Pencil className="h-3 w-3" /></Link>
+            <Link to={`/merchant/ads/${deal.id}/edit`}><Pencil className="h-3 w-3" /></Link>
           </Button>
           <Button variant="outline" size="sm" onClick={onDelete}>
             <Trash2 className="h-3 w-3" />
