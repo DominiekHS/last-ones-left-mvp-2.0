@@ -17,6 +17,7 @@ import Contact from "./pages/Contact";
 import MerchantDashboard from "./pages/merchant/MerchantDashboard";
 import DealForm from "./pages/merchant/DealForm";
 import AdForm from "./pages/merchant/AdForm";
+import MerchantProfile from "./pages/merchant/MerchantProfile";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/merchant/deal/:id" element={<DealForm />} />
               <Route path="/merchant/ads/new" element={<AdForm />} />
               <Route path="/merchant/ads/:id/edit" element={<AdForm />} />
+              <Route path="/merchant/profiel" element={<MerchantProfile />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Route>
