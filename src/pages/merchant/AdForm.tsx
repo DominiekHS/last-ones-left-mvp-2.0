@@ -619,6 +619,46 @@ export default function AdForm() {
               </div>
             </div>
 
+            {/* Dynamische kortingscode-waarschuwing */}
+            <div className="rounded-lg border border-yellow-300 bg-yellow-50 p-4 space-y-2">
+              <div className="flex gap-2">
+                <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
+                <p className="text-sm font-semibold text-yellow-800">
+                  Let op: Koppel de kortingscode(s) in je eigen systeem aan deze deal en stel in dat ze maximaal 24 uur geldig zijn om misbruik te voorkomen.
+                </p>
+              </div>
+              <div className="ml-7 space-y-1 text-sm">
+                <p>
+                  <span className="font-semibold text-yellow-800">Uiterlijk laten verlopen op:</span>{" "}
+                  {expiryTime ? (
+                    <span className="text-yellow-700">
+                      {new Date(expiryTime).toLocaleString("nl-NL", { dateStyle: "long", timeStyle: "short" })}
+                    </span>
+                  ) : (
+                    <span className="text-yellow-600 italic">Vul eerst 'Advertentie verwijderen om' in</span>
+                  )}
+                </p>
+                <p>
+                  <span className="font-semibold text-yellow-800">Starttijd activiteit:</span>{" "}
+                  {startTime ? (
+                    <span className="text-yellow-700">
+                      {new Date(startTime).toLocaleString("nl-NL", { dateStyle: "long", timeStyle: "short" })}
+                    </span>
+                  ) : (
+                    <span className="text-yellow-600 italic">Vul eerst 'Starttijd activiteit' in</span>
+                  )}
+                </p>
+                {expiryTime && startTime && new Date(expiryTime) > new Date(startTime) && (
+                  <p className="text-destructive text-xs font-medium mt-1">
+                    ⚠ Let op: 'Advertentie verwijderen om' moet vóór de starttijd liggen.
+                  </p>
+                )}
+              </div>
+              <p className="ml-7 text-xs text-yellow-600">
+                Tip: laat de codes automatisch verlopen bij 'Advertentie verwijderen om'.
+              </p>
+            </div>
+
             {discountType === "universal" ? (
               <div className="space-y-2">
                 <Label htmlFor="universalCode">Kortingscode *</Label>
