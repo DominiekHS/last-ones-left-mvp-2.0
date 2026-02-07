@@ -49,6 +49,7 @@ export type Database = {
       deals: {
         Row: {
           address: string
+          cancellation_policy: string | null
           category: Database["public"]["Enums"]["venue_category"]
           checkout_link: string
           city: string
@@ -62,13 +63,16 @@ export type Database = {
           image_url: string | null
           merchant_id: string
           original_price: number
+          redemption_instructions: string | null
           redemption_method: string
           start_time: string
+          terms_summary: string | null
           title: string
           updated_at: string
         }
         Insert: {
           address?: string
+          cancellation_policy?: string | null
           category?: Database["public"]["Enums"]["venue_category"]
           checkout_link?: string
           city?: string
@@ -82,13 +86,16 @@ export type Database = {
           image_url?: string | null
           merchant_id: string
           original_price: number
+          redemption_instructions?: string | null
           redemption_method?: string
           start_time: string
+          terms_summary?: string | null
           title: string
           updated_at?: string
         }
         Update: {
           address?: string
+          cancellation_policy?: string | null
           category?: Database["public"]["Enums"]["venue_category"]
           checkout_link?: string
           city?: string
@@ -102,8 +109,10 @@ export type Database = {
           image_url?: string | null
           merchant_id?: string
           original_price?: number
+          redemption_instructions?: string | null
           redemption_method?: string
           start_time?: string
+          terms_summary?: string | null
           title?: string
           updated_at?: string
         }

@@ -45,6 +45,9 @@ export default function AdForm() {
   const [universalCode, setUniversalCode] = useState("");
   const [uniqueCodeCount, setUniqueCodeCount] = useState("");
   const [uniqueCodesText, setUniqueCodesText] = useState("");
+  const [redemptionInstructions, setRedemptionInstructions] = useState("");
+  const [cancellationPolicy, setCancellationPolicy] = useState("");
+  const [termsSummary, setTermsSummary] = useState("");
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -72,6 +75,9 @@ export default function AdForm() {
             setExistingImageUrl(data.image_url);
             setAtCounter((data as any).redemption_method === "at_counter");
             setDiscountType(((data as any).discount_type as "universal" | "unique") || "universal");
+            setRedemptionInstructions((data as any).redemption_instructions || "");
+            setCancellationPolicy((data as any).cancellation_policy || "");
+            setTermsSummary((data as any).terms_summary || "");
             if ((data as any).discount_type !== "unique") {
               setUniversalCode(data.discount_code);
             }
@@ -250,6 +256,9 @@ export default function AdForm() {
       image_url: imageUrl,
       redemption_method: atCounter ? "at_counter" : "online_checkout",
       discount_type: discountType,
+      redemption_instructions: redemptionInstructions.trim(),
+      cancellation_policy: cancellationPolicy.trim(),
+      terms_summary: termsSummary.trim(),
     };
 
     let dealId = id;
@@ -666,6 +675,46 @@ export default function AdForm() {
                 )}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Section 8: Kleine lettertjes */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="font-display text-lg">Kleine lettertjes (optioneel)</CardTitle>
+            <p className="text-xs text-muted-foreground">Houd het kort en duidelijk. Dit zien klanten op de dealpagina.</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="redemptionInstructions">Inwisselinstructies</Label>
+              <Textarea
+                id="redemptionInstructions"
+                value={redemptionInstructions}
+                onChange={(e) => setRedemptionInstructions(e.target.value)}
+                rows={2}
+                placeholder="Bijv. 'Gebruik de kortingscode tijdens het online afrekenen.'"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cancellationPolicy">Annuleringsbeleid</Label>
+              <Textarea
+                id="cancellationPolicy"
+                value={cancellationPolicy}
+                onChange={(e) => setCancellationPolicy(e.target.value)}
+                rows={2}
+                placeholder="Bijv. 'Annuleren is niet mogelijk na aankoop.'"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="termsSummary">Algemene voorwaarden</Label>
+              <Textarea
+                id="termsSummary"
+                value={termsSummary}
+                onChange={(e) => setTermsSummary(e.target.value)}
+                rows={2}
+                placeholder="Bijv. 'Geldig voor 1 persoon, niet combineerbaar met andere acties.'"
+              />
+            </div>
           </CardContent>
         </Card>
 
