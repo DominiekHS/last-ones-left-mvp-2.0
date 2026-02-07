@@ -47,9 +47,14 @@ export default function MerchantDashboard() {
           <h1 className="font-display text-2xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground">{merchant.company_name}</p>
         </div>
-        <Button asChild>
-          <Link to="/merchant/ads/new"><Plus className="mr-1 h-4 w-4" />Advertentie maken</Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/merchant/profiel"><Pencil className="mr-1 h-3 w-3" />Profiel</Link>
+          </Button>
+          <Button asChild>
+            <Link to="/merchant/ads/new"><Plus className="mr-1 h-4 w-4" />Advertentie maken</Link>
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
