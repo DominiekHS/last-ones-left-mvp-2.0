@@ -248,7 +248,9 @@ export default function DealDetail() {
                 {deal.redemption_method === "at_counter" ? (
                   <p className="text-sm text-muted-foreground">📍 Toon deze code bij de kassa om je korting te ontvangen.</p>
                 ) : deal.checkout_link ? (
-                  <Button asChild className="w-full">
+                  <Button asChild className="w-full" onClick={() => {
+                    supabase.from("deal_events").insert({ deal_id: deal.id, event_type: "checkout_click", user_id: user?.id || null }).then();
+                  }}>
                     <a href={deal.checkout_link} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="mr-1 h-4 w-4" />Naar afrekenen
                     </a>
