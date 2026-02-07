@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Clock, ArrowLeft, Copy, ExternalLink, Share2, FileText } from "lucide-react";
+import { MapPin, Clock, ArrowLeft, Copy, ExternalLink, Share2, FileText, Pencil, Eye as EyeIcon, MousePointerClick } from "lucide-react";
 
 import { format, formatDistanceToNow } from "date-fns";
 import { nl } from "date-fns/locale";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -23,10 +24,12 @@ import {
 export default function DealDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: deal, isLoading } = useDeal(id!);
-  const { user } = useAuth();
+  const { user, merchant, roles } = useAuth();
   const [claimed, setClaimed] = useState(false);
   const [claimedCode, setClaimedCode] = useState<string | null>(null);
   const [claiming, setClaiming] = useState(false);
+
+  const isMerchantOwner = merchant && deal && deal.merchant_id === merchant.id;
 
   // Track view
   useEffect(() => {
@@ -106,8 +109,15 @@ export default function DealDetail() {
 
   return (
     <div className="container py-4 max-w-2xl space-y-4">
+      {isMerchantOwner && (
+        <div className="bg-muted/50 border rounded-md px-3 py-2 text-xs text-muted-foreground flex items-center gap-2">
+          <EyeIcon className="h-3 w-3" />
+          Preview — zo zien consumenten jouw advertentie
+        </div>
+      )}
+
       <Button variant="ghost" size="sm" asChild>
-        <Link to="/"><ArrowLeft className="mr-1 h-4 w-4" />Terug</Link>
+        <Link to={isMerchantOwner ? "/merchant" : "/"}><ArrowLeft className="mr-1 h-4 w-4" />{isMerchantOwner ? "Terug naar dashboard" : "Terug"}</Link>
       </Button>
 
       {deal.image_url && (
@@ -207,50 +217,91 @@ export default function DealDetail() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardContent className="p-4 space-y-3">
-          {!user ? (
-            <>
-              <p className="text-sm text-muted-foreground">Log in om deze deal te claimen</p>
-              <Button asChild className="w-full">
-                <Link to="/registreren">Account aanmaken (± 1 minuut)</Link>
-              </Button>
-            </>
-          ) : claimed ? (
-            <>
-              <p className="text-sm font-semibold text-success">✅ Deal geclaimd!</p>
-              <div className="flex items-center gap-2 bg-muted p-3 rounded-md">
-                <code className="font-mono font-bold text-lg flex-1">{claimedCode}</code>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    navigator.clipboard.writeText(claimedCode || "");
-                    toast({ title: "Gekopieerd!" });
-                  }}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-              {deal.redemption_method === "at_counter" ? (
-                <p className="text-sm text-muted-foreground">📍 Toon deze code bij de kassa om je korting te ontvangen.</p>
-              ) : deal.checkout_link ? (
+      {isMerchantOwner ? (
+        <MerchantPreviewCTA dealId={deal.id} />
+      ) : (
+        <Card>
+          <CardContent className="p-4 space-y-3">
+            {!user ? (
+              <>
+                <p className="text-sm text-muted-foreground">Log in om deze deal te claimen</p>
                 <Button asChild className="w-full">
-                  <a href={deal.checkout_link} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="mr-1 h-4 w-4" />Naar afrekenen
-                  </a>
+                  <Link to="/registreren">Account aanmaken (± 1 minuut)</Link>
                 </Button>
-              ) : null}
-            </>
-          ) : isExpired ? (
-            <p className="text-sm text-muted-foreground">Deze deal is helaas verlopen.</p>
-          ) : (
-            <Button onClick={handleClaim} disabled={claiming} className="w-full">
-              {claiming ? "Bezig..." : "Claim korting / Naar afrekenen"}
-            </Button>
-          )}
+              </>
+            ) : claimed ? (
+              <>
+                <p className="text-sm font-semibold text-success">✅ Deal geclaimd!</p>
+                <div className="flex items-center gap-2 bg-muted p-3 rounded-md">
+                  <code className="font-mono font-bold text-lg flex-1">{claimedCode}</code>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      navigator.clipboard.writeText(claimedCode || "");
+                      toast({ title: "Gekopieerd!" });
+                    }}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+                {deal.redemption_method === "at_counter" ? (
+                  <p className="text-sm text-muted-foreground">📍 Toon deze code bij de kassa om je korting te ontvangen.</p>
+                ) : deal.checkout_link ? (
+                  <Button asChild className="w-full">
+                    <a href={deal.checkout_link} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="mr-1 h-4 w-4" />Naar afrekenen
+                    </a>
+                  </Button>
+                ) : null}
+              </>
+            ) : isExpired ? (
+              <p className="text-sm text-muted-foreground">Deze deal is helaas verlopen.</p>
+            ) : (
+              <Button onClick={handleClaim} disabled={claiming} className="w-full">
+                {claiming ? "Bezig..." : "Claim korting / Naar afrekenen"}
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+function MerchantPreviewCTA({ dealId }: { dealId: string }) {
+  const { data: stats } = useQuery({
+    queryKey: ["deal-stats", dealId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("deal_events")
+        .select("event_type")
+        .eq("deal_id", dealId);
+      if (error) return { views: 0, clicks: 0 };
+      const views = data.filter((e) => e.event_type === "view").length;
+      const clicks = data.filter((e) => e.event_type === "click").length;
+      return { views, clicks };
+    },
+  });
+
+  return (
+    <>
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex gap-6 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1"><EyeIcon className="h-4 w-4" />{stats?.views || 0} weergaven</span>
+            <span className="flex items-center gap-1"><MousePointerClick className="h-4 w-4" />{stats?.clicks || 0} klikken</span>
+          </div>
         </CardContent>
       </Card>
-    </div>
+      <div className="flex gap-2">
+        <Button asChild className="flex-1">
+          <Link to={`/merchant/ads/${dealId}/edit`}><Pencil className="mr-1 h-4 w-4" />Bewerk advertentie</Link>
+        </Button>
+        <Button variant="outline" asChild className="flex-1">
+          <Link to="/merchant"><ArrowLeft className="mr-1 h-4 w-4" />Terug naar dashboard</Link>
+        </Button>
+      </div>
+    </>
   );
 }
