@@ -6,6 +6,7 @@ export function Footer() {
       <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
         <p className="font-display font-bold text-foreground">Last Ones Left</p>
         <nav className="flex gap-4">
+          <Link to="/help" className="hover:text-foreground">Helpcenter</Link>
           <Link to="/contact" className="hover:text-foreground">Contact</Link>
           <Link to="/algemene-voorwaarden" className="hover:text-foreground">Voorwaarden</Link>
           <Link to="/privacybeleid" className="hover:text-foreground">Privacy</Link>
