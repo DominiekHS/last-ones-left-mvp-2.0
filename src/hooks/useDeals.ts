@@ -15,7 +15,7 @@ export function useActiveDeals(category?: string, city?: string) {
         query = query.eq("category", category as any);
       }
       if (city) {
-        query = query.ilike("city", `%${city}%`);
+        query = query.ilike("city", city);
       }
 
       const { data, error } = await query;
