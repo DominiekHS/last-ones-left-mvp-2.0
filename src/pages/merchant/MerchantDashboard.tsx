@@ -113,7 +113,7 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
   return (
     <Card
       className="cursor-pointer hover:border-primary/40 transition-colors"
-      onClick={() => navigate(`/deal/${deal.id}`)}
+      onClick={() => navigate(`/merchant/deals/${deal.id}`)}
     >
       <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex-1 space-y-1">
