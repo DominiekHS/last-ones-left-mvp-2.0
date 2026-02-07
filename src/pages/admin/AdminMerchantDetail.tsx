@@ -6,11 +6,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Ban, CheckCircle, Globe, Mail, Phone, Tag } from "lucide-react";
+import { ArrowLeft, Ban, CheckCircle, Globe, Mail, Phone, Tag, ShieldAlert, ShieldCheck, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { CATEGORY_LABELS } from "@/lib/constants";
+import { getMerchantEffectiveStatus, STATUS_LABELS, STATUS_VARIANTS } from "@/lib/merchant-status";
+import { MerchantStatusModal } from "@/components/admin/MerchantStatusModal";
+import { MerchantCommunicationLog } from "@/components/admin/MerchantCommunicationLog";
+import { useState } from "react";
 
 const DAY_LABELS = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"];
 const DAY_KEYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
@@ -20,6 +25,7 @@ export default function AdminMerchantDetail() {
   const navigate = useNavigate();
   const { user, roles, loading } = useAuth();
   const queryClient = useQueryClient();
+  const [statusModal, setStatusModal] = useState<{ open: boolean; action: "suspend" | "block" | "activate" }>({ open: false, action: "suspend" });
 
   const { data: merchant, isLoading } = useQuery({
     queryKey: ["admin-merchant", merchantId],
@@ -53,21 +59,6 @@ export default function AdminMerchantDetail() {
     return <Navigate to="/" />;
   }
 
-  const toggleBlock = async () => {
-    if (!merchant) return;
-    const { error } = await supabase
-      .from("merchants")
-      .update({ blocked: !merchant.blocked })
-      .eq("id", merchant.id);
-    if (error) {
-      toast({ title: "Fout", description: error.message, variant: "destructive" });
-    } else {
-      queryClient.invalidateQueries({ queryKey: ["admin-merchant", merchantId] });
-      queryClient.invalidateQueries({ queryKey: ["admin-merchants"] });
-      toast({ title: merchant.blocked ? "Ondernemer gedeblokkeerd" : "Ondernemer geblokkeerd" });
-    }
-  };
-
   if (isLoading) {
     return <div className="container py-6"><p className="text-muted-foreground">Laden...</p></div>;
   }
@@ -81,136 +72,182 @@ export default function AdminMerchantDetail() {
     );
   }
 
+  const effectiveStatus = getMerchantEffectiveStatus(merchant as any);
   const activeDeals = deals?.filter((d) => new Date(d.expiry_time) > new Date()) || [];
   const openingHours = merchant.opening_hours as Record<string, { open: string; close: string; closed?: boolean }> | null;
 
   return (
     <div className="container py-6 space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <Button variant="ghost" onClick={() => navigate("/admin")}>
-          <ArrowLeft className="mr-1 h-4 w-4" />Terug naar overzicht
-        </Button>
-        <Button
-          variant={merchant.blocked ? "default" : "outline"}
-          size="sm"
-          onClick={toggleBlock}
-        >
-          {merchant.blocked ? (
-            <><CheckCircle className="mr-1 h-4 w-4" />Deblokkeer</>
-          ) : (
-            <><Ban className="mr-1 h-4 w-4" />Blokkeer</>
-          )}
-        </Button>
-      </div>
+      {/* Back button */}
+      <Button variant="ghost" onClick={() => navigate("/admin")}>
+        <ArrowLeft className="mr-1 h-4 w-4" />Terug naar overzicht
+      </Button>
 
+      {/* Title row */}
       <div className="flex items-center gap-3 flex-wrap">
         {merchant.logo_url && (
           <img src={merchant.logo_url} alt={merchant.company_name} className="h-12 w-12 rounded-full object-cover" />
         )}
         <h1 className="font-display text-2xl font-bold">{merchant.company_name}</h1>
-        <Badge variant={merchant.blocked ? "destructive" : "default"}>
-          {merchant.blocked ? "Geblokkeerd" : "Actief"}
-        </Badge>
+        <Badge variant={STATUS_VARIANTS[effectiveStatus]}>{STATUS_LABELS[effectiveStatus]}</Badge>
         <Badge variant="outline">{CATEGORY_LABELS[merchant.venue_type] || merchant.venue_type}</Badge>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Basis info */}
-        <Card>
-          <CardHeader><CardTitle className="text-lg">Basisgegevens</CardTitle></CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <InfoRow label="Lid sinds" value={format(new Date(merchant.created_at), "d MMMM yyyy", { locale: nl })} />
-            {merchant.description && <InfoRow label="Omschrijving" value={merchant.description} />}
-            <InfoRow label="Adres" value={[merchant.address, merchant.postcode, merchant.city].filter(Boolean).join(", ")} />
-          </CardContent>
-        </Card>
+      {/* Status & Actions card */}
+      <Card>
+        <CardHeader><CardTitle className="text-lg">Status & acties</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center gap-3 flex-wrap text-sm">
+            <span>Status: <strong>{STATUS_LABELS[effectiveStatus]}</strong></span>
+            {effectiveStatus === "suspended" && merchant.suspended_until && (
+              <span className="flex items-center gap-1 text-muted-foreground">
+                <Clock className="h-3 w-3" />
+                Tot: {format(new Date(merchant.suspended_until), "d MMMM yyyy HH:mm", { locale: nl })}
+              </span>
+            )}
+            {merchant.status_reason && (
+              <span className="text-muted-foreground">Reden: {merchant.status_reason}</span>
+            )}
+            {merchant.status_updated_at && (
+              <span className="text-muted-foreground text-xs">
+                Laatste wijziging: {format(new Date(merchant.status_updated_at), "d MMM yyyy HH:mm", { locale: nl })}
+              </span>
+            )}
+          </div>
+          {merchant.status_notes && (
+            <p className="text-sm text-muted-foreground italic">"{merchant.status_notes}"</p>
+          )}
+          <div className="flex gap-2 flex-wrap">
+            {effectiveStatus !== "suspended" && effectiveStatus !== "blocked" && (
+              <Button variant="outline" size="sm" onClick={() => setStatusModal({ open: true, action: "suspend" })}>
+                <ShieldAlert className="mr-1 h-4 w-4" />Schorsen
+              </Button>
+            )}
+            {effectiveStatus !== "blocked" && (
+              <Button variant="outline" size="sm" onClick={() => setStatusModal({ open: true, action: "block" })}>
+                <Ban className="mr-1 h-4 w-4" />Blokkeren
+              </Button>
+            )}
+            {effectiveStatus !== "active" && (
+              <Button size="sm" onClick={() => setStatusModal({ open: true, action: "activate" })}>
+                <ShieldCheck className="mr-1 h-4 w-4" />Activeren
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Contact */}
-        <Card>
-          <CardHeader><CardTitle className="text-lg">Contactgegevens</CardTitle></CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            {merchant.contact_email && (
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <span>{merchant.contact_email}</span>
-              </div>
-            )}
-            {merchant.contact_phone && (
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-muted-foreground" />
-                <span>{merchant.contact_phone}</span>
-              </div>
-            )}
-            {merchant.website_url && (
-              <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-muted-foreground" />
-                <a href={merchant.website_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                  {merchant.website_url}
-                </a>
-              </div>
-            )}
-            {!merchant.contact_email && !merchant.contact_phone && !merchant.website_url && (
-              <p className="text-muted-foreground">Geen contactgegevens ingevuld.</p>
-            )}
-          </CardContent>
-        </Card>
+      {/* Tabs */}
+      <Tabs defaultValue="profile">
+        <TabsList>
+          <TabsTrigger value="profile">Profiel</TabsTrigger>
+          <TabsTrigger value="deals">Deals ({deals?.length || 0})</TabsTrigger>
+          <TabsTrigger value="comms">Communicatie-log</TabsTrigger>
+        </TabsList>
 
-        {/* Openingstijden */}
-        <Card>
-          <CardHeader><CardTitle className="text-lg">Openingstijden</CardTitle></CardHeader>
-          <CardContent className="text-sm">
-            {openingHours && Object.keys(openingHours).length > 0 ? (
-              <div className="space-y-1">
-                {DAY_KEYS.map((key, i) => {
-                  const day = openingHours[key];
+        <TabsContent value="profile" className="mt-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader><CardTitle className="text-lg">Basisgegevens</CardTitle></CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <InfoRow label="Lid sinds" value={format(new Date(merchant.created_at), "d MMMM yyyy", { locale: nl })} />
+                {merchant.description && <InfoRow label="Omschrijving" value={merchant.description} />}
+                <InfoRow label="Adres" value={[merchant.address, merchant.postcode, merchant.city].filter(Boolean).join(", ")} />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><CardTitle className="text-lg">Contactgegevens</CardTitle></CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                {merchant.contact_email && (
+                  <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-muted-foreground" /><span>{merchant.contact_email}</span></div>
+                )}
+                {merchant.contact_phone && (
+                  <div className="flex items-center gap-2"><Phone className="h-4 w-4 text-muted-foreground" /><span>{merchant.contact_phone}</span></div>
+                )}
+                {merchant.website_url && (
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-muted-foreground" />
+                    <a href={merchant.website_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{merchant.website_url}</a>
+                  </div>
+                )}
+                {!merchant.contact_email && !merchant.contact_phone && !merchant.website_url && (
+                  <p className="text-muted-foreground">Geen contactgegevens ingevuld.</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><CardTitle className="text-lg">Openingstijden</CardTitle></CardHeader>
+              <CardContent className="text-sm">
+                {openingHours && Object.keys(openingHours).length > 0 ? (
+                  <div className="space-y-1">
+                    {DAY_KEYS.map((key, i) => {
+                      const day = openingHours[key];
+                      return (
+                        <div key={key} className="flex justify-between">
+                          <span className="text-muted-foreground">{DAY_LABELS[i]}</span>
+                          <span>{day?.closed ? "Gesloten" : day ? `${day.open} – ${day.close}` : "—"}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">Geen openingstijden ingevuld.</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="deals" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Tag className="h-4 w-4" />
+                Deals ({deals?.length || 0} totaal, {activeDeals.length} actief)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              {deals && deals.length > 0 ? (
+                deals.map((d) => {
+                  const expired = new Date(d.expiry_time) < new Date();
                   return (
-                    <div key={key} className="flex justify-between">
-                      <span className="text-muted-foreground">{DAY_LABELS[i]}</span>
-                      <span>{day?.closed ? "Gesloten" : day ? `${day.open} – ${day.close}` : "—"}</span>
-                    </div>
+                    <Link
+                      key={d.id}
+                      to={`/admin/deals/${d.id}`}
+                      className="flex items-center justify-between p-2 rounded-md hover:bg-accent transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{d.title}</span>
+                        <Badge variant={expired ? "secondary" : "default"} className="text-xs">
+                          {expired ? "Verlopen" : "Actief"}
+                        </Badge>
+                      </div>
+                      <span className="text-muted-foreground text-xs">-{d.discount_percentage}%</span>
+                    </Link>
                   );
-                })}
-              </div>
-            ) : (
-              <p className="text-muted-foreground">Geen openingstijden ingevuld.</p>
-            )}
-          </CardContent>
-        </Card>
+                })
+              ) : (
+                <p className="text-muted-foreground">Geen deals aangemaakt.</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-        {/* Deals */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Tag className="h-4 w-4" />
-              Deals ({deals?.length || 0} totaal, {activeDeals.length} actief)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            {deals && deals.length > 0 ? (
-              deals.map((d) => {
-                const expired = new Date(d.expiry_time) < new Date();
-                return (
-                  <Link
-                    key={d.id}
-                    to={`/admin/deals/${d.id}`}
-                    className="flex items-center justify-between p-2 rounded-md hover:bg-accent transition-colors"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{d.title}</span>
-                      <Badge variant={expired ? "secondary" : "default"} className="text-xs">
-                        {expired ? "Verlopen" : "Actief"}
-                      </Badge>
-                    </div>
-                    <span className="text-muted-foreground text-xs">-{d.discount_percentage}%</span>
-                  </Link>
-                );
-              })
-            ) : (
-              <p className="text-muted-foreground">Geen deals aangemaakt.</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="comms" className="mt-4">
+          <MerchantCommunicationLog merchantId={merchantId!} />
+        </TabsContent>
+      </Tabs>
+
+      {/* Status modal */}
+      <MerchantStatusModal
+        open={statusModal.open}
+        onOpenChange={(open) => setStatusModal(s => ({ ...s, open }))}
+        merchantId={merchant.id}
+        merchantName={merchant.company_name}
+        action={statusModal.action}
+      />
     </div>
   );
 }

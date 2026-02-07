@@ -20,10 +20,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight } from "lucide-react";
+import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { CATEGORY_LABELS } from "@/lib/constants";
+import { getMerchantEffectiveStatus, STATUS_LABELS, STATUS_VARIANTS } from "@/lib/merchant-status";
 import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
@@ -32,6 +33,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [merchantSearch, setMerchantSearch] = useState("");
   const [dealSearch, setDealSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended" | "blocked">("all");
 
   const { data: merchants } = useQuery({
     queryKey: ["admin-merchants"],
@@ -88,12 +90,15 @@ export default function AdminDashboard() {
   };
 
   const activeDeals = deals?.filter((d) => new Date(d.expiry_time) > new Date()).length || 0;
-  const blockedMerchants = merchants?.filter((m) => m.blocked).length || 0;
+  const blockedMerchants = merchants?.filter((m) => getMerchantEffectiveStatus(m as any) === "blocked").length || 0;
+  const suspendedMerchants = merchants?.filter((m) => getMerchantEffectiveStatus(m as any) === "suspended").length || 0;
 
-  const filteredMerchants = merchants?.filter((m) =>
-    m.company_name.toLowerCase().includes(merchantSearch.toLowerCase()) ||
-    m.city.toLowerCase().includes(merchantSearch.toLowerCase())
-  );
+  const filteredMerchants = merchants?.filter((m) => {
+    const effectiveStatus = getMerchantEffectiveStatus(m as any);
+    if (statusFilter !== "all" && effectiveStatus !== statusFilter) return false;
+    return m.company_name.toLowerCase().includes(merchantSearch.toLowerCase()) ||
+      m.city.toLowerCase().includes(merchantSearch.toLowerCase());
+  });
 
   const filteredDeals = deals?.filter((d) =>
     d.title.toLowerCase().includes(dealSearch.toLowerCase()) ||
@@ -108,9 +113,9 @@ export default function AdminDashboard() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard icon={<Store className="h-4 w-4" />} label="Ondernemers" value={merchants?.length || 0} />
+        <StatCard icon={<ShieldAlert className="h-4 w-4" />} label="Geschorst" value={suspendedMerchants} variant="warning" />
         <StatCard icon={<Ban className="h-4 w-4" />} label="Geblokkeerd" value={blockedMerchants} variant="destructive" />
-        <StatCard icon={<Tag className="h-4 w-4" />} label="Totaal deals" value={deals?.length || 0} />
-        <StatCard icon={<Users className="h-4 w-4" />} label="Actieve deals" value={activeDeals} variant="success" />
+        <StatCard icon={<Tag className="h-4 w-4" />} label="Actieve deals" value={activeDeals} variant="success" />
       </div>
 
       <Tabs defaultValue="merchants">
@@ -120,6 +125,18 @@ export default function AdminDashboard() {
         </TabsList>
 
         <TabsContent value="merchants" className="space-y-3 mt-4">
+          <div className="flex gap-2 flex-wrap">
+            {(["all", "active", "suspended", "blocked"] as const).map(s => (
+              <Button
+                key={s}
+                variant={statusFilter === s ? "default" : "outline"}
+                size="sm"
+                onClick={() => setStatusFilter(s)}
+              >
+                {s === "all" ? "Alle" : STATUS_LABELS[s]}
+              </Button>
+            ))}
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -132,36 +149,26 @@ export default function AdminDashboard() {
           {filteredMerchants?.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-4">Geen ondernemers gevonden.</p>
           )}
-          {filteredMerchants?.map((m) => (
-            <Card key={m.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/ondernemers/${m.id}`)}>
-              <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-display font-semibold">{m.company_name}</h3>
-                    {m.blocked && <Badge variant="destructive">Geblokkeerd</Badge>}
-                    <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[m.venue_type] || m.venue_type}</Badge>
+          {filteredMerchants?.map((m) => {
+            const es = getMerchantEffectiveStatus(m as any);
+            return (
+              <Card key={m.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/ondernemers/${m.id}`)}>
+                <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-display font-semibold">{m.company_name}</h3>
+                      <Badge variant={STATUS_VARIANTS[es]} className="text-xs">{STATUS_LABELS[es]}</Badge>
+                      <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[m.venue_type] || m.venue_type}</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {m.city} · {m.address} · Lid sinds {format(new Date(m.created_at), "d MMM yyyy", { locale: nl })}
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {m.city} · {m.address} · Lid sinds {format(new Date(m.created_at), "d MMM yyyy", { locale: nl })}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={m.blocked ? "default" : "outline"}
-                    size="sm"
-                    onClick={(e) => { e.stopPropagation(); toggleBlock(m.id, m.blocked); }}
-                  >
-                    {m.blocked ? (
-                      <><CheckCircle className="mr-1 h-4 w-4" />Deblokkeer</>
-                    ) : (
-                      <><Ban className="mr-1 h-4 w-4" />Blokkeer</>
-                    )}
-                  </Button>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </TabsContent>
 
         <TabsContent value="deals" className="space-y-3 mt-4">
@@ -234,7 +241,7 @@ function StatCard({ icon, label, value, variant }: {
   icon: React.ReactNode;
   label: string;
   value: number;
-  variant?: "destructive" | "success";
+  variant?: "destructive" | "success" | "warning";
 }) {
   return (
     <Card>
@@ -242,6 +249,7 @@ function StatCard({ icon, label, value, variant }: {
         <div className={`rounded-full p-2 ${
           variant === "destructive" ? "bg-destructive/10 text-destructive" :
           variant === "success" ? "bg-green-500/10 text-green-600" :
+          variant === "warning" ? "bg-yellow-500/10 text-yellow-600" :
           "bg-primary/10 text-primary"
         }`}>
           {icon}

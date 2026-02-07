@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link, Navigate } from "react-router-dom";
-import { Plus, Trash2, Pencil, Eye, MousePointerClick, ChevronRight } from "lucide-react";
+import { Plus, Trash2, Pencil, Eye, MousePointerClick, ChevronRight, AlertTriangle, Ban } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { CATEGORY_LABELS } from "@/lib/constants";
+import { getMerchantEffectiveStatus } from "@/lib/merchant-status";
 
 export default function MerchantDashboard() {
   const { user, merchant, roles, loading } = useAuth();
@@ -30,6 +31,19 @@ export default function MerchantDashboard() {
     );
   }
 
+  const merchantStatus = getMerchantEffectiveStatus(merchant as any);
+
+  // Blocked merchants see a full block screen
+  if (merchantStatus === "blocked") {
+    return (
+      <div className="container py-16 text-center space-y-4">
+        <Ban className="h-12 w-12 text-destructive mx-auto" />
+        <h2 className="font-display text-xl font-semibold">Account geblokkeerd</h2>
+        <p className="text-muted-foreground">Je account is geblokkeerd. Neem contact op met ons support team voor meer informatie.</p>
+        <Button asChild variant="outline"><Link to="/contact">Contact opnemen</Link></Button>
+      </div>
+    );
+  }
   const handleDelete = async (dealId: string) => {
     if (!confirm("Weet je zeker dat je deze deal wilt verwijderen?")) return;
     const { error } = await supabase.from("deals").delete().eq("id", dealId);
@@ -43,6 +57,19 @@ export default function MerchantDashboard() {
 
   return (
     <div className="container py-6 space-y-6">
+      {merchantStatus === "suspended" && (
+        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-md px-4 py-3 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0" />
+          <div className="text-sm">
+            <p className="font-medium">Je account is geschorst</p>
+            <p className="text-muted-foreground">
+              Tot {merchant.suspended_until ? format(new Date(merchant.suspended_until), "d MMMM yyyy HH:mm", { locale: nl }) : "nader order"}.
+              Je kunt geen deals aanmaken of bewerken. Neem contact op als je vragen hebt.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold">Dashboard</h1>
@@ -52,9 +79,11 @@ export default function MerchantDashboard() {
           <Button variant="outline" size="sm" asChild>
             <Link to="/merchant/profiel"><Pencil className="mr-1 h-3 w-3" />Profiel</Link>
           </Button>
-          <Button asChild>
-            <Link to="/merchant/ads/new"><Plus className="mr-1 h-4 w-4" />Advertentie maken</Link>
-          </Button>
+          {merchantStatus === "active" && (
+            <Button asChild>
+              <Link to="/merchant/ads/new"><Plus className="mr-1 h-4 w-4" />Advertentie maken</Link>
+            </Button>
+          )}
         </div>
       </div>
 
