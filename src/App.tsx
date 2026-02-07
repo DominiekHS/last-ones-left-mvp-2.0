@@ -16,6 +16,8 @@ import Profile from "./pages/consumer/Profile";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import HelpCenter from "./pages/help/HelpCenter";
+import HelpCategory from "./pages/help/HelpCategory";
 import MerchantDashboard from "./pages/merchant/MerchantDashboard";
 import DealForm from "./pages/merchant/DealForm";
 import AdForm from "./pages/merchant/AdForm";
@@ -45,6 +47,8 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/algemene-voorwaarden" element={<Terms />} />
               <Route path="/privacybeleid" element={<Privacy />} />
+              <Route path="/help" element={<HelpCenter />} />
+              <Route path="/help/:categorySlug" element={<HelpCategory />} />
               <Route path="/merchant" element={<MerchantDashboard />} />
               <Route path="/merchant/deal/:id" element={<DealForm />} />
               <Route path="/merchant/ads/new" element={<AdForm />} />

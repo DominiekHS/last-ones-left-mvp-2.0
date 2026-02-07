@@ -126,6 +126,80 @@ export type Database = {
           },
         ]
       }
+      help_articles: {
+        Row: {
+          answer: string
+          category_id: string
+          created_at: string
+          id: string
+          is_published: boolean
+          question: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          category_id: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          question: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          category_id?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          question?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "help_articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "help_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      help_categories: {
+        Row: {
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          slug: string
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          slug: string
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          slug?: string
+          sort_order?: number
+          title?: string
+        }
+        Relationships: []
+      }
       merchants: {
         Row: {
           address: string

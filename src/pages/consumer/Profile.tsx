@@ -66,6 +66,14 @@ export default function Profile() {
         </CardContent>
       </Card>
 
+      <Card className="mt-4">
+        <CardContent className="p-4">
+          <Button variant="outline" size="sm" asChild className="w-full">
+            <Link to="/help">Help & support</Link>
+          </Button>
+        </CardContent>
+      </Card>
+
       {roles.includes("merchant") && merchant && (
         <Card className="mt-4">
           <CardContent className="p-4 space-y-2">
