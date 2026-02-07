@@ -169,13 +169,15 @@ export default function DealDetail() {
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
-              {deal.checkout_link && (
+              {deal.redemption_method === "at_counter" ? (
+                <p className="text-sm text-muted-foreground">📍 Toon deze code bij de kassa om je korting te ontvangen.</p>
+              ) : deal.checkout_link ? (
                 <Button asChild className="w-full">
                   <a href={deal.checkout_link} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="mr-1 h-4 w-4" />Naar afrekenen
                   </a>
                 </Button>
-              )}
+              ) : null}
             </>
           ) : isExpired ? (
             <p className="text-sm text-muted-foreground">Deze deal is helaas verlopen.</p>
