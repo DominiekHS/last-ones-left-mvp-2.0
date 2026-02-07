@@ -183,6 +183,9 @@ export default function DealDetail() {
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       {(deal as any).terms_summary || "Door deze deal te claimen ga je akkoord met de voorwaarden van Last Ones Left en de aanbieder."}
                     </p>
+                    <Link to="/algemene-voorwaarden" className="text-sm text-primary hover:underline font-medium mt-1 inline-block">
+                      Lees de algemene voorwaarden →
+                    </Link>
                   </div>
                 </div>
               </AccordionContent>
