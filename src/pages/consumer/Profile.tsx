@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 
 export default function Profile() {
-  const { user, profile, loading, refreshProfile } = useAuth();
+  const { user, profile, roles, merchant, loading, refreshProfile } = useAuth();
   const [fullName, setFullName] = useState("");
   const [dob, setDob] = useState("");
   const [saving, setSaving] = useState(false);
@@ -65,6 +65,19 @@ export default function Profile() {
           </form>
         </CardContent>
       </Card>
+
+      {roles.includes("merchant") && merchant && (
+        <Card className="mt-4">
+          <CardContent className="p-4 space-y-2">
+            <p className="text-sm text-muted-foreground">
+              Bedrijfsnaam: <span className="font-semibold text-foreground">{merchant.company_name}</span>
+            </p>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/merchant/profiel">Bedrijfsprofiel bewerken</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
