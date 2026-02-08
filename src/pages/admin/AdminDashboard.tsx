@@ -34,6 +34,7 @@ export default function AdminDashboard() {
   const [merchantSearch, setMerchantSearch] = useState("");
   const [dealSearch, setDealSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended" | "blocked">("all");
+  const [dealStatusFilter, setDealStatusFilter] = useState<"all" | "active" | "expired">("all");
 
   const { data: merchants } = useQuery({
     queryKey: ["admin-merchants"],
@@ -100,11 +101,17 @@ export default function AdminDashboard() {
       m.city.toLowerCase().includes(merchantSearch.toLowerCase());
   });
 
-  const filteredDeals = deals?.filter((d) =>
-    d.title.toLowerCase().includes(dealSearch.toLowerCase()) ||
-    d.city.toLowerCase().includes(dealSearch.toLowerCase()) ||
-    (d.merchants as any)?.company_name?.toLowerCase().includes(dealSearch.toLowerCase())
-  );
+  const filteredDeals = deals?.filter((d) => {
+    const isExpired = new Date(d.expiry_time) < new Date();
+    if (dealStatusFilter === "active" && isExpired) return false;
+    if (dealStatusFilter === "expired" && !isExpired) return false;
+    return d.title.toLowerCase().includes(dealSearch.toLowerCase()) ||
+      d.city.toLowerCase().includes(dealSearch.toLowerCase()) ||
+      (d.merchants as any)?.company_name?.toLowerCase().includes(dealSearch.toLowerCase());
+  });
+
+  const activeDealsCount = deals?.filter((d) => new Date(d.expiry_time) > new Date()).length || 0;
+  const expiredDealsCount = (deals?.length || 0) - activeDealsCount;
 
   return (
     <div className="container py-6 space-y-6">
@@ -172,6 +179,22 @@ export default function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="deals" className="space-y-3 mt-4">
+          <div className="flex gap-2 flex-wrap">
+            {([
+              { key: "all" as const, label: `Alles (${deals?.length || 0})` },
+              { key: "active" as const, label: `Actief (${activeDealsCount})` },
+              { key: "expired" as const, label: `Verlopen (${expiredDealsCount})` },
+            ]).map(s => (
+              <Button
+                key={s.key}
+                variant={dealStatusFilter === s.key ? "default" : "outline"}
+                size="sm"
+                onClick={() => setDealStatusFilter(s.key)}
+              >
+                {s.label}
+              </Button>
+            ))}
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
