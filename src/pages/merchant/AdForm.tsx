@@ -36,6 +36,7 @@ export default function AdForm() {
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [city, setCity] = useState("");
+  const [postalCode, setPostalCode] = useState("");
   const [address, setAddress] = useState("");
   const [originalPrice, setOriginalPrice] = useState("");
   const [discountPercentage, setDiscountPercentage] = useState("");
@@ -67,6 +68,7 @@ export default function AdForm() {
             setDescription(data.description);
             setCategory(data.category);
             setCity(data.city);
+            setPostalCode((data as any).postal_code || "");
             setAddress((data as any).address || "");
             setOriginalPrice(String(data.original_price));
             setDiscountPercentage(String(data.discount_percentage));
@@ -101,6 +103,7 @@ export default function AdForm() {
     }
     if (merchant?.city && !isEdit) {
       setCity(merchant.city);
+      setPostalCode(merchant.postcode || "");
       setAddress(merchant.address);
     }
   }, [isEdit, id, merchant]);
@@ -149,6 +152,14 @@ export default function AdForm() {
     if (imageFile && !["image/jpeg", "image/png", "image/webp"].includes(imageFile.type))
       e.image = "Alleen JPG, PNG of WEBP";
     if (!city.trim()) e.city = "Stad is verplicht";
+    if (!postalCode.trim()) {
+      e.postalCode = "Postcode is verplicht";
+    } else {
+      const normalized = postalCode.trim().replace(/\s+/g, "").toUpperCase();
+      if (!/^\d{4}[A-Z]{2}$/.test(normalized)) {
+        e.postalCode = "Vul een geldige Nederlandse postcode in (bijv. 1234 AB)";
+      }
+    }
     if (!address.trim()) e.address = "Adres is verplicht";
 
     const isVariableAmount = atCounter && counterDiscountMode === "variable_amount";
@@ -257,6 +268,7 @@ export default function AdForm() {
       description: description.trim(),
       category: category as VenueCategory,
       city: city.trim(),
+      postal_code: (() => { const n = postalCode.trim().replace(/\s+/g, "").toUpperCase(); return n.slice(0, 4) + " " + n.slice(4); })(),
       address: address.trim(),
       original_price: (atCounter && counterDiscountMode === "variable_amount") ? 0 : parseFloat(originalPrice),
       counter_discount_mode: atCounter ? counterDiscountMode : "fixed_price",
@@ -478,23 +490,39 @@ export default function AdForm() {
             <CardTitle className="font-display text-lg">Locatie</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="city">Stad *</Label>
-              <Input
-                id="city"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                onBlur={() => touch("city")}
-              />
-              {showError("city") && <p className="text-xs text-destructive">{showError("city")}</p>}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="city">Stad *</Label>
+                <Input
+                  id="city"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  onBlur={() => touch("city")}
+                  placeholder="Bijv. Meppel"
+                />
+                {showError("city") && <p className="text-xs text-destructive">{showError("city")}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="postalCode">Postcode *</Label>
+                <Input
+                  id="postalCode"
+                  value={postalCode}
+                  onChange={(e) => setPostalCode(e.target.value)}
+                  onBlur={() => touch("postalCode")}
+                  placeholder="Bijv. 1234 AB"
+                />
+                {showError("postalCode") && <p className="text-xs text-destructive">{showError("postalCode")}</p>}
+                <p className="text-xs text-muted-foreground">Vul een Nederlandse postcode in (1234 AB).</p>
+              </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="address">Adres *</Label>
+              <Label htmlFor="address">Adres (straat + huisnummer) *</Label>
               <Input
                 id="address"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 onBlur={() => touch("address")}
+                placeholder="Bijv. Kruisstraat 20-01"
               />
               {showError("address") && <p className="text-xs text-destructive">{showError("address")}</p>}
             </div>

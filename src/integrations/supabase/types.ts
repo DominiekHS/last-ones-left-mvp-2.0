@@ -141,6 +141,7 @@ export type Database = {
           image_url: string | null
           merchant_id: string
           original_price: number
+          postal_code: string
           redemption_instructions: string | null
           redemption_method: string
           start_time: string
@@ -165,6 +166,7 @@ export type Database = {
           image_url?: string | null
           merchant_id: string
           original_price: number
+          postal_code?: string
           redemption_instructions?: string | null
           redemption_method?: string
           start_time: string
@@ -189,6 +191,7 @@ export type Database = {
           image_url?: string | null
           merchant_id?: string
           original_price?: number
+          postal_code?: string
           redemption_instructions?: string | null
           redemption_method?: string
           start_time?: string
