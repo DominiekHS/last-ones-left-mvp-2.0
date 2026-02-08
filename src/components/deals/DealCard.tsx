@@ -70,14 +70,23 @@ export function DealCard({ deal }: { deal: Deal }) {
             <Clock className="h-3 w-3 ml-1" />
             <span>{format(startDate, "HH:mm", { locale: nl })}</span>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="font-display font-bold text-lg">
-              €{discountedPrice.toFixed(2)}
-            </span>
-            <span className="text-sm text-muted-foreground line-through">
-              €{Number(deal.original_price).toFixed(2)}
-            </span>
-          </div>
+          {(deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter" ? (
+            <div className="flex items-baseline gap-2">
+              <span className="font-display font-bold text-lg">
+                {deal.discount_percentage}% korting
+              </span>
+              <span className="text-xs text-muted-foreground">aan de kassa</span>
+            </div>
+          ) : (
+            <div className="flex items-baseline gap-2">
+              <span className="font-display font-bold text-lg">
+                €{discountedPrice.toFixed(2)}
+              </span>
+              <span className="text-sm text-muted-foreground line-through">
+                €{Number(deal.original_price).toFixed(2)}
+              </span>
+            </div>
+          )}
         </CardContent>
       </Card>
     </Link>

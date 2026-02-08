@@ -153,10 +153,18 @@ export default function DealDetail() {
           <span>Verloopt {formatDistanceToNow(expiryDate, { locale: nl, addSuffix: true })}</span>
         </div>
 
-        <div className="flex items-baseline gap-3">
-          <span className="font-display text-3xl font-bold">€{discountedPrice.toFixed(2)}</span>
-          <span className="text-lg text-muted-foreground line-through">€{Number(deal.original_price).toFixed(2)}</span>
-        </div>
+        {(deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter" ? (
+          <div className="flex items-baseline gap-3">
+            <Badge className="bg-primary text-primary-foreground font-bold text-base px-3 py-1">
+              {deal.discount_percentage}% korting aan de kassa
+            </Badge>
+          </div>
+        ) : (
+          <div className="flex items-baseline gap-3">
+            <span className="font-display text-3xl font-bold">€{discountedPrice.toFixed(2)}</span>
+            <span className="text-lg text-muted-foreground line-through">€{Number(deal.original_price).toFixed(2)}</span>
+          </div>
+        )}
 
         {deal.description && (
           <p className="text-sm leading-relaxed">{deal.description}</p>
@@ -188,7 +196,11 @@ export default function DealDetail() {
                   <div>
                     <h4 className="font-semibold text-sm mb-1">📋 Inwisselinstructies</h4>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      {(deal as any).redemption_instructions || "Je ontvangt na claimen een kortingscode. Gebruik deze op de betaalpagina van de aanbieder, of toon je voucher als dat bij deze deal geldt."}
+                      {(deal as any).redemption_instructions || (
+                        (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter"
+                          ? "Toon je voucher aan de kassa. De korting wordt verrekend op het bedrag op jouw kassabon."
+                          : "Je ontvangt na claimen een kortingscode. Gebruik deze op de betaalpagina van de aanbieder, of toon je voucher als dat bij deze deal geldt."
+                      )}
                     </p>
                   </div>
                   <div>

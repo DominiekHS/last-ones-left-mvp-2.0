@@ -28,6 +28,7 @@ export default function AdForm() {
 
   // Form state
   const [atCounter, setAtCounter] = useState(false);
+  const [counterDiscountMode, setCounterDiscountMode] = useState<"fixed_price" | "variable_amount">("fixed_price");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<VenueCategory | "">("");
@@ -74,6 +75,7 @@ export default function AdForm() {
             setCheckoutLink(data.checkout_link);
             setExistingImageUrl(data.image_url);
             setAtCounter((data as any).redemption_method === "at_counter");
+            setCounterDiscountMode(((data as any).counter_discount_mode as "fixed_price" | "variable_amount") || "fixed_price");
             setDiscountType(((data as any).discount_type as "universal" | "unique") || "universal");
             setRedemptionInstructions((data as any).redemption_instructions || "");
             setCancellationPolicy((data as any).cancellation_policy || "");
@@ -149,8 +151,11 @@ export default function AdForm() {
     if (!city.trim()) e.city = "Stad is verplicht";
     if (!address.trim()) e.address = "Adres is verplicht";
 
-    const price = parseFloat(originalPrice);
-    if (isNaN(price) || price < 0.01) e.originalPrice = "Prijs moet minimaal €0,01 zijn";
+    const isVariableAmount = atCounter && counterDiscountMode === "variable_amount";
+    if (!isVariableAmount) {
+      const price = parseFloat(originalPrice);
+      if (isNaN(price) || price < 0.01) e.originalPrice = "Prijs moet minimaal €0,01 zijn";
+    }
     const disc = parseInt(discountPercentage);
     if (isNaN(disc) || disc < 1 || disc > 100) e.discountPercentage = "Korting moet tussen 1 en 100 zijn";
 
@@ -247,7 +252,8 @@ export default function AdForm() {
       category: category as VenueCategory,
       city: city.trim(),
       address: address.trim(),
-      original_price: parseFloat(originalPrice),
+      original_price: (atCounter && counterDiscountMode === "variable_amount") ? 0 : parseFloat(originalPrice),
+      counter_discount_mode: atCounter ? counterDiscountMode : "fixed_price",
       discount_percentage: parseInt(discountPercentage),
       start_time: new Date(startTime).toISOString(),
       expiry_time: new Date(expiryTime).toISOString(),
@@ -495,7 +501,39 @@ export default function AdForm() {
             <CardTitle className="font-display text-lg">Prijs & Korting</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            {atCounter && (
+              <div className="space-y-2">
+                <Label>Prijstype *</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setCounterDiscountMode("fixed_price")}
+                    className={`rounded-lg border-2 p-4 text-left transition-colors ${
+                      counterDiscountMode === "fixed_price"
+                        ? "border-primary bg-primary/5"
+                        : "border-input hover:border-primary/30"
+                    }`}
+                  >
+                    <p className="font-display font-semibold text-sm">Prijs bekend</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Vul een vaste prijs in + korting</p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCounterDiscountMode("variable_amount")}
+                    className={`rounded-lg border-2 p-4 text-left transition-colors ${
+                      counterDiscountMode === "variable_amount"
+                        ? "border-primary bg-primary/5"
+                        : "border-input hover:border-primary/30"
+                    }`}
+                  >
+                    <p className="font-display font-semibold text-sm">Bedrag varieert</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Alleen korting (%), bedrag verschilt per klant</p>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {!(atCounter && counterDiscountMode === "variable_amount") && (
               <div className="space-y-2">
                 <Label htmlFor="price">Originele prijs (€) *</Label>
                 <Input
@@ -509,21 +547,31 @@ export default function AdForm() {
                 />
                 {showError("originalPrice") && <p className="text-xs text-destructive">{showError("originalPrice")}</p>}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="discount">Korting (%) *</Label>
-                <Input
-                  id="discount"
-                  type="number"
-                  min="1"
-                  max="100"
-                  value={discountPercentage}
-                  onChange={(e) => setDiscountPercentage(e.target.value)}
-                  onBlur={() => touch("discountPercentage")}
-                />
-                {showError("discountPercentage") && <p className="text-xs text-destructive">{showError("discountPercentage")}</p>}
-              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="discount">Korting (%) *</Label>
+              <Input
+                id="discount"
+                type="number"
+                min="1"
+                max="100"
+                value={discountPercentage}
+                onChange={(e) => setDiscountPercentage(e.target.value)}
+                onBlur={() => touch("discountPercentage")}
+              />
+              {showError("discountPercentage") && <p className="text-xs text-destructive">{showError("discountPercentage")}</p>}
             </div>
-            {discountedPrice && (
+
+            {atCounter && counterDiscountMode === "variable_amount" && discountPercentage && (
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+                <p className="text-sm text-muted-foreground">
+                  Let op: Het bedrag aan de kassa kan per klant verschillen. Klanten krijgen <span className="font-semibold text-foreground">{discountPercentage}%</span> korting op de uiteindelijke kassabon.
+                </p>
+              </div>
+            )}
+
+            {!(atCounter && counterDiscountMode === "variable_amount") && discountedPrice && (
               <div className="bg-primary/10 rounded-lg p-3 text-center">
                 <p className="text-sm text-muted-foreground">Prijs na korting:</p>
                 <p className="font-display text-xl font-bold">€{discountedPrice}</p>
