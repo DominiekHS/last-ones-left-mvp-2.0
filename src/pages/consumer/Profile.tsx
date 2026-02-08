@@ -36,7 +36,7 @@ export default function Profile() {
       // Update merchant company_name + sync to profile
       const [merchantRes, profileRes] = await Promise.all([
         supabase.from("merchants").update({ company_name: fullName }).eq("id", merchant.id),
-        supabase.from("profiles").update({ full_name: fullName, date_of_birth: dob || null }).eq("user_id", user!.id),
+        supabase.from("profiles").update({ full_name: fullName }).eq("user_id", user!.id),
       ]);
       const error = merchantRes.error || profileRes.error;
       if (error) {
@@ -76,10 +76,12 @@ export default function Profile() {
               <Label htmlFor="name">{isMerchant ? "Bedrijfsnaam" : "Naam"}</Label>
               <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="dob">Geboortedatum</Label>
-              <Input id="dob" type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
-            </div>
+            {!isMerchant && (
+              <div className="space-y-2">
+                <Label htmlFor="dob">Geboortedatum</Label>
+                <Input id="dob" type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
+              </div>
+            )}
             <Button type="submit" disabled={saving} className="w-full">
               {saving ? "Opslaan..." : "Opslaan"}
             </Button>
