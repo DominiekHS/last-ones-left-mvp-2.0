@@ -12,12 +12,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function Header() {
-  const { user, roles, signOut } = useAuth();
+  const { user, profile, roles, merchant, signOut } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isMerchant = roles.includes("merchant");
   const isAdmin = roles.includes("admin");
+
+  const displayName = isAdmin
+    ? (profile?.full_name || "Admin")
+    : isMerchant
+      ? (merchant?.company_name || "Ondernemer")
+      : (profile?.full_name || "Gebruiker");
 
   const handleSignOut = async () => {
     await signOut();
@@ -54,7 +60,7 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
                     <User className="mr-1 h-4 w-4" />
-                    {user.email?.split("@")[0]}
+                    {displayName}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
