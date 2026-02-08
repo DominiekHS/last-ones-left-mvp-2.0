@@ -19,13 +19,34 @@ export default function MerchantRegister() {
   const [companyName, setCompanyName] = useState("");
   const [venueType, setVenueType] = useState<VenueCategory>("overig");
   const [address, setAddress] = useState("");
+  const [postcode, setPostcode] = useState("");
   const [city, setCity] = useState("");
+  const [postcodeError, setPostcodeError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const normalizePostcode = (value: string): string => {
+    const cleaned = value.replace(/\s/g, "").toUpperCase();
+    if (/^\d{4}[A-Z]{2}$/.test(cleaned)) {
+      return cleaned.slice(0, 4) + " " + cleaned.slice(4);
+    }
+    return value;
+  };
+
+  const validatePostcode = (value: string): boolean => {
+    const cleaned = value.replace(/\s/g, "").toUpperCase();
+    return /^\d{4}[A-Z]{2}$/.test(cleaned);
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validatePostcode(postcode)) {
+      setPostcodeError("Voer een geldige postcode in (bijv. 1234 AB)");
+      return;
+    }
+    setPostcodeError("");
     setLoading(true);
+    const normalizedPostcode = normalizePostcode(postcode);
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -52,6 +73,7 @@ export default function MerchantRegister() {
         company_name: companyName,
         venue_type: venueType,
         address,
+        postcode: normalizedPostcode,
         city,
       });
     }
@@ -90,12 +112,19 @@ export default function MerchantRegister() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="address">Adres *</Label>
-              <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} required />
+              <Label htmlFor="address">Straatnaam + huisnummer *</Label>
+              <Input id="address" placeholder="Bijv. Spinhuisplein 14" value={address} onChange={(e) => setAddress(e.target.value)} required minLength={3} />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="city">Stad *</Label>
-              <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} required />
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-2">
+                <Label htmlFor="postcode">Postcode *</Label>
+                <Input id="postcode" placeholder="Bijv. 8011 ZZ" value={postcode} onChange={(e) => { setPostcode(e.target.value); setPostcodeError(""); }} required />
+                {postcodeError && <p className="text-sm text-destructive">{postcodeError}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="city">Plaats *</Label>
+                <Input id="city" placeholder="Bijv. Zwolle" value={city} onChange={(e) => setCity(e.target.value)} required />
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone">Telefoonnummer</Label>

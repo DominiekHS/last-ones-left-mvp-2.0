@@ -67,10 +67,22 @@ export default function MerchantProfile() {
     setUploading(false);
   };
 
+  const normalizePostcode = (value: string): string => {
+    const cleaned = value.replace(/\s/g, "").toUpperCase();
+    if (/^\d{4}[A-Z]{2}$/.test(cleaned)) {
+      return cleaned.slice(0, 4) + " " + cleaned.slice(4);
+    }
+    return value;
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!merchant) return;
 
+    if (postcode && !/^\d{4}\s?[A-Za-z]{2}$/.test(postcode)) {
+      toast({ title: "Ongeldige postcode", description: "Gebruik NL formaat (bijv. 1234 AB)", variant: "destructive" });
+      return;
+    }
     if (websiteUrl && !/^https?:\/\/.+\..+/.test(websiteUrl) && !/^[a-z0-9].*\..+/i.test(websiteUrl)) {
       toast({ title: "Ongeldige website URL", variant: "destructive" });
       return;
@@ -87,7 +99,7 @@ export default function MerchantProfile() {
         company_name: companyName,
         city,
         address,
-        postcode,
+        postcode: normalizePostcode(postcode),
         description: description.trim(),
         contact_email: contactEmail,
         contact_phone: contactPhone,
@@ -166,12 +178,21 @@ export default function MerchantProfile() {
 
             {/* Adres */}
             <div>
-              <h3 className="font-semibold text-sm mb-2">Adres</h3>
+              <h3 className="font-semibold text-sm mb-2">Adresgegevens</h3>
               <div className="space-y-2">
-                <Input id="address" placeholder="Straat + huisnummer" value={address} onChange={(e) => setAddress(e.target.value)} />
+                <div className="space-y-1">
+                  <Label htmlFor="address">Straatnaam + huisnummer *</Label>
+                  <Input id="address" placeholder="Bijv. Spinhuisplein 14" value={address} onChange={(e) => setAddress(e.target.value)} required minLength={3} />
+                </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <Input placeholder="Postcode" value={postcode} onChange={(e) => setPostcode(e.target.value)} />
-                  <Input placeholder="Stad *" value={city} onChange={(e) => setCity(e.target.value)} required />
+                  <div className="space-y-1">
+                    <Label htmlFor="postcode">Postcode</Label>
+                    <Input id="postcode" placeholder="Bijv. 8011 ZZ" value={postcode} onChange={(e) => setPostcode(e.target.value)} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="city">Plaats *</Label>
+                    <Input id="city" placeholder="Bijv. Zwolle" value={city} onChange={(e) => setCity(e.target.value)} required />
+                  </div>
                 </div>
               </div>
             </div>
