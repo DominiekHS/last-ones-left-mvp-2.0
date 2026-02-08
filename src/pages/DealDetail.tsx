@@ -258,7 +258,18 @@ export default function DealDetail() {
                   </Button>
                 </div>
                 {deal.redemption_method === "at_counter" ? (
-                  <p className="text-sm text-muted-foreground">📍 Toon deze code bij de kassa om je korting te ontvangen.</p>
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">📍 Toon deze code bij de kassa om je {deal.discount_percentage}% korting te ontvangen.</p>
+                    {deal.checkout_link && (
+                      <Button asChild variant="outline" className="w-full" onClick={() => {
+                        supabase.from("deal_events").insert({ deal_id: deal.id, event_type: "checkout_click", user_id: user?.id || null }).then();
+                      }}>
+                        <a href={deal.checkout_link} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="mr-1 h-4 w-4" />Tickets kopen / Reserveren
+                        </a>
+                      </Button>
+                    )}
+                  </div>
                 ) : deal.checkout_link ? (
                   <Button asChild className="w-full" onClick={() => {
                     supabase.from("deal_events").insert({ deal_id: deal.id, event_type: "checkout_click", user_id: user?.id || null }).then();
