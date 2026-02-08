@@ -10,31 +10,52 @@ import { Navigate, Link } from "react-router-dom";
 
 export default function Profile() {
   const { user, profile, roles, merchant, loading, refreshProfile } = useAuth();
+  const isMerchant = roles.includes("merchant");
   const [fullName, setFullName] = useState("");
   const [dob, setDob] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (profile) {
+    if (isMerchant && merchant) {
+      setFullName(merchant.company_name);
+    } else if (profile) {
       setFullName(profile.full_name);
+    }
+    if (profile) {
       setDob(profile.date_of_birth || "");
     }
-  }, [profile]);
+  }, [profile, merchant, isMerchant]);
 
   if (!loading && !user) return <Navigate to="/login" />;
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ full_name: fullName, date_of_birth: dob || null })
-      .eq("user_id", user!.id);
-    if (error) {
-      toast({ title: "Fout", description: error.message, variant: "destructive" });
+
+    if (isMerchant && merchant) {
+      // Update merchant company_name + sync to profile
+      const [merchantRes, profileRes] = await Promise.all([
+        supabase.from("merchants").update({ company_name: fullName }).eq("id", merchant.id),
+        supabase.from("profiles").update({ full_name: fullName, date_of_birth: dob || null }).eq("user_id", user!.id),
+      ]);
+      const error = merchantRes.error || profileRes.error;
+      if (error) {
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      } else {
+        await refreshProfile();
+        toast({ title: "Opgeslagen!" });
+      }
     } else {
-      await refreshProfile();
-      toast({ title: "Opgeslagen!" });
+      const { error } = await supabase
+        .from("profiles")
+        .update({ full_name: fullName, date_of_birth: dob || null })
+        .eq("user_id", user!.id);
+      if (error) {
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      } else {
+        await refreshProfile();
+        toast({ title: "Opgeslagen!" });
+      }
     }
     setSaving(false);
   };
@@ -52,7 +73,7 @@ export default function Profile() {
               <Input value={user?.email || ""} disabled />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="name">Naam</Label>
+              <Label htmlFor="name">{isMerchant ? "Bedrijfsnaam" : "Naam"}</Label>
               <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
             </div>
             <div className="space-y-2">
@@ -74,13 +95,10 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      {roles.includes("merchant") && merchant && (
+      {isMerchant && (
         <Card className="mt-4">
-          <CardContent className="p-4 space-y-2">
-            <p className="text-sm text-muted-foreground">
-              Bedrijfsnaam: <span className="font-semibold text-foreground">{merchant.company_name}</span>
-            </p>
-            <Button variant="outline" size="sm" asChild>
+          <CardContent className="p-4">
+            <Button variant="outline" size="sm" asChild className="w-full">
               <Link to="/merchant/profiel">Bedrijfsprofiel bewerken</Link>
             </Button>
           </CardContent>
