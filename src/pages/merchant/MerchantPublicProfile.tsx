@@ -1,13 +1,12 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useMerchantPublicProfile, useMerchantActiveDeals } from "@/hooks/useMerchantProfile";
 import { DealCard } from "@/components/deals/DealCard";
-import { OpeningHoursDisplay } from "@/components/merchant/OpeningHoursDisplay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CATEGORY_LABELS } from "@/lib/constants";
-import { ArrowLeft, MapPin, Mail, Phone, Globe, Clock, Store, Ticket } from "lucide-react";
+import { ArrowLeft, MapPin, Mail, Phone, Globe, Store, Ticket } from "lucide-react";
 
 export default function MerchantPublicProfile() {
   const { merchantId } = useParams<{ merchantId: string }>();
@@ -45,7 +44,6 @@ export default function MerchantPublicProfile() {
   const contactEmail = (merchant as any).contact_email as string;
   const contactPhone = (merchant as any).contact_phone as string;
   const websiteUrl = (merchant as any).website_url as string;
-  const openingHours = (merchant as any).opening_hours as Record<string, any> | null;
   const hasContact = contactEmail || contactPhone || websiteUrl;
 
   return (
@@ -132,16 +130,6 @@ export default function MerchantPublicProfile() {
           ) : (
             <p className="text-sm text-muted-foreground">Geen contactgegevens ingevuld.</p>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Openingstijden */}
-      <Card>
-        <CardContent className="p-4 space-y-2">
-          <h2 className="font-display font-semibold text-lg flex items-center gap-2">
-            <Clock className="h-4 w-4 text-primary" />Openingstijden
-          </h2>
-          <OpeningHoursDisplay hours={openingHours} />
         </CardContent>
       </Card>
 

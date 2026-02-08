@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Ban, CheckCircle, Globe, Mail, Phone, Tag, ShieldAlert, ShieldCheck, Clock } from "lucide-react";
+import { ArrowLeft, Ban, CheckCircle, Clock, Globe, Mail, Phone, Tag, ShieldAlert, ShieldCheck } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { CATEGORY_LABELS } from "@/lib/constants";
@@ -16,9 +16,6 @@ import { getMerchantEffectiveStatus, STATUS_LABELS, STATUS_VARIANTS } from "@/li
 import { MerchantStatusModal } from "@/components/admin/MerchantStatusModal";
 
 import { useState } from "react";
-
-const DAY_LABELS = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"];
-const DAY_KEYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
 export default function AdminMerchantDetail() {
   const { merchantId } = useParams<{ merchantId: string }>();
@@ -74,8 +71,6 @@ export default function AdminMerchantDetail() {
 
   const effectiveStatus = getMerchantEffectiveStatus(merchant as any);
   const activeDeals = deals?.filter((d) => new Date(d.expiry_time) > new Date()) || [];
-  const openingHours = merchant.opening_hours as Record<string, { open: string; close: string; closed?: boolean }> | null;
-
   return (
     <div className="container py-6 space-y-6">
       {/* Back button */}
@@ -176,26 +171,6 @@ export default function AdminMerchantDetail() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader><CardTitle className="text-lg">Openingstijden</CardTitle></CardHeader>
-              <CardContent className="text-sm">
-                {openingHours && Object.keys(openingHours).length > 0 ? (
-                  <div className="space-y-1">
-                    {DAY_KEYS.map((key, i) => {
-                      const day = openingHours[key];
-                      return (
-                        <div key={key} className="flex justify-between">
-                          <span className="text-muted-foreground">{DAY_LABELS[i]}</span>
-                          <span>{day?.closed ? "Gesloten" : day ? `${day.open} – ${day.close}` : "—"}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground">Geen openingstijden ingevuld.</p>
-                )}
-              </CardContent>
-            </Card>
           </div>
         </TabsContent>
 
