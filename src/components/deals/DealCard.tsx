@@ -64,11 +64,10 @@ export function DealCard({ deal }: { deal: Deal }) {
               {deal.merchants.company_name}
             </Link>
           )}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <MapPin className="h-3 w-3" />
-            <span>{deal.city}</span>
-            <Clock className="h-3 w-3 ml-1" />
-            <span>{format(startDate, "HH:mm", { locale: nl })}</span>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+            <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{deal.city}</span>
+            <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Start: {format(startDate, "HH:mm", { locale: nl })}</span>
+            <span className="flex items-center gap-1 text-muted-foreground/70">Verloopt: {format(expiryDate, "HH:mm", { locale: nl })}</span>
           </div>
           {(deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter" ? (
             <div className="flex items-baseline gap-2">
