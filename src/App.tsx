@@ -30,6 +30,7 @@ import DealAnalytics from "./pages/merchant/DealAnalytics";
 import MerchantPublicProfile from "./pages/merchant/MerchantPublicProfile";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDealDetail from "./pages/admin/AdminDealDetail";
+import AdminDealPreview from "./pages/admin/AdminDealPreview";
 import AdminMerchantDetail from "./pages/admin/AdminMerchantDetail";
 import NotFound from "./pages/NotFound";
 
@@ -69,6 +70,7 @@ const App = () => (
               <Route path="/bedrijf/:merchantId" element={<MerchantPublicProfile />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/deals/:dealId" element={<AdminDealDetail />} />
+              <Route path="/admin/deals/:dealId/preview" element={<AdminDealPreview />} />
               <Route path="/admin/ondernemers/:merchantId" element={<AdminMerchantDetail />} />
               <Route path="*" element={<NotFound />} />
             </Route>
