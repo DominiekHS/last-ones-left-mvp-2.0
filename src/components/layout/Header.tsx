@@ -61,9 +61,11 @@ export function Header() {
                   <DropdownMenuItem onClick={() => navigate("/profiel")}>
                     Mijn Profiel
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/vouchers")}>
-                    Mijn Vouchers
-                  </DropdownMenuItem>
+                  {!isMerchant && (
+                    <DropdownMenuItem onClick={() => navigate("/vouchers")}>
+                      Mijn Vouchers
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />Uitloggen
@@ -101,9 +103,11 @@ export function Header() {
               <Link to="/profiel" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>
                 Mijn Profiel
               </Link>
-              <Link to="/vouchers" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>
-                Mijn Vouchers
-              </Link>
+              {!isMerchant && (
+                <Link to="/vouchers" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>
+                  Mijn Vouchers
+                </Link>
+              )}
               {isMerchant && (
                 <Link to="/merchant" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>
                   Merchant Dashboard
