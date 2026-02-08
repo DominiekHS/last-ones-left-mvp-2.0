@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Navigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { OpeningHoursEditor, type OpeningHours } from "@/components/merchant/OpeningHoursEditor";
 import { Camera } from "lucide-react";
 
 export default function MerchantProfile() {
@@ -26,7 +25,6 @@ export default function MerchantProfile() {
   const [contactPhone, setContactPhone] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
-  const [openingHours, setOpeningHours] = useState<OpeningHours>({});
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -41,7 +39,6 @@ export default function MerchantProfile() {
       setContactPhone((merchant as any).contact_phone || "");
       setWebsiteUrl((merchant as any).website_url || "");
       setLogoUrl((merchant as any).logo_url || "");
-      setOpeningHours((merchant as any).opening_hours || {});
     }
   }, [merchant]);
 
@@ -96,7 +93,6 @@ export default function MerchantProfile() {
         contact_phone: contactPhone,
         website_url: websiteUrl,
         logo_url: logoUrl || null,
-        opening_hours: openingHours,
       } as any)
       .eq("id", merchant.id);
 
@@ -190,11 +186,6 @@ export default function MerchantProfile() {
               </div>
             </div>
 
-            {/* Openingstijden */}
-            <div>
-              <h3 className="font-semibold text-sm mb-2">Openingstijden</h3>
-              <OpeningHoursEditor value={openingHours} onChange={setOpeningHours} />
-            </div>
 
             <Button type="submit" disabled={saving} className="w-full">
               {saving ? "Opslaan..." : "Opslaan"}
