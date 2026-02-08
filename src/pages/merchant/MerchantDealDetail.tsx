@@ -91,6 +91,7 @@ export default function MerchantDealDetail() {
   }
 
   const isExpired = new Date(deal.expiry_time) < new Date();
+  const isVariableAmount = (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter";
   const discountedPrice = deal.original_price * (1 - deal.discount_percentage / 100);
   const isOnline = deal.redemption_method === "online_checkout";
 
@@ -154,8 +155,9 @@ export default function MerchantDealDetail() {
           </CardHeader>
           <CardContent className="space-y-3">
             <InfoRow label="Korting" value={`${deal.discount_percentage}%`} />
-            <InfoRow label="Originele prijs" value={`€${Number(deal.original_price).toFixed(2)}`} />
-            <InfoRow label="Prijs na korting" value={`€${discountedPrice.toFixed(2)}`} />
+            <InfoRow label="Originele prijs" value={isVariableAmount ? "n.v.t. (bedrag varieert)" : `€${Number(deal.original_price).toFixed(2)}`} />
+            {!isVariableAmount && <InfoRow label="Prijs na korting" value={`€${discountedPrice.toFixed(2)}`} />}
+            {isVariableAmount && <InfoRow label="Prijstype" value="Bedrag varieert per klant" />}
             <InfoRow label="Stad" value={deal.city || "—"} />
             <InfoRow label="Adres" value={deal.address || "—"} />
             <InfoRow

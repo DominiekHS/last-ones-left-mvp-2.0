@@ -130,6 +130,7 @@ export type Database = {
           category: Database["public"]["Enums"]["venue_category"]
           checkout_link: string
           city: string
+          counter_discount_mode: string
           created_at: string
           description: string
           discount_code: string
@@ -153,6 +154,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["venue_category"]
           checkout_link?: string
           city?: string
+          counter_discount_mode?: string
           created_at?: string
           description?: string
           discount_code?: string
@@ -176,6 +178,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["venue_category"]
           checkout_link?: string
           city?: string
+          counter_discount_mode?: string
           created_at?: string
           description?: string
           discount_code?: string
