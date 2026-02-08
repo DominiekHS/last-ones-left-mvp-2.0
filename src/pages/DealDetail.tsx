@@ -30,6 +30,7 @@ export default function DealDetail() {
   const [claiming, setClaiming] = useState(false);
 
   const isMerchantOwner = merchant && deal && deal.merchant_id === merchant.id;
+  const isAdmin = roles.includes("admin");
 
   // Track view
   useEffect(() => {
@@ -231,6 +232,8 @@ export default function DealDetail() {
 
       {isMerchantOwner ? (
         <MerchantPreviewCTA dealId={deal.id} />
+      ) : isAdmin ? (
+        <p className="text-sm text-muted-foreground italic">Je bekijkt dit als admin. Claim-functionaliteit is uitgeschakeld.</p>
       ) : (
         <Card>
           <CardContent className="p-4 space-y-3">
