@@ -11,6 +11,7 @@ import { Navigate, Link } from "react-router-dom";
 export default function Profile() {
   const { user, profile, roles, merchant, loading, refreshProfile } = useAuth();
   const isMerchant = roles.includes("merchant");
+  const isAdmin = roles.includes("admin");
   const [fullName, setFullName] = useState("");
   const [dob, setDob] = useState("");
   const [saving, setSaving] = useState(false);
@@ -46,9 +47,13 @@ export default function Profile() {
         toast({ title: "Opgeslagen!" });
       }
     } else {
+      const updateData: Record<string, unknown> = { full_name: fullName };
+      if (!isAdmin) {
+        updateData.date_of_birth = dob || null;
+      }
       const { error } = await supabase
         .from("profiles")
-        .update({ full_name: fullName, date_of_birth: dob || null })
+        .update(updateData)
         .eq("user_id", user!.id);
       if (error) {
         toast({ title: "Fout", description: error.message, variant: "destructive" });
@@ -76,7 +81,7 @@ export default function Profile() {
               <Label htmlFor="name">{isMerchant ? "Bedrijfsnaam" : "Naam"}</Label>
               <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
             </div>
-            {!isMerchant && (
+            {!isMerchant && !isAdmin && (
               <div className="space-y-2">
                 <Label htmlFor="dob">Geboortedatum</Label>
                 <Input id="dob" type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
