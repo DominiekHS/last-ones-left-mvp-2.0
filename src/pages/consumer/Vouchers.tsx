@@ -11,7 +11,8 @@ import { toast } from "@/hooks/use-toast";
 import { Link, Navigate } from "react-router-dom";
 
 export default function Vouchers() {
-  const { user, loading } = useAuth();
+  const { user, roles, loading } = useAuth();
+  const isMerchant = roles.includes("merchant");
 
   const { data: vouchers, isLoading } = useQuery({
     queryKey: ["vouchers", user?.id],
@@ -24,10 +25,11 @@ export default function Vouchers() {
       if (error) throw error;
       return data;
     },
-    enabled: !!user,
+    enabled: !!user && !isMerchant,
   });
 
   if (!loading && !user) return <Navigate to="/login" />;
+  if (!loading && isMerchant) return <Navigate to="/merchant" />;
 
   return (
     <div className="container py-6 max-w-2xl space-y-4">
