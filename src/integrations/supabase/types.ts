@@ -490,22 +490,28 @@ export type Database = {
       }
       vouchers: {
         Row: {
+          became_inactive_at: string | null
           claimed_at: string
           deal_id: string
+          deleted_at: string | null
           discount_code: string
           id: string
           user_id: string
         }
         Insert: {
+          became_inactive_at?: string | null
           claimed_at?: string
           deal_id: string
+          deleted_at?: string | null
           discount_code: string
           id?: string
           user_id: string
         }
         Update: {
+          became_inactive_at?: string | null
           claimed_at?: string
           deal_id?: string
+          deleted_at?: string | null
           discount_code?: string
           id?: string
           user_id?: string
