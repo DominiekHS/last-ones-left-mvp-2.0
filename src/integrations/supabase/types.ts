@@ -554,9 +554,14 @@ export type Database = {
         | "sport"
         | "museum"
         | "bowling"
+        | "klimbos"
+        | "escaperoom"
+        | "arcade"
+        | "verhuur"
         | "paintball"
-        | "stadion"
         | "concert"
+        | "voetbal"
+        | "basketbal"
         | "overig"
     }
     CompositeTypes: {
@@ -692,9 +697,14 @@ export const Constants = {
         "sport",
         "museum",
         "bowling",
+        "klimbos",
+        "escaperoom",
+        "arcade",
+        "verhuur",
         "paintball",
-        "stadion",
         "concert",
+        "voetbal",
+        "basketbal",
         "overig",
       ],
     },
