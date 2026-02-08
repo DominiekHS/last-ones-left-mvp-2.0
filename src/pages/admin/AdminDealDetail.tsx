@@ -1,6 +1,5 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Navigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,9 +107,13 @@ export default function AdminDealDetail() {
         <Button variant="ghost" onClick={() => navigate("/admin")}>
           <ArrowLeft className="mr-1 h-4 w-4" />Terug naar overzicht
         </Button>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm"><Trash2 className="mr-1 h-4 w-4" />Verwijder deal</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link to={`/admin/deals/${dealId}/preview`}><Eye className="mr-1 h-4 w-4" />Preview als consument</Link>
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="sm"><Trash2 className="mr-1 h-4 w-4" />Verwijder deal</Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -124,7 +127,8 @@ export default function AdminDealDetail() {
               <AlertDialogAction onClick={deleteDeal}>Verwijderen</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
-        </AlertDialog>
+          </AlertDialog>
+        </div>
       </div>
 
       <div className="flex items-center gap-3 flex-wrap">
