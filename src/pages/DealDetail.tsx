@@ -149,7 +149,7 @@ export default function DealDetail() {
         )}
 
         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{deal.city}</span>
+          <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{deal.city}{(deal as any).postal_code ? `, ${(deal as any).postal_code}` : ""}</span>
           <span className="flex items-center gap-1"><Clock className="h-4 w-4" />Start: {format(startDate, "d MMM HH:mm", { locale: nl })}</span>
           <span>Verloopt {formatDistanceToNow(expiryDate, { locale: nl, addSuffix: true })}</span>
         </div>

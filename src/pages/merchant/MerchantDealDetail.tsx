@@ -159,6 +159,7 @@ export default function MerchantDealDetail() {
             {!isVariableAmount && <InfoRow label="Prijs na korting" value={`€${discountedPrice.toFixed(2)}`} />}
             {isVariableAmount && <InfoRow label="Prijstype" value="Bedrag varieert per klant" />}
             <InfoRow label="Stad" value={deal.city || "—"} />
+            <InfoRow label="Postcode" value={(deal as any).postal_code || "—"} />
             <InfoRow label="Adres" value={deal.address || "—"} />
             <InfoRow
               label="Starttijd"

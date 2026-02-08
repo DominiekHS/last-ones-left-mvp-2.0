@@ -25,6 +25,7 @@ export default function DealForm() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<VenueCategory>("overig");
   const [city, setCity] = useState("");
+  const [postalCode, setPostalCode] = useState("");
   const [originalPrice, setOriginalPrice] = useState("");
   const [discountPercentage, setDiscountPercentage] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -48,6 +49,7 @@ export default function DealForm() {
             setDescription(data.description);
             setCategory(data.category);
             setCity(data.city);
+            setPostalCode((data as any).postal_code || "");
             setOriginalPrice(String(data.original_price));
             setDiscountPercentage(String(data.discount_percentage));
             setStartTime(data.start_time.slice(0, 16));
@@ -94,6 +96,7 @@ export default function DealForm() {
       description,
       category,
       city,
+      postal_code: (() => { const n = postalCode.trim().replace(/\s+/g, "").toUpperCase(); return n.length === 6 ? n.slice(0, 4) + " " + n.slice(4) : n; })(),
       original_price: parseFloat(originalPrice),
       discount_percentage: parseInt(discountPercentage),
       start_time: new Date(startTime).toISOString(),
@@ -159,6 +162,10 @@ export default function DealForm() {
               <div className="space-y-2">
                 <Label htmlFor="city">Stad</Label>
                 <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="postalCode">Postcode</Label>
+                <Input id="postalCode" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="1234 AB" required />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">

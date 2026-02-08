@@ -142,6 +142,7 @@ export default function AdminDealDetail() {
             <InfoRow label="Originele prijs" value={`€${deal.original_price.toFixed(2)}`} />
             <InfoRow label="Prijs na korting" value={`€${discountedPrice.toFixed(2)}`} />
             <InfoRow label="Stad" value={deal.city} />
+            {(deal as any).postal_code && <InfoRow label="Postcode" value={(deal as any).postal_code} />}
             {deal.address && <InfoRow label="Adres" value={deal.address} />}
             <InfoRow label="Starttijd" value={format(new Date(deal.start_time), "d MMMM yyyy HH:mm", { locale: nl })} />
             <InfoRow label="Verloopt op" value={format(new Date(deal.expiry_time), "d MMMM yyyy HH:mm", { locale: nl })} />
