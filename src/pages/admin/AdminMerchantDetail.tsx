@@ -14,7 +14,7 @@ import { nl } from "date-fns/locale";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { getMerchantEffectiveStatus, STATUS_LABELS, STATUS_VARIANTS } from "@/lib/merchant-status";
 import { MerchantStatusModal } from "@/components/admin/MerchantStatusModal";
-import { MerchantCommunicationLog } from "@/components/admin/MerchantCommunicationLog";
+
 import { useState } from "react";
 
 const DAY_LABELS = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"];
@@ -142,7 +142,6 @@ export default function AdminMerchantDetail() {
         <TabsList>
           <TabsTrigger value="profile">Profiel</TabsTrigger>
           <TabsTrigger value="deals">Deals ({deals?.length || 0})</TabsTrigger>
-          <TabsTrigger value="comms">Communicatie-log</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="mt-4">
@@ -233,10 +232,6 @@ export default function AdminMerchantDetail() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="comms" className="mt-4">
-          <MerchantCommunicationLog merchantId={merchantId!} />
         </TabsContent>
       </Tabs>
 
