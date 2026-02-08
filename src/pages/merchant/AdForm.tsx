@@ -188,6 +188,12 @@ export default function AdForm() {
           e.checkoutLink = "Voer een geldige URL in";
         }
       }
+    } else if (checkoutLink.trim()) {
+      try {
+        new URL(checkoutLink);
+      } catch {
+        e.checkoutLink = "Voer een geldige URL in";
+      }
     }
 
     if (discountType === "universal") {
@@ -257,7 +263,7 @@ export default function AdForm() {
       discount_percentage: parseInt(discountPercentage),
       start_time: new Date(startTime).toISOString(),
       expiry_time: new Date(expiryTime).toISOString(),
-      checkout_link: atCounter ? "" : checkoutLink.trim(),
+      checkout_link: checkoutLink.trim(),
       discount_code: discountType === "universal" ? universalCode.trim() : "",
       image_url: imageUrl,
       redemption_method: atCounter ? "at_counter" : "online_checkout",
@@ -621,21 +627,23 @@ export default function AdForm() {
             <CardTitle className="font-display text-lg">Checkout & Kortingscode</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {!atCounter && (
-              <div className="space-y-2">
-                <Label htmlFor="checkout">Checkout link *</Label>
-                <Input
-                  id="checkout"
-                  type="url"
-                  value={checkoutLink}
-                  onChange={(e) => setCheckoutLink(e.target.value)}
-                  onBlur={() => touch("checkoutLink")}
-                  placeholder="https://jouwwebsite.nl/tickets/..."
-                />
-                <p className="text-xs text-muted-foreground">De link waar klanten hun tickets kunnen kopen</p>
-                {showError("checkoutLink") && <p className="text-xs text-destructive">{showError("checkoutLink")}</p>}
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="checkout">Checkout link {atCounter ? "(optioneel)" : "*"}</Label>
+              <Input
+                id="checkout"
+                type="url"
+                value={checkoutLink}
+                onChange={(e) => setCheckoutLink(e.target.value)}
+                onBlur={() => touch("checkoutLink")}
+                placeholder="https://jouwwebsite.nl/tickets/..."
+              />
+              <p className="text-xs text-muted-foreground">
+                {atCounter
+                  ? "Optioneel: Voeg een link toe waar klanten hun ticket(s) kunnen kopen of reserveren. De korting wordt aan de kassa toegepast."
+                  : "De link waar klanten hun tickets kunnen kopen"}
+              </p>
+              {showError("checkoutLink") && <p className="text-xs text-destructive">{showError("checkoutLink")}</p>}
+            </div>
 
             <div className="space-y-2">
               <Label>Type kortingscode *</Label>
