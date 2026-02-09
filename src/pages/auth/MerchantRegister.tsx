@@ -75,6 +75,7 @@ export default function MerchantRegister() {
         address,
         postcode: normalizedPostcode,
         city,
+        contact_phone: phone || null,
       });
     }
 
