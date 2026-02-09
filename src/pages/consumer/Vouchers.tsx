@@ -23,7 +23,7 @@ export default function Vouchers() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("vouchers")
-        .select("*, deals(title, city, start_time, expiry_time, checkout_link, discount_percentage, original_price, merchants(company_name))")
+        .select("*, deals(title, city, start_time, expiry_time, checkout_link, discount_percentage, original_price, redemption_method, merchants(company_name))")
         .eq("user_id", user!.id)
         .is("deleted_at", null)
         .order("claimed_at", { ascending: false });
@@ -114,10 +114,22 @@ export default function Vouchers() {
                     </Button>
                   </div>
 
+                  {/* Method-specific instructions */}
+                  {deal?.redemption_method === "online_pay_pos_refund" && (
+                    <div className="text-xs text-muted-foreground space-y-0.5">
+                      <p className="font-medium">📍 Toon bij de kassa voor terugbetaling/verrekening van korting.</p>
+                      <p>Je hebt al online betaald; deze code is alleen voor de kassa.</p>
+                    </div>
+                  )}
+                  {deal?.redemption_method === "at_counter" && (
+                    <p className="text-xs text-muted-foreground">📍 Toon deze code bij de kassa.</p>
+                  )}
+
                   {deal?.checkout_link && isActive && (
                     <Button variant="outline" size="sm" asChild className="w-full">
                       <a href={deal.checkout_link} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="mr-1 h-4 w-4" />Naar afrekenen
+                        <ExternalLink className="mr-1 h-4 w-4" />
+                        {deal?.redemption_method === "online_pay_pos_refund" ? "Reserveer online" : "Naar afrekenen"}
                       </a>
                     </Button>
                   )}

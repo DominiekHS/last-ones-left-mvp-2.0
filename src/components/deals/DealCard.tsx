@@ -46,6 +46,15 @@ export function DealCard({ deal }: { deal: Deal }) {
                 Laatste kans!
               </Badge>
             )}
+            {deal.redemption_method === "online_checkout" && (
+              <Badge variant="outline" className="bg-card/90 text-xs font-semibold">Korting online</Badge>
+            )}
+            {deal.redemption_method === "at_counter" && (
+              <Badge variant="outline" className="bg-card/90 text-xs font-semibold">Korting aan de kassa</Badge>
+            )}
+            {deal.redemption_method === "online_pay_pos_refund" && (
+              <Badge variant="outline" className="bg-card/90 text-xs font-semibold">Korting terug aan kassa</Badge>
+            )}
           </div>
           <Badge variant="outline" className="absolute top-2 right-2 bg-card/90 text-xs">
             {CATEGORY_LABELS[deal.category] || deal.category}
