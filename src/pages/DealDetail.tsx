@@ -131,6 +131,9 @@ export default function DealDetail() {
         <div className="flex flex-wrap gap-2">
           <Badge className="bg-primary text-primary-foreground font-bold">-{deal.discount_percentage}%</Badge>
           <Badge variant="outline">{CATEGORY_LABELS[deal.category]}</Badge>
+          {deal.redemption_method === "online_checkout" && <Badge variant="outline">Korting online</Badge>}
+          {deal.redemption_method === "at_counter" && <Badge variant="outline">Korting aan de kassa</Badge>}
+          {deal.redemption_method === "online_pay_pos_refund" && <Badge variant="outline">Korting terug aan kassa</Badge>}
           {isExpired && <Badge variant="destructive">Verlopen</Badge>}
         </div>
 
@@ -173,6 +176,24 @@ export default function DealDetail() {
 
         {deal.description && (
           <p className="text-sm leading-relaxed">{deal.description}</p>
+        )}
+
+        {/* Hoe werkt het? sectie */}
+        {deal.redemption_method === "online_pay_pos_refund" && (
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="p-4 space-y-2">
+              <h3 className="font-display font-semibold text-sm">Hoe werkt het?</h3>
+              <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+                <li>Reserveer en betaal online via de knop "Naar afrekenen".</li>
+                <li>Na betaling ga je naar de locatie.</li>
+                <li>Laat bij de kassa je Last Ones Left kortingscode zien.</li>
+                <li>Je krijgt de korting op locatie terug/verrekend.</li>
+              </ol>
+              <p className="text-xs text-muted-foreground font-medium mt-2">
+                ℹ️ Online zie je geen kortingscode-veld — dat klopt.
+              </p>
+            </CardContent>
+          </Card>
         )}
 
         <div className="flex gap-2">
@@ -273,6 +294,20 @@ export default function DealDetail() {
                       }}>
                         <a href={deal.checkout_link} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="mr-1 h-4 w-4" />Tickets kopen / Reserveren
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                ) : deal.redemption_method === "online_pay_pos_refund" ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground font-medium">📍 Toon deze code bij de kassa om je korting terug te krijgen.</p>
+                    <p className="text-xs text-muted-foreground">Je hebt al online betaald; deze code is alleen voor de kassa.</p>
+                    {deal.checkout_link && (
+                      <Button asChild className="w-full" onClick={() => {
+                        supabase.from("deal_events").insert({ deal_id: deal.id, event_type: "checkout_click", user_id: user?.id || null }).then();
+                      }}>
+                        <a href={deal.checkout_link} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="mr-1 h-4 w-4" />Reserveer online
                         </a>
                       </Button>
                     )}

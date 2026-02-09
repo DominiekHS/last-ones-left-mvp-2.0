@@ -27,7 +27,7 @@ export default function AdForm() {
   const navigate = useNavigate();
 
   // Form state
-  const [atCounter, setAtCounter] = useState(false);
+  const [redemptionMethod, setRedemptionMethod] = useState<"online_checkout" | "at_counter" | "online_pay_pos_refund">("online_checkout");
   const [counterDiscountMode, setCounterDiscountMode] = useState<"fixed_price" | "variable_amount">("fixed_price");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -76,7 +76,7 @@ export default function AdForm() {
             setExpiryTime(data.expiry_time.slice(0, 16));
             setCheckoutLink(data.checkout_link);
             setExistingImageUrl(data.image_url);
-            setAtCounter((data as any).redemption_method === "at_counter");
+            setRedemptionMethod(((data as any).redemption_method as "online_checkout" | "at_counter" | "online_pay_pos_refund") || "online_checkout");
             setCounterDiscountMode(((data as any).counter_discount_mode as "fixed_price" | "variable_amount") || "fixed_price");
             setDiscountType(((data as any).discount_type as "universal" | "unique") || "universal");
             setRedemptionInstructions((data as any).redemption_instructions || "");
@@ -162,7 +162,7 @@ export default function AdForm() {
     }
     if (!address.trim()) e.address = "Adres is verplicht";
 
-    const isVariableAmount = atCounter && counterDiscountMode === "variable_amount";
+    const isVariableAmount = redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount";
     if (!isVariableAmount) {
       const price = parseFloat(originalPrice);
       if (isNaN(price) || price < 0.01) e.originalPrice = "Prijs moet minimaal €0,01 zijn";
@@ -190,7 +190,9 @@ export default function AdForm() {
       e.expiryTime = "Verwijdertijd moet vóór de starttijd liggen";
     }
 
-    if (!atCounter) {
+    // Checkout link required for online_checkout and online_pay_pos_refund, optional for at_counter
+    const checkoutRequired = redemptionMethod !== "at_counter";
+    if (checkoutRequired) {
       if (!checkoutLink.trim()) e.checkoutLink = "Checkout link is verplicht";
       else {
         try {
@@ -270,15 +272,15 @@ export default function AdForm() {
       city: city.trim(),
       postal_code: (() => { const n = postalCode.trim().replace(/\s+/g, "").toUpperCase(); return n.slice(0, 4) + " " + n.slice(4); })(),
       address: address.trim(),
-      original_price: (atCounter && counterDiscountMode === "variable_amount") ? 0 : parseFloat(originalPrice),
-      counter_discount_mode: atCounter ? counterDiscountMode : "fixed_price",
+      original_price: (redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") ? 0 : parseFloat(originalPrice),
+      counter_discount_mode: redemptionMethod === "at_counter" ? counterDiscountMode : "fixed_price",
       discount_percentage: parseInt(discountPercentage),
       start_time: new Date(startTime).toISOString(),
       expiry_time: new Date(expiryTime).toISOString(),
       checkout_link: checkoutLink.trim(),
       discount_code: discountType === "universal" ? universalCode.trim() : "",
       image_url: imageUrl,
-      redemption_method: atCounter ? "at_counter" : "online_checkout",
+      redemption_method: redemptionMethod,
       discount_type: discountType,
       redemption_instructions: redemptionInstructions.trim(),
       cancellation_policy: cancellationPolicy.trim(),
@@ -376,14 +378,49 @@ export default function AdForm() {
             <CardTitle className="font-display text-lg">Hoe wordt de korting verzilverd?</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <Label className="font-medium">Korting aan de kassa</Label>
+            <div className="grid grid-cols-1 gap-3">
+              <button
+                type="button"
+                onClick={() => setRedemptionMethod("online_checkout")}
+                className={`rounded-lg border-2 p-4 text-left transition-colors ${
+                  redemptionMethod === "online_checkout"
+                    ? "border-primary bg-primary/5"
+                    : "border-input hover:border-primary/30"
+                }`}
+              >
+                <p className="font-display font-semibold text-sm">Online afrekenen met kortingscode</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Gebruik dit als klanten niet online kunnen betalen (bijv. consumptie aan de kassa).
+                  Klant gebruikt de kortingscode op jouw betaalpagina.
                 </p>
-              </div>
-              <Switch checked={atCounter} onCheckedChange={setAtCounter} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setRedemptionMethod("at_counter")}
+                className={`rounded-lg border-2 p-4 text-left transition-colors ${
+                  redemptionMethod === "at_counter"
+                    ? "border-primary bg-primary/5"
+                    : "border-input hover:border-primary/30"
+                }`}
+              >
+                <p className="font-display font-semibold text-sm">Korting aan de kassa</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Klant betaalt/verrekent op locatie. Geen online kortingscode-veld nodig.
+                </p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRedemptionMethod("online_pay_pos_refund")}
+                className={`rounded-lg border-2 p-4 text-left transition-colors ${
+                  redemptionMethod === "online_pay_pos_refund"
+                    ? "border-primary bg-primary/5"
+                    : "border-input hover:border-primary/30"
+                }`}
+              >
+                <p className="font-display font-semibold text-sm">Online reserveren, korting aan kassa terug</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Klanten betalen online het volledige bedrag. Op locatie tonen ze de kortingscode en krijgen ze de korting terug/verrekend.
+                </p>
+              </button>
             </div>
           </CardContent>
         </Card>
@@ -535,7 +572,7 @@ export default function AdForm() {
             <CardTitle className="font-display text-lg">Prijs & Korting</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {atCounter && (
+            {redemptionMethod === "at_counter" && (
               <div className="space-y-2">
                 <Label>Prijstype *</Label>
                 <div className="grid grid-cols-2 gap-3">
@@ -567,7 +604,7 @@ export default function AdForm() {
               </div>
             )}
 
-            {!(atCounter && counterDiscountMode === "variable_amount") && (
+            {!(redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") && (
               <div className="space-y-2">
                 <Label htmlFor="price">Originele prijs (€) *</Label>
                 <Input
@@ -597,7 +634,7 @@ export default function AdForm() {
               {showError("discountPercentage") && <p className="text-xs text-destructive">{showError("discountPercentage")}</p>}
             </div>
 
-            {atCounter && counterDiscountMode === "variable_amount" && discountPercentage && (
+            {redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount" && discountPercentage && (
               <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
                 <p className="text-sm text-muted-foreground">
                   Let op: Het bedrag aan de kassa kan per klant verschillen. Klanten krijgen <span className="font-semibold text-foreground">{discountPercentage}%</span> korting op de uiteindelijke kassabon.
@@ -605,7 +642,7 @@ export default function AdForm() {
               </div>
             )}
 
-            {!(atCounter && counterDiscountMode === "variable_amount") && discountedPrice && (
+            {!(redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") && discountedPrice && (
               <div className="bg-primary/10 rounded-lg p-3 text-center">
                 <p className="text-sm text-muted-foreground">Prijs na korting:</p>
                 <p className="font-display text-xl font-bold">€{discountedPrice}</p>
@@ -656,7 +693,7 @@ export default function AdForm() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="checkout">Checkout link {atCounter ? "(optioneel)" : "*"}</Label>
+              <Label htmlFor="checkout">Checkout link {redemptionMethod === "at_counter" ? "(optioneel)" : "*"}</Label>
               <Input
                 id="checkout"
                 type="url"
@@ -666,8 +703,10 @@ export default function AdForm() {
                 placeholder="https://jouwwebsite.nl/tickets/..."
               />
               <p className="text-xs text-muted-foreground">
-                {atCounter
+                {redemptionMethod === "at_counter"
                   ? "Optioneel: Voeg een link toe waar klanten hun ticket(s) kunnen kopen of reserveren. De korting wordt aan de kassa toegepast."
+                  : redemptionMethod === "online_pay_pos_refund"
+                  ? "Klanten reserveren/betalen hier online het volledige bedrag. De kortingscode wordt op locatie getoond."
                   : "De link waar klanten hun tickets kunnen kopen"}
               </p>
               {showError("checkoutLink") && <p className="text-xs text-destructive">{showError("checkoutLink")}</p>}
