@@ -139,9 +139,11 @@ export type Database = {
           expiry_time: string
           id: string
           image_url: string | null
+          indicative_price_from: number | null
           merchant_id: string
           original_price: number
           postal_code: string
+          pricing_model: string
           redemption_instructions: string | null
           redemption_method: string
           start_time: string
@@ -164,9 +166,11 @@ export type Database = {
           expiry_time: string
           id?: string
           image_url?: string | null
+          indicative_price_from?: number | null
           merchant_id: string
           original_price: number
           postal_code?: string
+          pricing_model?: string
           redemption_instructions?: string | null
           redemption_method?: string
           start_time: string
@@ -189,9 +193,11 @@ export type Database = {
           expiry_time?: string
           id?: string
           image_url?: string | null
+          indicative_price_from?: number | null
           merchant_id?: string
           original_price?: number
           postal_code?: string
+          pricing_model?: string
           redemption_instructions?: string | null
           redemption_method?: string
           start_time?: string

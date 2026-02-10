@@ -161,7 +161,18 @@ export default function DealDetail() {
           )}
         </div>
 
-        {(deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter" ? (
+        {(deal as any).pricing_model === "per_person_variable" ? (
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="p-4 space-y-2">
+              <h3 className="font-display font-semibold text-sm">Prijsinformatie</h3>
+              <p className="text-sm text-muted-foreground">De prijs hangt af van het aantal personen dat je kiest in de checkout.</p>
+              <p className="text-sm text-muted-foreground">Je krijgt <span className="font-semibold text-foreground">{deal.discount_percentage}%</span> korting op het totaalbedrag.</p>
+              {(deal as any).indicative_price_from && (
+                <p className="text-sm text-muted-foreground">Indicatie: vanaf €{Number((deal as any).indicative_price_from).toFixed(2)} (afhankelijk van aantal personen).</p>
+              )}
+            </CardContent>
+          </Card>
+        ) : (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter" ? (
           <div className="flex items-baseline gap-3">
             <Badge className="bg-primary text-primary-foreground font-bold text-base px-3 py-1">
               {deal.discount_percentage}% korting aan de kassa
@@ -325,9 +336,14 @@ export default function DealDetail() {
             ) : isExpired ? (
               <p className="text-sm text-muted-foreground">Deze deal is helaas verlopen.</p>
             ) : (
-              <Button onClick={handleClaim} disabled={claiming} className="w-full">
-                {claiming ? "Bezig..." : "Claim korting / Naar afrekenen"}
-              </Button>
+              <>
+                {(deal as any).pricing_model === "per_person_variable" && (
+                  <p className="text-xs text-muted-foreground mb-2">In de volgende stap kies je het aantal personen. De prijs wordt daar berekend.</p>
+                )}
+                <Button onClick={handleClaim} disabled={claiming} className="w-full">
+                  {claiming ? "Bezig..." : "Claim korting / Naar afrekenen"}
+                </Button>
+              </>
             )}
           </CardContent>
         </Card>

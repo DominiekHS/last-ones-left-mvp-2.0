@@ -23,7 +23,7 @@ export default function Vouchers() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("vouchers")
-        .select("*, deals(title, city, start_time, expiry_time, checkout_link, discount_percentage, original_price, redemption_method, merchants(company_name))")
+        .select("*, deals(title, city, start_time, expiry_time, checkout_link, discount_percentage, original_price, redemption_method, pricing_model, merchants(company_name))")
         .eq("user_id", user!.id)
         .is("deleted_at", null)
         .order("claimed_at", { ascending: false });
@@ -93,12 +93,16 @@ export default function Vouchers() {
                     )}
                   </div>
 
-                  {deal && deal.original_price > 0 && (
+                  {deal && (deal.pricing_model === "per_person_variable" ? (
+                    <p className="text-sm text-muted-foreground">
+                      Start: {format(new Date(deal.start_time), "d MMM HH:mm", { locale: nl })} · Korting: {deal.discount_percentage}% (prijs o.b.v. aantal personen)
+                    </p>
+                  ) : deal.original_price > 0 && (
                     <p className="text-sm text-muted-foreground">
                       Start: {format(new Date(deal.start_time), "d MMM HH:mm", { locale: nl })} ·{" "}
                       €{discountedPrice.toFixed(2)}
                     </p>
-                  )}
+                  ))}
 
                   <div className="flex items-center gap-2 bg-muted p-2 rounded-md">
                     <code className="font-mono font-bold flex-1">{v.discount_code}</code>
