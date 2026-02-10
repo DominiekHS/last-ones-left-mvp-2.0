@@ -96,7 +96,7 @@ export function DealCard({ deal }: { deal: Deal }) {
                   </span>
                 )}
               </div>
-              <span className="text-xs text-muted-foreground">Prijs afhankelijk van aantal personen</span>
+              <span className="text-xs text-muted-foreground">Totaalprijs afhankelijk van aantal personen</span>
             </div>
           ) : (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter" ? (
             <div className="flex items-baseline gap-2">
