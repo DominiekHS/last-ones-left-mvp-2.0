@@ -49,6 +49,19 @@ export default function AdminDashboard() {
     enabled: roles.includes("admin"),
   });
 
+  const { data: consumerCount } = useQuery({
+    queryKey: ["admin-consumer-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("user_roles")
+        .select("*", { count: "exact", head: true })
+        .eq("role", "consumer");
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: roles.includes("admin"),
+  });
+
   const { data: deals } = useQuery({
     queryKey: ["admin-deals"],
     queryFn: async () => {
@@ -118,8 +131,9 @@ export default function AdminDashboard() {
       <h1 className="font-display text-2xl font-bold">Admin Panel</h1>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <StatCard icon={<Store className="h-4 w-4" />} label="Ondernemers" value={merchants?.length || 0} />
+        <StatCard icon={<Users className="h-4 w-4" />} label="Consumenten" value={consumerCount ?? 0} />
         <StatCard icon={<ShieldAlert className="h-4 w-4" />} label="Geschorst" value={suspendedMerchants} variant="warning" />
         <StatCard icon={<Ban className="h-4 w-4" />} label="Geblokkeerd" value={blockedMerchants} variant="destructive" />
         <StatCard icon={<Tag className="h-4 w-4" />} label="Actieve deals" value={activeDeals} variant="success" />
