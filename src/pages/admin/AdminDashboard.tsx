@@ -33,6 +33,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [merchantSearch, setMerchantSearch] = useState("");
   const [dealSearch, setDealSearch] = useState("");
+  const [consumerSearch, setConsumerSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended" | "blocked">("all");
   const [dealStatusFilter, setDealStatusFilter] = useState<"all" | "active" | "expired">("all");
 
@@ -49,15 +50,25 @@ export default function AdminDashboard() {
     enabled: roles.includes("admin"),
   });
 
-  const { data: consumerCount } = useQuery({
-    queryKey: ["admin-consumer-count"],
+  const { data: consumers } = useQuery({
+    queryKey: ["admin-consumers"],
     queryFn: async () => {
-      const { count, error } = await supabase
+      // Get consumer user_ids
+      const { data: consumerRoles, error: rolesError } = await supabase
         .from("user_roles")
-        .select("*", { count: "exact", head: true })
+        .select("user_id")
         .eq("role", "consumer");
-      if (error) throw error;
-      return count || 0;
+      if (rolesError) throw rolesError;
+      if (!consumerRoles?.length) return [];
+      const userIds = consumerRoles.map((r) => r.user_id);
+      // Get profiles for those users
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("*")
+        .in("user_id", userIds)
+        .order("created_at", { ascending: false });
+      if (profilesError) throw profilesError;
+      return profiles || [];
     },
     enabled: roles.includes("admin"),
   });
@@ -133,7 +144,7 @@ export default function AdminDashboard() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <StatCard icon={<Store className="h-4 w-4" />} label="Ondernemers" value={merchants?.length || 0} />
-        <StatCard icon={<Users className="h-4 w-4" />} label="Consumenten" value={consumerCount ?? 0} />
+        <StatCard icon={<Users className="h-4 w-4" />} label="Consumenten" value={consumers?.length ?? 0} />
         <StatCard icon={<ShieldAlert className="h-4 w-4" />} label="Geschorst" value={suspendedMerchants} variant="warning" />
         <StatCard icon={<Ban className="h-4 w-4" />} label="Geblokkeerd" value={blockedMerchants} variant="destructive" />
         <StatCard icon={<Tag className="h-4 w-4" />} label="Actieve deals" value={activeDeals} variant="success" />
@@ -142,6 +153,7 @@ export default function AdminDashboard() {
       <Tabs defaultValue="merchants">
         <TabsList>
           <TabsTrigger value="merchants">Ondernemers ({merchants?.length || 0})</TabsTrigger>
+          <TabsTrigger value="consumers">Consumenten ({consumers?.length || 0})</TabsTrigger>
           <TabsTrigger value="deals">Deals ({deals?.length || 0})</TabsTrigger>
         </TabsList>
 
@@ -190,6 +202,41 @@ export default function AdminDashboard() {
               </Card>
             );
           })}
+        </TabsContent>
+
+        <TabsContent value="consumers" className="space-y-3 mt-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Zoek op naam of e-mail..."
+              value={consumerSearch}
+              onChange={(e) => setConsumerSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          {consumers?.filter((c) =>
+            c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
+            c.email.toLowerCase().includes(consumerSearch.toLowerCase())
+          ).length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">Geen consumenten gevonden.</p>
+          )}
+          {consumers
+            ?.filter((c) =>
+              c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
+              c.email.toLowerCase().includes(consumerSearch.toLowerCase())
+            )
+            .map((c) => (
+              <Card key={c.id}>
+                <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="flex-1 space-y-1">
+                    <h3 className="font-display font-semibold">{c.full_name || "Geen naam"}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {c.email} · Lid sinds {format(new Date(c.created_at), "d MMM yyyy", { locale: nl })}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
         </TabsContent>
 
         <TabsContent value="deals" className="space-y-3 mt-4">
