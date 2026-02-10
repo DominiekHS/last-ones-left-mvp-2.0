@@ -29,6 +29,8 @@ export default function AdForm() {
   // Form state
   const [redemptionMethod, setRedemptionMethod] = useState<"online_checkout" | "at_counter" | "online_pay_pos_refund">("online_checkout");
   const [counterDiscountMode, setCounterDiscountMode] = useState<"fixed_price" | "variable_amount">("fixed_price");
+  const [pricingModel, setPricingModel] = useState<"fixed" | "per_person_variable">("fixed");
+  const [indicativePriceFrom, setIndicativePriceFrom] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<VenueCategory | "">("");
@@ -78,6 +80,8 @@ export default function AdForm() {
             setExistingImageUrl(data.image_url);
             setRedemptionMethod(((data as any).redemption_method as "online_checkout" | "at_counter" | "online_pay_pos_refund") || "online_checkout");
             setCounterDiscountMode(((data as any).counter_discount_mode as "fixed_price" | "variable_amount") || "fixed_price");
+            setPricingModel(((data as any).pricing_model as "fixed" | "per_person_variable") || "fixed");
+            setIndicativePriceFrom((data as any).indicative_price_from ? String((data as any).indicative_price_from) : "");
             setDiscountType(((data as any).discount_type as "universal" | "unique") || "universal");
             setRedemptionInstructions((data as any).redemption_instructions || "");
             setCancellationPolicy((data as any).cancellation_policy || "");
@@ -163,7 +167,8 @@ export default function AdForm() {
     if (!address.trim()) e.address = "Adres is verplicht";
 
     const isVariableAmount = redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount";
-    if (!isVariableAmount) {
+    const isPerPersonVariable = pricingModel === "per_person_variable";
+    if (!isVariableAmount && !isPerPersonVariable) {
       const price = parseFloat(originalPrice);
       if (isNaN(price) || price < 0.01) e.originalPrice = "Prijs moet minimaal €0,01 zijn";
     }
@@ -272,8 +277,10 @@ export default function AdForm() {
       city: city.trim(),
       postal_code: (() => { const n = postalCode.trim().replace(/\s+/g, "").toUpperCase(); return n.slice(0, 4) + " " + n.slice(4); })(),
       address: address.trim(),
-      original_price: (redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") ? 0 : parseFloat(originalPrice),
+      original_price: (redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") || pricingModel === "per_person_variable" ? 0 : parseFloat(originalPrice),
       counter_discount_mode: redemptionMethod === "at_counter" ? counterDiscountMode : "fixed_price",
+      pricing_model: pricingModel,
+      indicative_price_from: pricingModel === "per_person_variable" && indicativePriceFrom ? parseFloat(indicativePriceFrom) : null,
       discount_percentage: parseInt(discountPercentage),
       start_time: new Date(startTime).toISOString(),
       expiry_time: new Date(expiryTime).toISOString(),
@@ -572,7 +579,38 @@ export default function AdForm() {
             <CardTitle className="font-display text-lg">Prijs & Korting</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {redemptionMethod === "at_counter" && (
+            {/* Pricing model selection */}
+            <div className="space-y-2">
+              <Label>Prijsmodel *</Label>
+              <div className="grid grid-cols-1 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setPricingModel("fixed")}
+                  className={`rounded-lg border-2 p-4 text-left transition-colors ${
+                    pricingModel === "fixed"
+                      ? "border-primary bg-primary/5"
+                      : "border-input hover:border-primary/30"
+                  }`}
+                >
+                  <p className="font-display font-semibold text-sm">Vaste prijs</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Je geeft 1 prijs op voor dit aanbod.</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPricingModel("per_person_variable")}
+                  className={`rounded-lg border-2 p-4 text-left transition-colors ${
+                    pricingModel === "per_person_variable"
+                      ? "border-primary bg-primary/5"
+                      : "border-input hover:border-primary/30"
+                  }`}
+                >
+                  <p className="font-display font-semibold text-sm">Prijs afhankelijk van aantal personen</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">De klant kiest het aantal personen in je checkout. De prijs wordt daar berekend.</p>
+                </button>
+              </div>
+            </div>
+
+            {redemptionMethod === "at_counter" && pricingModel === "fixed" && (
               <div className="space-y-2">
                 <Label>Prijstype *</Label>
                 <div className="grid grid-cols-2 gap-3">
@@ -604,49 +642,86 @@ export default function AdForm() {
               </div>
             )}
 
-            {!(redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") && (
-              <div className="space-y-2">
-                <Label htmlFor="price">Originele prijs (€) *</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  value={originalPrice}
-                  onChange={(e) => setOriginalPrice(e.target.value)}
-                  onBlur={() => touch("originalPrice")}
-                />
-                {showError("originalPrice") && <p className="text-xs text-destructive">{showError("originalPrice")}</p>}
-              </div>
-            )}
+            {pricingModel === "per_person_variable" ? (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="discount">Korting (%) *</Label>
+                  <Input
+                    id="discount"
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={discountPercentage}
+                    onChange={(e) => setDiscountPercentage(e.target.value)}
+                    onBlur={() => touch("discountPercentage")}
+                  />
+                  {showError("discountPercentage") && <p className="text-xs text-destructive">{showError("discountPercentage")}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="indicativePrice">Indicatieprijs vanaf (€) (optioneel)</Label>
+                  <Input
+                    id="indicativePrice"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={indicativePriceFrom}
+                    onChange={(e) => setIndicativePriceFrom(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">Dit is alleen ter indicatie. De definitieve prijs hangt af van aantal personen in jouw checkout.</p>
+                </div>
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-semibold text-foreground">Let op:</span> Toon op je reserveringspagina duidelijk de korting en zorg dat staff weet hoe korting wordt toegepast.
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                {!(redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") && (
+                  <div className="space-y-2">
+                    <Label htmlFor="price">Originele prijs (€) *</Label>
+                    <Input
+                      id="price"
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      value={originalPrice}
+                      onChange={(e) => setOriginalPrice(e.target.value)}
+                      onBlur={() => touch("originalPrice")}
+                    />
+                    {showError("originalPrice") && <p className="text-xs text-destructive">{showError("originalPrice")}</p>}
+                  </div>
+                )}
 
-            <div className="space-y-2">
-              <Label htmlFor="discount">Korting (%) *</Label>
-              <Input
-                id="discount"
-                type="number"
-                min="1"
-                max="100"
-                value={discountPercentage}
-                onChange={(e) => setDiscountPercentage(e.target.value)}
-                onBlur={() => touch("discountPercentage")}
-              />
-              {showError("discountPercentage") && <p className="text-xs text-destructive">{showError("discountPercentage")}</p>}
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="discount">Korting (%) *</Label>
+                  <Input
+                    id="discount"
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={discountPercentage}
+                    onChange={(e) => setDiscountPercentage(e.target.value)}
+                    onBlur={() => touch("discountPercentage")}
+                  />
+                  {showError("discountPercentage") && <p className="text-xs text-destructive">{showError("discountPercentage")}</p>}
+                </div>
 
-            {redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount" && discountPercentage && (
-              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
-                <p className="text-sm text-muted-foreground">
-                  Let op: Het bedrag aan de kassa kan per klant verschillen. Klanten krijgen <span className="font-semibold text-foreground">{discountPercentage}%</span> korting op de uiteindelijke kassabon.
-                </p>
-              </div>
-            )}
+                {redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount" && discountPercentage && (
+                  <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+                    <p className="text-sm text-muted-foreground">
+                      Let op: Het bedrag aan de kassa kan per klant verschillen. Klanten krijgen <span className="font-semibold text-foreground">{discountPercentage}%</span> korting op de uiteindelijke kassabon.
+                    </p>
+                  </div>
+                )}
 
-            {!(redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") && discountedPrice && (
-              <div className="bg-primary/10 rounded-lg p-3 text-center">
-                <p className="text-sm text-muted-foreground">Prijs na korting:</p>
-                <p className="font-display text-xl font-bold">€{discountedPrice}</p>
-              </div>
+                {!(redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") && discountedPrice && (
+                  <div className="bg-primary/10 rounded-lg p-3 text-center">
+                    <p className="text-sm text-muted-foreground">Prijs na korting:</p>
+                    <p className="font-display text-xl font-bold">€{discountedPrice}</p>
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>

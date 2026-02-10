@@ -78,7 +78,17 @@ export function DealCard({ deal }: { deal: Deal }) {
             <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Start: {format(startDate, "HH:mm", { locale: nl })}</span>
             <span className="flex items-center gap-1 text-muted-foreground/70">Verloopt: {format(expiryDate, "HH:mm", { locale: nl })}</span>
           </div>
-          {(deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter" ? (
+          {(deal as any).pricing_model === "per_person_variable" ? (
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="font-display font-bold text-lg">
+                {deal.discount_percentage}% korting
+              </span>
+              {(deal as any).indicative_price_from && (
+                <span className="text-xs text-muted-foreground">vanaf €{Number((deal as any).indicative_price_from).toFixed(2)}</span>
+              )}
+              <span className="text-xs text-muted-foreground">· prijs o.b.v. aantal personen</span>
+            </div>
+          ) : (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter" ? (
             <div className="flex items-baseline gap-2">
               <span className="font-display font-bold text-lg">
                 {deal.discount_percentage}% korting
