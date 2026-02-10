@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useActiveDeals } from "@/hooks/useDeals";
 import { DealCard } from "@/components/deals/DealCard";
 import { DealFilters } from "@/components/deals/DealFilters";
@@ -9,6 +9,16 @@ const Index = () => {
   const [category, setCategory] = useState("all");
   const [city, setCity] = useState("");
   const { data: deals, isLoading } = useActiveDeals(category, city);
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const deal of deals || []) {
+      if (deal.category) {
+        counts[deal.category] = (counts[deal.category] || 0) + 1;
+      }
+    }
+    return counts;
+  }, [deals]);
 
   return (
     <>
@@ -28,6 +38,7 @@ const Index = () => {
         city={city}
         onCategoryChange={setCategory}
         onCityChange={setCity}
+        categoryCounts={categoryCounts}
       />
 
       <section className="container py-6">

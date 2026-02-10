@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CATEGORIES } from "@/lib/constants";
 import { useCities } from "@/hooks/useCities";
@@ -6,18 +7,31 @@ import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Check, ChevronsUpDown, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
 
 interface DealFiltersProps {
   category: string;
   city: string;
   onCategoryChange: (v: string) => void;
   onCityChange: (v: string) => void;
+  categoryCounts?: Record<string, number>;
 }
 
-export function DealFilters({ category, city, onCategoryChange, onCityChange }: DealFiltersProps) {
+export function DealFilters({ category, city, onCategoryChange, onCityChange, categoryCounts = {} }: DealFiltersProps) {
   const { data: cities = [], isLoading: citiesLoading } = useCities();
   const [open, setOpen] = useState(false);
+
+  const sortedCategories = useMemo(() => {
+    return [...CATEGORIES]
+      .map((c) => ({ ...c, count: categoryCounts[c.value] || 0 }))
+      .sort((a, b) => {
+        if (a.count > 0 && b.count === 0) return -1;
+        if (a.count === 0 && b.count > 0) return 1;
+        if (a.count > 0 && b.count > 0) {
+          if (b.count !== a.count) return b.count - a.count;
+        }
+        return a.label.localeCompare(b.label, "nl");
+      });
+  }, [categoryCounts]);
 
   const selectedLabel = city
     ? cities.find((c) => c.value === city)?.label || city
@@ -77,13 +91,15 @@ export function DealFilters({ category, city, onCategoryChange, onCityChange }: 
         </Popover>
 
         <Select value={category} onValueChange={onCategoryChange}>
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Categorie" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Alle categorieën</SelectItem>
-            {CATEGORIES.map((c) => (
-              <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+            {sortedCategories.map((c) => (
+              <SelectItem key={c.value} value={c.value}>
+                {c.count > 0 ? `${c.label} (${c.count})` : c.label}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
