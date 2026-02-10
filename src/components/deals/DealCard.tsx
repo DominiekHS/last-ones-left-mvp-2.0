@@ -79,14 +79,24 @@ export function DealCard({ deal }: { deal: Deal }) {
             <span className="flex items-center gap-1 text-muted-foreground/70">Verloopt: {format(expiryDate, "HH:mm", { locale: nl })}</span>
           </div>
           {(deal as any).pricing_model === "per_person_variable" ? (
-            <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="font-display font-bold text-lg">
-                {deal.discount_percentage}% korting
-              </span>
-              {(deal as any).indicative_price_from && (
-                <span className="text-xs text-muted-foreground">vanaf €{Number((deal as any).indicative_price_from).toFixed(2)}</span>
-              )}
-              <span className="text-xs text-muted-foreground">· prijs o.b.v. aantal personen</span>
+            <div className="space-y-0.5">
+              <div className="flex items-baseline gap-2 flex-wrap">
+                {(deal as any).price_per_person ? (
+                  <>
+                    <span className="font-display font-bold text-lg">
+                      €{(Number((deal as any).price_per_person) * (1 - deal.discount_percentage / 100)).toFixed(2)} p.p.
+                    </span>
+                    <span className="text-sm text-muted-foreground line-through">
+                      €{Number((deal as any).price_per_person).toFixed(2)} p.p.
+                    </span>
+                  </>
+                ) : (
+                  <span className="font-display font-bold text-lg">
+                    {deal.discount_percentage}% korting
+                  </span>
+                )}
+              </div>
+              <span className="text-xs text-muted-foreground">Prijs afhankelijk van aantal personen</span>
             </div>
           ) : (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter" ? (
             <div className="flex items-baseline gap-2">

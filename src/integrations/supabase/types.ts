@@ -143,6 +143,7 @@ export type Database = {
           merchant_id: string
           original_price: number
           postal_code: string
+          price_per_person: number | null
           pricing_model: string
           redemption_instructions: string | null
           redemption_method: string
@@ -170,6 +171,7 @@ export type Database = {
           merchant_id: string
           original_price: number
           postal_code?: string
+          price_per_person?: number | null
           pricing_model?: string
           redemption_instructions?: string | null
           redemption_method?: string
@@ -197,6 +199,7 @@ export type Database = {
           merchant_id?: string
           original_price?: number
           postal_code?: string
+          price_per_person?: number | null
           pricing_model?: string
           redemption_instructions?: string | null
           redemption_method?: string
