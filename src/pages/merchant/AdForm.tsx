@@ -30,7 +30,7 @@ export default function AdForm() {
   const [redemptionMethod, setRedemptionMethod] = useState<"online_checkout" | "at_counter" | "online_pay_pos_refund">("online_checkout");
   const [counterDiscountMode, setCounterDiscountMode] = useState<"fixed_price" | "variable_amount">("fixed_price");
   const [pricingModel, setPricingModel] = useState<"fixed" | "per_person_variable">("fixed");
-  const [indicativePriceFrom, setIndicativePriceFrom] = useState("");
+  const [pricePerPerson, setPricePerPerson] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<VenueCategory | "">("");
@@ -81,7 +81,7 @@ export default function AdForm() {
             setRedemptionMethod(((data as any).redemption_method as "online_checkout" | "at_counter" | "online_pay_pos_refund") || "online_checkout");
             setCounterDiscountMode(((data as any).counter_discount_mode as "fixed_price" | "variable_amount") || "fixed_price");
             setPricingModel(((data as any).pricing_model as "fixed" | "per_person_variable") || "fixed");
-            setIndicativePriceFrom((data as any).indicative_price_from ? String((data as any).indicative_price_from) : "");
+            setPricePerPerson((data as any).price_per_person ? String((data as any).price_per_person) : ((data as any).indicative_price_from ? String((data as any).indicative_price_from) : ""));
             setDiscountType(((data as any).discount_type as "universal" | "unique") || "universal");
             setRedemptionInstructions((data as any).redemption_instructions || "");
             setCancellationPolicy((data as any).cancellation_policy || "");
@@ -130,6 +130,13 @@ export default function AdForm() {
     return (price * (1 - disc / 100)).toFixed(2);
   }, [originalPrice, discountPercentage]);
 
+  const discountedPricePerPerson = useMemo(() => {
+    const price = parseFloat(pricePerPerson);
+    const disc = parseInt(discountPercentage);
+    if (isNaN(price) || isNaN(disc) || price <= 0 || disc < 1 || disc > 100) return null;
+    return (price * (1 - disc / 100)).toFixed(2);
+  }, [pricePerPerson, discountPercentage]);
+
   const parsedUniqueCodes = useMemo(() => {
     return uniqueCodesText
       .split("\n")
@@ -171,6 +178,10 @@ export default function AdForm() {
     if (!isVariableAmount && !isPerPersonVariable) {
       const price = parseFloat(originalPrice);
       if (isNaN(price) || price < 0.01) e.originalPrice = "Prijs moet minimaal €0,01 zijn";
+    }
+    if (isPerPersonVariable) {
+      const pp = parseFloat(pricePerPerson);
+      if (isNaN(pp) || pp < 0.01) e.pricePerPerson = "Prijs per persoon moet minimaal €0,01 zijn";
     }
     const disc = parseInt(discountPercentage);
     if (isNaN(disc) || disc < 1 || disc > 100) e.discountPercentage = "Korting moet tussen 1 en 100 zijn";
@@ -280,7 +291,8 @@ export default function AdForm() {
       original_price: (redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") || pricingModel === "per_person_variable" ? 0 : parseFloat(originalPrice),
       counter_discount_mode: redemptionMethod === "at_counter" ? counterDiscountMode : "fixed_price",
       pricing_model: pricingModel,
-      indicative_price_from: pricingModel === "per_person_variable" && indicativePriceFrom ? parseFloat(indicativePriceFrom) : null,
+      indicative_price_from: pricingModel === "per_person_variable" && pricePerPerson ? parseFloat(pricePerPerson) : null,
+      price_per_person: pricingModel === "per_person_variable" && pricePerPerson ? parseFloat(pricePerPerson) : null,
       discount_percentage: parseInt(discountPercentage),
       start_time: new Date(startTime).toISOString(),
       expiry_time: new Date(expiryTime).toISOString(),
@@ -645,6 +657,21 @@ export default function AdForm() {
             {pricingModel === "per_person_variable" ? (
               <>
                 <div className="space-y-2">
+                  <Label htmlFor="pricePerPerson">Normale prijs per persoon (€) *</Label>
+                  <Input
+                    id="pricePerPerson"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={pricePerPerson}
+                    onChange={(e) => setPricePerPerson(e.target.value)}
+                    onBlur={() => touch("pricePerPerson")}
+                    placeholder="Bijv. 25.00"
+                  />
+                  <p className="text-xs text-muted-foreground">Dit is de normale prijs per persoon. De definitieve totaalprijs wordt in je checkout berekend op basis van het aantal personen.</p>
+                  {showError("pricePerPerson") && <p className="text-xs text-destructive">{showError("pricePerPerson")}</p>}
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="discount">Korting (%) *</Label>
                   <Input
                     id="discount"
@@ -657,18 +684,12 @@ export default function AdForm() {
                   />
                   {showError("discountPercentage") && <p className="text-xs text-destructive">{showError("discountPercentage")}</p>}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="indicativePrice">Indicatieprijs vanaf (€) (optioneel)</Label>
-                  <Input
-                    id="indicativePrice"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={indicativePriceFrom}
-                    onChange={(e) => setIndicativePriceFrom(e.target.value)}
-                  />
-                  <p className="text-xs text-muted-foreground">Dit is alleen ter indicatie. De definitieve prijs hangt af van aantal personen in jouw checkout.</p>
-                </div>
+                {discountedPricePerPerson && (
+                  <div className="bg-primary/10 rounded-lg p-3 text-center">
+                    <p className="text-sm text-muted-foreground">Prijs per persoon na korting:</p>
+                    <p className="font-display text-xl font-bold">€{discountedPricePerPerson} p.p.</p>
+                  </div>
+                )}
                 <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
                   <p className="text-sm text-muted-foreground">
                     <span className="font-semibold text-foreground">Let op:</span> Toon op je reserveringspagina duidelijk de korting en zorg dat staff weet hoe korting wordt toegepast.
