@@ -1,0 +1,1 @@
+ALTER VIEW public.consumer_activity_history SET (security_invoker = on);
