@@ -280,6 +280,7 @@ export default function DealDetail() {
       ) : !user ? (
         <Card>
           <CardContent className="p-4 space-y-3">
+            <p className="text-sm font-medium text-foreground">Korting claimen en reserveren?</p>
             <Button asChild className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base py-5">
               <Link to="/registreren">Account aanmaken (± 1 minuut)</Link>
             </Button>
