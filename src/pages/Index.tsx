@@ -24,13 +24,13 @@ const Index = () => {
 
   return (
     <>
-      <section className="bg-foreground text-background py-8 sm:py-12">
+      <section className="bg-primary text-primary-foreground py-8 sm:py-12">
         <div className="container text-center space-y-3">
           <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">
             Bezoek. Beleef. Bespaar.
           </h1>
-          <p className="text-background/70 text-lg max-w-lg mx-auto">
-            Ontdek last-minute deals bij jou in de buurt — vandaag nog!
+          <p className="text-primary-foreground/70 text-lg max-w-lg mx-auto">
+            Ontdek last-minute deals bij jou in de buurt! Wat ga jij doen vandaag?
           </p>
         </div>
       </section>
