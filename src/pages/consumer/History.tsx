@@ -18,7 +18,7 @@ export default function History() {
       const { data, error } = await supabase
         .from("consumer_activity_history")
         .select("deal_id, title, merchant_name, city, start_time, claimed_at, completed_at")
-        .order("completed_at", { ascending: false });
+        .order("claimed_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -56,7 +56,7 @@ export default function History() {
                   </span>
                   <span className="flex items-center gap-1">
                     <CalendarDays className="h-3.5 w-3.5" />
-                    {format(new Date(a.start_time), "d MMM yyyy · HH:mm", { locale: nl })}
+                    Geclaimd: {format(new Date(a.claimed_at!), "d MMM yyyy · HH:mm", { locale: nl })}
                   </span>
                 </div>
               </CardContent>
