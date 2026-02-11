@@ -9,13 +9,14 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Navigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Camera } from "lucide-react";
+import { Camera, Pencil, X, Save, Mail, Building2, MapPin, Phone, Globe, FileText } from "lucide-react";
 
 export default function MerchantProfile() {
   const { user, merchant, roles, loading, refreshProfile } = useAuth();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [isEditing, setIsEditing] = useState(false);
   const [companyName, setCompanyName] = useState("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
@@ -28,7 +29,7 @@ export default function MerchantProfile() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
+  const syncFromMerchant = () => {
     if (merchant) {
       setCompanyName(merchant.company_name);
       setCity(merchant.city);
@@ -40,11 +41,20 @@ export default function MerchantProfile() {
       setWebsiteUrl((merchant as any).website_url || "");
       setLogoUrl((merchant as any).logo_url || "");
     }
+  };
+
+  useEffect(() => {
+    syncFromMerchant();
   }, [merchant]);
 
   if (!loading && (!user || !roles.includes("merchant"))) {
     return <Navigate to="/login" />;
   }
+
+  const handleCancel = () => {
+    syncFromMerchant();
+    setIsEditing(false);
+  };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -116,6 +126,7 @@ export default function MerchantProfile() {
       queryClient.invalidateQueries({ queryKey: ["deal"] });
       queryClient.invalidateQueries({ queryKey: ["merchant-profile"] });
       toast({ title: "Profiel opgeslagen!" });
+      setIsEditing(false);
     }
     setSaving(false);
   };
@@ -128,18 +139,160 @@ export default function MerchantProfile() {
     );
   }
 
+  const InfoRow = ({ icon: Icon, label, value }: { icon: any; label: string; value?: string }) => (
+    <div className="flex items-start gap-3 py-2">
+      <Icon className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
+      <div className="min-w-0">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="text-sm break-words">{value || <span className="text-muted-foreground italic">Niet ingevuld</span>}</p>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="container py-6 max-w-md space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-display text-2xl">Bedrijfsprofiel</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSave} className="space-y-6">
-            {/* Logo */}
-            <div className="space-y-2">
-              <Label>Logo</Label>
-              <div className="flex items-center gap-4">
+    <div className="container py-6 max-w-lg space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-2xl font-bold">Mijn profiel</h1>
+        {!isEditing && (
+          <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+            <Pencil className="mr-1 h-4 w-4" /> Bewerk profiel
+          </Button>
+        )}
+      </div>
+
+      {isEditing ? (
+        /* ===== EDIT MODE ===== */
+        <form onSubmit={handleSave} className="space-y-4">
+          {/* Account */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Account</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-1">
+                <Label>E-mailadres (account)</Label>
+                <Input value={user?.email || ""} disabled />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="companyName">Bedrijfsnaam *</Label>
+                <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Bedrijfsprofiel */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Bedrijfsprofiel</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-1">
+                <Label>Logo</Label>
+                <div className="flex items-center gap-4">
+                  {logoUrl ? (
+                    <img src={logoUrl} alt="Logo" className="w-16 h-16 rounded-full object-cover border" />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center text-muted-foreground text-xl font-bold">
+                      {companyName?.charAt(0)?.toUpperCase() || "?"}
+                    </div>
+                  )}
+                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                  <Button type="button" variant="outline" size="sm" disabled={uploading} onClick={() => fileInputRef.current?.click()}>
+                    <Camera className="mr-1 h-4 w-4" />{uploading ? "Uploaden..." : "Upload logo"}
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="description">Omschrijving</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Korte 'Over ons' tekst (max 600 tekens)"
+                  maxLength={600}
+                  rows={4}
+                />
+                <p className="text-xs text-muted-foreground">{description.length}/600 tekens</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Contact */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Contactgegevens</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-1">
+                <Label>Contact e-mail</Label>
+                <Input type="email" placeholder="Contact e-mail" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label>Telefoon</Label>
+                <Input type="tel" placeholder="Telefoon (optioneel)" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label>Website</Label>
+                <Input type="url" placeholder="Website URL (optioneel)" value={websiteUrl} onChange={(e) => setWebsiteUrl(e.target.value)} />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Adres */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Adresgegevens</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="address">Straatnaam + huisnummer *</Label>
+                <Input id="address" placeholder="Bijv. Spinhuisplein 14" value={address} onChange={(e) => setAddress(e.target.value)} required minLength={3} />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label htmlFor="postcode">Postcode</Label>
+                  <Input id="postcode" placeholder="Bijv. 8011 ZZ" value={postcode} onChange={(e) => setPostcode(e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="city">Plaats *</Label>
+                  <Input id="city" placeholder="Bijv. Zwolle" value={city} onChange={(e) => setCity(e.target.value)} required />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Acties */}
+          <div className="flex gap-2">
+            <Button type="submit" disabled={saving} className="flex-1">
+              <Save className="mr-1 h-4 w-4" /> {saving ? "Opslaan..." : "Opslaan"}
+            </Button>
+            <Button type="button" variant="outline" onClick={handleCancel} disabled={saving}>
+              <X className="mr-1 h-4 w-4" /> Annuleren
+            </Button>
+          </div>
+        </form>
+      ) : (
+        /* ===== VIEW MODE ===== */
+        <div className="space-y-4">
+          {/* Account */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Account</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <InfoRow icon={Mail} label="E-mailadres" value={user?.email} />
+              <InfoRow icon={Building2} label="Bedrijfsnaam" value={companyName} />
+            </CardContent>
+          </Card>
+
+          {/* Bedrijfsprofiel */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Bedrijfsprofiel</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4 py-2">
                 {logoUrl ? (
                   <img src={logoUrl} alt="Logo" className="w-16 h-16 rounded-full object-cover border" />
                 ) : (
@@ -147,73 +300,40 @@ export default function MerchantProfile() {
                     {companyName?.charAt(0)?.toUpperCase() || "?"}
                   </div>
                 )}
-                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-                <Button type="button" variant="outline" size="sm" disabled={uploading} onClick={() => fileInputRef.current?.click()}>
-                  <Camera className="mr-1 h-4 w-4" />{uploading ? "Uploaden..." : "Upload logo"}
-                </Button>
-              </div>
-            </div>
-
-            {/* Basis */}
-            <div className="space-y-2">
-              <Label>E-mailadres (account)</Label>
-              <Input value={user?.email || ""} disabled />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="companyName">Bedrijfsnaam *</Label>
-              <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Omschrijving</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Korte 'Over ons' tekst (max 600 tekens)"
-                maxLength={600}
-                rows={4}
-              />
-              <p className="text-xs text-muted-foreground">{description.length}/600 tekens</p>
-            </div>
-
-            {/* Adres */}
-            <div>
-              <h3 className="font-semibold text-sm mb-2">Adresgegevens</h3>
-              <div className="space-y-2">
-                <div className="space-y-1">
-                  <Label htmlFor="address">Straatnaam + huisnummer *</Label>
-                  <Input id="address" placeholder="Bijv. Spinhuisplein 14" value={address} onChange={(e) => setAddress(e.target.value)} required minLength={3} />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label htmlFor="postcode">Postcode</Label>
-                    <Input id="postcode" placeholder="Bijv. 8011 ZZ" value={postcode} onChange={(e) => setPostcode(e.target.value)} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="city">Plaats *</Label>
-                    <Input id="city" placeholder="Bijv. Zwolle" value={city} onChange={(e) => setCity(e.target.value)} required />
-                  </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Logo</p>
+                  <p className="text-sm">{logoUrl ? "Geüpload" : <span className="text-muted-foreground italic">Geen logo</span>}</p>
                 </div>
               </div>
-            </div>
+              <InfoRow icon={FileText} label="Omschrijving" value={description} />
+            </CardContent>
+          </Card>
 
-            {/* Contact */}
-            <div>
-              <h3 className="font-semibold text-sm mb-2">Contactgegevens</h3>
-              <div className="space-y-2">
-                <Input type="email" placeholder="Contact e-mail" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} />
-                <Input type="tel" placeholder="Telefoon (optioneel)" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} />
-                <Input type="url" placeholder="Website URL (optioneel)" value={websiteUrl} onChange={(e) => setWebsiteUrl(e.target.value)} />
-              </div>
-            </div>
+          {/* Contact */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Contactgegevens</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <InfoRow icon={Mail} label="Contact e-mail" value={contactEmail} />
+              <InfoRow icon={Phone} label="Telefoon" value={contactPhone} />
+              <InfoRow icon={Globe} label="Website" value={websiteUrl} />
+            </CardContent>
+          </Card>
 
-
-            <Button type="submit" disabled={saving} className="w-full">
-              {saving ? "Opslaan..." : "Opslaan"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+          {/* Adres */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Adresgegevens</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <InfoRow icon={MapPin} label="Straat + huisnummer" value={address} />
+              <InfoRow icon={MapPin} label="Postcode" value={postcode} />
+              <InfoRow icon={MapPin} label="Plaats" value={city} />
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
