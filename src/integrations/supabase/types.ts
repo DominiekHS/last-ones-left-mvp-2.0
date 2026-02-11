@@ -77,6 +77,13 @@ export type Database = {
             foreignKeyName: "deal_events_deal_id_fkey"
             columns: ["deal_id"]
             isOneToOne: false
+            referencedRelation: "consumer_activity_history"
+            referencedColumns: ["deal_id"]
+          },
+          {
+            foreignKeyName: "deal_events_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
             referencedRelation: "deals"
             referencedColumns: ["id"]
           },
@@ -114,6 +121,13 @@ export type Database = {
           source?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "deal_sales_daily_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "consumer_activity_history"
+            referencedColumns: ["deal_id"]
+          },
           {
             foreignKeyName: "deal_sales_daily_deal_id_fkey"
             columns: ["deal_id"]
@@ -477,6 +491,13 @@ export type Database = {
             foreignKeyName: "unique_codes_deal_id_fkey"
             columns: ["deal_id"]
             isOneToOne: false
+            referencedRelation: "consumer_activity_history"
+            referencedColumns: ["deal_id"]
+          },
+          {
+            foreignKeyName: "unique_codes_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
             referencedRelation: "deals"
             referencedColumns: ["id"]
           },
@@ -502,33 +523,49 @@ export type Database = {
       }
       vouchers: {
         Row: {
+          archived_at: string | null
           became_inactive_at: string | null
           claimed_at: string
+          code_visible_until: string | null
           deal_id: string
           deleted_at: string | null
           discount_code: string
           id: string
+          status: string
           user_id: string
         }
         Insert: {
+          archived_at?: string | null
           became_inactive_at?: string | null
           claimed_at?: string
+          code_visible_until?: string | null
           deal_id: string
           deleted_at?: string | null
           discount_code: string
           id?: string
+          status?: string
           user_id: string
         }
         Update: {
+          archived_at?: string | null
           became_inactive_at?: string | null
           claimed_at?: string
+          code_visible_until?: string | null
           deal_id?: string
           deleted_at?: string | null
           discount_code?: string
           id?: string
+          status?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "vouchers_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "consumer_activity_history"
+            referencedColumns: ["deal_id"]
+          },
           {
             foreignKeyName: "vouchers_deal_id_fkey"
             columns: ["deal_id"]
@@ -540,7 +577,20 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      consumer_activity_history: {
+        Row: {
+          city: string | null
+          claimed_at: string | null
+          completed_at: string | null
+          deal_id: string | null
+          merchant_name: string | null
+          start_time: string | null
+          title: string | null
+          user_id: string | null
+          voucher_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       claim_deal: {
