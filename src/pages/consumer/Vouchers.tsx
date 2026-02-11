@@ -26,6 +26,7 @@ export default function Vouchers() {
         .select("*, deals(title, city, start_time, expiry_time, checkout_link, discount_percentage, original_price, redemption_method, pricing_model, price_per_person, merchants(company_name))")
         .eq("user_id", user!.id)
         .is("deleted_at", null)
+        .in("status", ["active", "inactive"])
         .order("claimed_at", { ascending: false });
       if (error) throw error;
       return data;

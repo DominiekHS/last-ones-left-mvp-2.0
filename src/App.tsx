@@ -15,6 +15,7 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import VerifyEmail from "./pages/auth/VerifyEmail";
 import Vouchers from "./pages/consumer/Vouchers";
+import History from "./pages/consumer/History";
 import Profile from "./pages/consumer/Profile";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
@@ -54,6 +55,7 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/verify-email" element={<VerifyEmail />} />
               <Route path="/vouchers" element={<Vouchers />} />
+              <Route path="/geschiedenis" element={<History />} />
               <Route path="/profiel" element={<Profile />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/algemene-voorwaarden" element={<Terms />} />

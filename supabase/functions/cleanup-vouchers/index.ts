@@ -11,9 +11,9 @@ Deno.serve(async (req) => {
     // Step 1: Mark vouchers as inactive where deal has expired and not yet marked
     const { data: newlyInactive, error: markError } = await supabase
       .from("vouchers")
-      .update({ became_inactive_at: now })
+      .update({ status: "inactive", became_inactive_at: now })
       .is("became_inactive_at", null)
-      .is("deleted_at", null)
+      .eq("status", "active")
       .select("id, deal_id");
 
     // For each, check if the deal is actually expired
@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
           .map((d: any) => d.id)
       );
 
-      // Only keep became_inactive_at for vouchers whose deal is actually expired
+      // Revert vouchers whose deal is NOT actually expired
       const stillActiveVoucherIds = newlyInactive
         .filter((v: any) => !expiredDealIds.has(v.deal_id))
         .map((v: any) => v.id);
@@ -38,17 +38,21 @@ Deno.serve(async (req) => {
       if (stillActiveVoucherIds.length > 0) {
         await supabase
           .from("vouchers")
-          .update({ became_inactive_at: null })
+          .update({ status: "active", became_inactive_at: null })
           .in("id", stillActiveVoucherIds);
       }
     }
 
-    // Step 2: Soft-delete vouchers that have been inactive for 24+ hours
+    // Step 2: Archive vouchers that have been inactive for 24+ hours
     const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const { data: deleted, error: deleteError } = await supabase
+    const { data: archived, error: archiveError } = await supabase
       .from("vouchers")
-      .update({ deleted_at: now })
-      .is("deleted_at", null)
+      .update({
+        status: "archived",
+        archived_at: now,
+        deleted_at: now,
+      })
+      .eq("status", "inactive")
       .not("became_inactive_at", "is", null)
       .lte("became_inactive_at", cutoff)
       .select("id");
@@ -56,7 +60,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         marked_inactive: newlyInactive?.length || 0,
-        soft_deleted: deleted?.length || 0,
+        archived: archived?.length || 0,
       }),
       { headers: { "Content-Type": "application/json" } }
     );
