@@ -7,10 +7,14 @@ interface CityOption {
   count: number;
 }
 
+function capitalizeWord(word: string): string {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
 function normalizeCity(raw: string): string {
   const trimmed = raw.trim();
   if (!trimmed) return "";
-  // Title-case with Dutch exceptions preserved
+  // Title-case with Dutch exceptions preserved, also handles hyphens (e.g. Velsen-Zuid)
   return trimmed
     .toLowerCase()
     .split(" ")
@@ -19,7 +23,8 @@ function normalizeCity(raw: string): string {
       if (i > 0 && ["de", "den", "het", "van", "aan", "op", "in", "ter", "ten"].includes(word)) {
         return word;
       }
-      return word.charAt(0).toUpperCase() + word.slice(1);
+      // Capitalize each part of hyphenated words
+      return word.split("-").map(capitalizeWord).join("-");
     })
     .join(" ");
 }
