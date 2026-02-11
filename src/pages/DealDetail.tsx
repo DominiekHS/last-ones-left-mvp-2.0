@@ -109,7 +109,8 @@ export default function DealDetail() {
   }
 
   const discountedPrice = deal.original_price * (1 - deal.discount_percentage / 100);
-  const startDate = new Date(deal.start_time);
+  const hasFixedStart = (deal as any).start_time_mode !== "flexible" && deal.start_time;
+  const startDate = hasFixedStart ? new Date(deal.start_time) : null;
   const expiryDate = new Date(deal.expiry_time);
   const isExpired = expiryDate < new Date();
 
@@ -158,12 +159,12 @@ export default function DealDetail() {
 
         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{[deal.address, deal.city, (deal as any).postal_code].filter(Boolean).join(", ")}</span>
-          <span className="flex items-center gap-1"><Clock className="h-4 w-4" />Start activiteit: {format(startDate, "d MMM HH:mm", { locale: nl })}</span>
-          {startDate.getTime() === expiryDate.getTime() ? (
-            <span>Advertentie verloopt bij start ({format(expiryDate, "HH:mm", { locale: nl })})</span>
-          ) : (
-            <span>Advertentie verloopt: {format(expiryDate, "d MMM HH:mm", { locale: nl })} ({formatDistanceToNow(expiryDate, { locale: nl, addSuffix: true })})</span>
-          )}
+          {hasFixedStart && startDate ? (
+            <span className="flex items-center gap-1"><Clock className="h-4 w-4" />Start activiteit: {format(startDate, "d MMM HH:mm", { locale: nl })}</span>
+          ) : (deal as any).start_time_mode === "flexible" ? (
+            <span className="flex items-center gap-1"><Clock className="h-4 w-4" />Starttijd: kies je op de reserveringspagina</span>
+          ) : null}
+          <span>Advertentie verloopt: {format(expiryDate, "d MMM HH:mm", { locale: nl })} ({formatDistanceToNow(expiryDate, { locale: nl, addSuffix: true })})</span>
         </div>
 
         {(deal as any).pricing_model === "per_person_variable" ? (

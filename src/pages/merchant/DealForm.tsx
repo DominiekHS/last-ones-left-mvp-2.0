@@ -59,7 +59,9 @@ export default function DealForm() {
             setPostalCode((data as any).postal_code || "");
             setOriginalPrice(String(data.original_price));
             setDiscountPercentage(String(data.discount_percentage));
-            setStartTime(toLocalDatetimeString(data.start_time));
+            if (data.start_time) {
+              setStartTime(toLocalDatetimeString(data.start_time));
+            }
             setExpiryTime(toLocalDatetimeString(data.expiry_time));
             setCheckoutLink(data.checkout_link);
             setDiscountCode(data.discount_code);
@@ -106,7 +108,7 @@ export default function DealForm() {
       postal_code: (() => { const n = postalCode.trim().replace(/\s+/g, "").toUpperCase(); return n.length === 6 ? n.slice(0, 4) + " " + n.slice(4) : n; })(),
       original_price: parseFloat(originalPrice),
       discount_percentage: parseInt(discountPercentage),
-      start_time: new Date(startTime).toISOString(),
+      start_time: startTime ? new Date(startTime).toISOString() : null,
       expiry_time: new Date(expiryTime).toISOString(),
       checkout_link: checkoutLink,
       discount_code: discountCode,

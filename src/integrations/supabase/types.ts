@@ -161,7 +161,8 @@ export type Database = {
           pricing_model: string
           redemption_instructions: string | null
           redemption_method: string
-          start_time: string
+          start_time: string | null
+          start_time_mode: string
           terms_summary: string | null
           title: string
           updated_at: string
@@ -189,7 +190,8 @@ export type Database = {
           pricing_model?: string
           redemption_instructions?: string | null
           redemption_method?: string
-          start_time: string
+          start_time?: string | null
+          start_time_mode?: string
           terms_summary?: string | null
           title: string
           updated_at?: string
@@ -217,7 +219,8 @@ export type Database = {
           pricing_model?: string
           redemption_instructions?: string | null
           redemption_method?: string
-          start_time?: string
+          start_time?: string | null
+          start_time_mode?: string
           terms_summary?: string | null
           title?: string
           updated_at?: string

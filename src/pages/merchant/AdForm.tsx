@@ -31,6 +31,7 @@ export default function AdForm() {
   const [counterDiscountMode, setCounterDiscountMode] = useState<"fixed_price" | "variable_amount">("fixed_price");
   const [pricingModel, setPricingModel] = useState<"fixed" | "per_person_variable">("fixed");
   const [pricePerPerson, setPricePerPerson] = useState("");
+  const [startTimeMode, setStartTimeMode] = useState<"fixed" | "flexible">("fixed");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<VenueCategory | "">("");
@@ -74,7 +75,10 @@ export default function AdForm() {
             setAddress((data as any).address || "");
             setOriginalPrice(String(data.original_price));
             setDiscountPercentage(String(data.discount_percentage));
-            setStartTime(data.start_time.slice(0, 16));
+            setStartTimeMode(((data as any).start_time_mode as "fixed" | "flexible") || "fixed");
+            if (data.start_time) {
+              setStartTime(data.start_time.slice(0, 16));
+            }
             setExpiryTime(data.expiry_time.slice(0, 16));
             setCheckoutLink(data.checkout_link);
             setExistingImageUrl(data.image_url);
@@ -187,23 +191,32 @@ export default function AdForm() {
     if (isNaN(disc) || disc < 1 || disc > 100) e.discountPercentage = "Korting moet tussen 1 en 100 zijn";
 
     const now = new Date();
-    const start = new Date(startTime);
     const expiry = new Date(expiryTime);
 
-    if (!startTime) {
-      e.startTime = "Starttijd is verplicht";
-    } else if (start.getTime() < now.getTime() + 5 * 60 * 1000) {
-      e.startTime = "Starttijd moet minimaal 5 minuten in de toekomst liggen";
-    } else if (start.getTime() > now.getTime() + 24 * 60 * 60 * 1000) {
-      e.startTime = "Starttijd moet binnen 24 uur liggen";
-    }
+    if (startTimeMode === "fixed") {
+      const start = new Date(startTime);
+      if (!startTime) {
+        e.startTime = "Starttijd is verplicht";
+      } else if (start.getTime() < now.getTime() + 5 * 60 * 1000) {
+        e.startTime = "Starttijd moet minimaal 5 minuten in de toekomst liggen";
+      } else if (start.getTime() > now.getTime() + 24 * 60 * 60 * 1000) {
+        e.startTime = "Starttijd moet binnen 24 uur liggen";
+      }
 
-    if (!expiryTime) {
-      e.expiryTime = "Verwijdertijd is verplicht";
-    } else if (expiry <= now) {
-      e.expiryTime = "Verwijdertijd moet in de toekomst liggen";
-    } else if (startTime && expiry > start) {
-      e.expiryTime = "Verwijdertijd moet vóór de starttijd liggen";
+      if (!expiryTime) {
+        e.expiryTime = "Verwijdertijd is verplicht";
+      } else if (expiry <= now) {
+        e.expiryTime = "Verwijdertijd moet in de toekomst liggen";
+      } else if (startTime && expiry > new Date(startTime)) {
+        e.expiryTime = "Verwijdertijd moet vóór de starttijd liggen";
+      }
+    } else {
+      // flexible mode
+      if (!expiryTime) {
+        e.expiryTime = "Verwijdertijd is verplicht";
+      } else if (expiry <= now) {
+        e.expiryTime = "Verwijdertijd moet in de toekomst liggen";
+      }
     }
 
     // Checkout link required for online_checkout and online_pay_pos_refund, optional for at_counter
@@ -294,8 +307,9 @@ export default function AdForm() {
       indicative_price_from: pricingModel === "per_person_variable" && pricePerPerson ? parseFloat(pricePerPerson) : null,
       price_per_person: pricingModel === "per_person_variable" && pricePerPerson ? parseFloat(pricePerPerson) : null,
       discount_percentage: parseInt(discountPercentage),
-      start_time: new Date(startTime).toISOString(),
+      start_time: startTimeMode === "fixed" ? new Date(startTime).toISOString() : null,
       expiry_time: new Date(expiryTime).toISOString(),
+      start_time_mode: startTimeMode,
       checkout_link: checkoutLink.trim(),
       discount_code: discountType === "universal" ? universalCode.trim() : "",
       image_url: imageUrl,
@@ -379,17 +393,19 @@ export default function AdForm() {
 
       <form onSubmit={handleSubmit} className="container max-w-lg py-6 space-y-5">
         {/* Warning banner */}
-        <Card className="border-primary/30 bg-primary/5">
-          <CardContent className="p-4 flex gap-3">
-            <AlertTriangle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-            <div>
-              <p className="font-display font-semibold text-sm">Let op: Starttijd moet binnen 24 uur liggen</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Dit is een last-minute marketplace. Activiteiten die later starten kunnen niet worden geplaatst.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        {startTimeMode === "fixed" && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="p-4 flex gap-3">
+              <AlertTriangle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="font-display font-semibold text-sm">Let op: Starttijd moet binnen 24 uur liggen</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Dit is een last-minute marketplace. Activiteiten die later starten kunnen niet worden geplaatst.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Section 1: Korting verzilveren */}
         <Card>
@@ -753,19 +769,52 @@ export default function AdForm() {
             <CardTitle className="font-display text-lg">Timing</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="start">Starttijd activiteit *</Label>
-                <Input
-                  id="start"
-                  type="datetime-local"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  onBlur={() => touch("startTime")}
-                />
-                <p className="text-xs text-muted-foreground">Moet binnen 24 uur liggen</p>
-                {showError("startTime") && <p className="text-xs text-destructive">{showError("startTime")}</p>}
+            {/* Start time mode selection */}
+            <div className="space-y-2">
+              <Label>Starttijd activiteit *</Label>
+              <div className="grid grid-cols-1 gap-3">
+                <button
+                  type="button"
+                  onClick={() => { setStartTimeMode("fixed"); }}
+                  className={`rounded-lg border-2 p-4 text-left transition-colors ${
+                    startTimeMode === "fixed"
+                      ? "border-primary bg-primary/5"
+                      : "border-input hover:border-primary/30"
+                  }`}
+                >
+                  <p className="font-display font-semibold text-sm">Starttijd bekend</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Je weet wanneer de activiteit begint.</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setStartTimeMode("flexible"); setStartTime(""); }}
+                  className={`rounded-lg border-2 p-4 text-left transition-colors ${
+                    startTimeMode === "flexible"
+                      ? "border-primary bg-primary/5"
+                      : "border-input hover:border-primary/30"
+                  }`}
+                >
+                  <p className="font-display font-semibold text-sm">Starttijd onbekend (keuze op reserveringspagina)</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">De klant kiest zelf een tijd op jouw reserveringspagina.</p>
+                </button>
               </div>
+            </div>
+
+            <div className={`grid grid-cols-1 ${startTimeMode === "fixed" ? "sm:grid-cols-2" : ""} gap-4`}>
+              {startTimeMode === "fixed" && (
+                <div className="space-y-2">
+                  <Label htmlFor="start">Starttijd activiteit *</Label>
+                  <Input
+                    id="start"
+                    type="datetime-local"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                    onBlur={() => touch("startTime")}
+                  />
+                  <p className="text-xs text-muted-foreground">Moet binnen 24 uur liggen</p>
+                  {showError("startTime") && <p className="text-xs text-destructive">{showError("startTime")}</p>}
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="expiry">Advertentie verwijderen om *</Label>
                 <Input
@@ -775,7 +824,9 @@ export default function AdForm() {
                   onChange={(e) => setExpiryTime(e.target.value)}
                   onBlur={() => touch("expiryTime")}
                 />
-                <p className="text-xs text-muted-foreground">Moet vóór starttijd liggen</p>
+                <p className="text-xs text-muted-foreground">
+                  {startTimeMode === "fixed" ? "Moet vóór starttijd liggen" : "Moet in de toekomst liggen"}
+                </p>
                 {showError("expiryTime") && <p className="text-xs text-destructive">{showError("expiryTime")}</p>}
               </div>
             </div>
@@ -859,7 +910,9 @@ export default function AdForm() {
                 </p>
                 <p>
                   <span className="font-semibold text-yellow-800">Starttijd activiteit:</span>{" "}
-                  {startTime ? (
+                  {startTimeMode === "flexible" ? (
+                    <span className="text-yellow-700">Flexibel (klant kiest op reserveringspagina)</span>
+                  ) : startTime ? (
                     <span className="text-yellow-700">
                       {new Date(startTime).toLocaleString("nl-NL", { dateStyle: "long", timeStyle: "short" })}
                     </span>
@@ -867,7 +920,7 @@ export default function AdForm() {
                     <span className="text-yellow-600 italic">Vul eerst 'Starttijd activiteit' in</span>
                   )}
                 </p>
-                {expiryTime && startTime && new Date(expiryTime) > new Date(startTime) && (
+                {startTimeMode === "fixed" && expiryTime && startTime && new Date(expiryTime) > new Date(startTime) && (
                   <p className="text-destructive text-xs font-medium mt-1">
                     ⚠ Let op: 'Advertentie verwijderen om' moet vóór de starttijd liggen.
                   </p>
