@@ -84,8 +84,11 @@ export function Header() {
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/login">Inloggen</Link>
               </Button>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/merchant/registreren" aria-label="Registreren als ondernemer">Registreren als ondernemer</Link>
+              </Button>
               <Button size="sm" asChild>
-                <Link to="/registreren">Account aanmaken</Link>
+                <Link to="/registreren" aria-label="Account aanmaken als consument">Account aanmaken</Link>
               </Button>
             </>
           )}
@@ -133,7 +136,10 @@ export function Header() {
               <Link to="/login" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>
                 Inloggen
               </Link>
-              <Link to="/registreren" className="block py-2 text-sm font-semibold" onClick={() => setMobileOpen(false)}>
+              <Link to="/merchant/registreren" className="block py-2 text-sm" onClick={() => setMobileOpen(false)} aria-label="Registreren als ondernemer">
+                Registreren als ondernemer
+              </Link>
+              <Link to="/registreren" className="block py-2 text-sm font-semibold" onClick={() => setMobileOpen(false)} aria-label="Account aanmaken als consument">
                 Account aanmaken
               </Link>
             </>
