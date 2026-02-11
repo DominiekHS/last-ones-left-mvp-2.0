@@ -31,6 +31,7 @@ export default function DealDetail() {
 
   const isMerchantOwner = merchant && deal && deal.merchant_id === merchant.id;
   const isAdmin = roles.includes("admin");
+  const isConsumer = roles.includes("consumer") && !isAdmin && !merchant;
 
   // Track view
   useEffect(() => {
@@ -39,9 +40,9 @@ export default function DealDetail() {
     }
   }, [id, user]);
 
-  // Check if already claimed
+  // Check if already claimed (only for consumers)
   useEffect(() => {
-    if (user && id) {
+    if (user && id && isConsumer) {
       supabase
         .from("vouchers")
         .select("discount_code")
@@ -55,10 +56,10 @@ export default function DealDetail() {
           }
         });
     }
-  }, [user, id]);
+  }, [user, id, isConsumer]);
 
   const handleClaim = async () => {
-    if (!user || !deal) return;
+    if (!user || !deal || !isConsumer) return;
     setClaiming(true);
     const { error } = await supabase.from("vouchers").insert({
       user_id: user.id,
@@ -272,8 +273,16 @@ export default function DealDetail() {
 
       {isMerchantOwner ? (
         <MerchantPreviewCTA dealId={deal.id} />
-      ) : isAdmin ? (
-        <p className="text-sm text-muted-foreground italic">Je bekijkt dit als admin. Claim-functionaliteit is uitgeschakeld.</p>
+      ) : !isConsumer ? (
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-sm text-muted-foreground italic">
+              {isAdmin
+                ? "Je bekijkt dit als admin. Claim-functionaliteit is uitgeschakeld."
+                : "Je bekijkt deze deal als ondernemer. Alleen consumenten kunnen korting claimen."}
+            </p>
+          </CardContent>
+        </Card>
       ) : (
         <Card>
           <CardContent className="p-4 space-y-3">
