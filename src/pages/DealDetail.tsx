@@ -273,6 +273,17 @@ export default function DealDetail() {
 
       {isMerchantOwner ? (
         <MerchantPreviewCTA dealId={deal.id} />
+      ) : !user ? (
+        <Card>
+          <CardContent className="p-4 space-y-3">
+            <p className="text-sm text-muted-foreground">
+              <Link to="/login" className="text-primary hover:underline font-medium">Log in</Link> als consument om korting te claimen en te boeken.
+            </p>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/registreren">Account aanmaken</Link>
+            </Button>
+          </CardContent>
+        </Card>
       ) : !isConsumer ? (
         <Card>
           <CardContent className="p-4">
