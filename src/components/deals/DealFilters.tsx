@@ -35,7 +35,7 @@ export function DealFilters({ category, city, onCategoryChange, onCityChange, ca
 
   const selectedLabel = city
     ? cities.find((c) => c.value === city)?.label || city
-    : "Alle steden";
+    : "Alle plaatsen";
 
   return (
     <div className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b py-3">
@@ -57,9 +57,9 @@ export function DealFilters({ category, city, onCategoryChange, onCityChange, ca
           </PopoverTrigger>
           <PopoverContent className="w-[--radix-popover-trigger-width] p-0 bg-popover z-50" align="start">
             <Command>
-              <CommandInput placeholder="Zoek een stad…" />
+              <CommandInput placeholder="Zoek een plaats…" />
               <CommandList>
-                <CommandEmpty>Geen steden gevonden</CommandEmpty>
+                <CommandEmpty>Geen plaatsen gevonden</CommandEmpty>
                 <CommandGroup>
                   <CommandItem
                     value="alle-steden"
@@ -69,7 +69,7 @@ export function DealFilters({ category, city, onCategoryChange, onCityChange, ca
                     }}
                   >
                     <Check className={cn("mr-2 h-4 w-4", !city ? "opacity-100" : "opacity-0")} />
-                    Alle steden
+                    Alle plaatsen
                   </CommandItem>
                   {cities.map((c) => (
                     <CommandItem
