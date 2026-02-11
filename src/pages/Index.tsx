@@ -9,16 +9,18 @@ const Index = () => {
   const [category, setCategory] = useState("all");
   const [city, setCity] = useState("");
   const { data: deals, isLoading } = useActiveDeals(category, city);
+  // Separate query without category filter for stable category counts
+  const { data: allDealsForCounts } = useActiveDeals("all", city);
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    for (const deal of deals || []) {
+    for (const deal of allDealsForCounts || []) {
       if (deal.category) {
         counts[deal.category] = (counts[deal.category] || 0) + 1;
       }
     }
     return counts;
-  }, [deals]);
+  }, [allDealsForCounts]);
 
   return (
     <>
