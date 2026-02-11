@@ -61,18 +61,22 @@ export default function DealDetail() {
   const handleClaim = async () => {
     if (!user || !deal || !isConsumer) return;
     setClaiming(true);
-    const { error } = await supabase.from("vouchers").insert({
-      user_id: user.id,
-      deal_id: deal.id,
-      discount_code: deal.discount_code,
+    const { data, error } = await supabase.rpc("claim_deal", {
+      p_user_id: user.id,
+      p_deal_id: deal.id,
     });
     if (error) {
-      toast({ title: "Fout", description: "Kon de deal niet claimen. Probeer opnieuw.", variant: "destructive" });
+      const msg = error.message?.includes("No codes available")
+        ? "Er zijn geen kortingscodes meer beschikbaar voor deze deal."
+        : error.message?.includes("already claimed")
+        ? "Je hebt deze deal al geclaimd."
+        : "Kon de deal niet claimen. Probeer opnieuw.";
+      toast({ title: "Fout", description: msg, variant: "destructive" });
     } else {
+      const result = data?.[0];
       setClaimed(true);
-      setClaimedCode(deal.discount_code);
+      setClaimedCode(result?.discount_code || deal.discount_code);
       toast({ title: "Gelukt!", description: "Je kortingscode is opgeslagen." });
-      // Track click
       supabase.from("deal_events").insert({ deal_id: deal.id, event_type: "click", user_id: user.id }).then();
     }
     setClaiming(false);

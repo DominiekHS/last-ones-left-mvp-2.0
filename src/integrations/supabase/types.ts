@@ -543,6 +543,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_deal: {
+        Args: { p_deal_id: string; p_user_id: string }
+        Returns: {
+          discount_code: string
+          voucher_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
