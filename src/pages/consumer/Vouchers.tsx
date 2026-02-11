@@ -105,17 +105,21 @@ export default function Vouchers() {
                   ))}
 
                   <div className="flex items-center gap-2 bg-muted p-2 rounded-md">
-                    <code className="font-mono font-bold flex-1">{v.discount_code}</code>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        navigator.clipboard.writeText(v.discount_code);
-                        toast({ title: "Gekopieerd!" });
-                      }}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
+                    <code className="font-mono font-bold flex-1">
+                      {v.discount_code || "Code niet beschikbaar"}
+                    </code>
+                    {v.discount_code && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          navigator.clipboard.writeText(v.discount_code);
+                          toast({ title: "Gekopieerd!" });
+                        }}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
 
                   {/* Method-specific instructions */}
