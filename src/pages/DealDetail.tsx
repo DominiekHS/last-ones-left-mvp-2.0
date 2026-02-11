@@ -157,7 +157,7 @@ export default function DealDetail() {
         )}
 
         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{deal.city}{(deal as any).postal_code ? `, ${(deal as any).postal_code}` : ""}</span>
+          <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{[deal.address, deal.city, (deal as any).postal_code].filter(Boolean).join(", ")}</span>
           <span className="flex items-center gap-1"><Clock className="h-4 w-4" />Start activiteit: {format(startDate, "d MMM HH:mm", { locale: nl })}</span>
           {startDate.getTime() === expiryDate.getTime() ? (
             <span>Advertentie verloopt bij start ({format(expiryDate, "HH:mm", { locale: nl })})</span>
