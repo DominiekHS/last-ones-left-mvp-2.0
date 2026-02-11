@@ -92,7 +92,15 @@ export function DealFilters({ category, city, onCategoryChange, onCityChange, ca
 
         <Select value={category} onValueChange={onCategoryChange}>
           <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Categorie" />
+            <SelectValue>
+              {category === "all"
+                ? "Alle categorieën"
+                : (() => {
+                    const cat = CATEGORIES.find((c) => c.value === category);
+                    const count = categoryCounts[category] || 0;
+                    return cat ? (count > 0 ? `${cat.label} (${count})` : cat.label) : "Categorie";
+                  })()}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Alle categorieën</SelectItem>
