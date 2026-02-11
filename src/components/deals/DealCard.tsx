@@ -11,10 +11,11 @@ type Deal = Tables<"deals"> & { merchants?: { company_name: string } | null };
 
 export function DealCard({ deal }: { deal: Deal }) {
   const discountedPrice = deal.original_price * (1 - deal.discount_percentage / 100);
-  const startDate = new Date(deal.start_time);
+  const hasFixedStart = (deal as any).start_time_mode !== "flexible" && deal.start_time;
+  const startDate = hasFixedStart ? new Date(deal.start_time) : null;
   const expiryDate = new Date(deal.expiry_time);
   const hoursLeft = differenceInHours(expiryDate, new Date());
-  const startsToday = isToday(startDate);
+  const startsToday = startDate ? isToday(startDate) : false;
 
   return (
     <Link to={`/deal/${deal.id}`} className="block group">
@@ -75,7 +76,11 @@ export function DealCard({ deal }: { deal: Deal }) {
           )}
           <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
             <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{deal.city}</span>
-            <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Start: {format(startDate, "HH:mm", { locale: nl })}</span>
+            {hasFixedStart && startDate ? (
+              <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Start: {format(startDate, "HH:mm", { locale: nl })}</span>
+            ) : (deal as any).start_time_mode === "flexible" ? (
+              <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Tijd: op reserveringspagina</span>
+            ) : null}
             <span className="flex items-center gap-1 text-muted-foreground/70">Verloopt: {format(expiryDate, "HH:mm", { locale: nl })}</span>
           </div>
           {(deal as any).pricing_model === "per_person_variable" ? (

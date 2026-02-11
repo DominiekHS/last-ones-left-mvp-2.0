@@ -148,7 +148,10 @@ export default function AdminDealDetail() {
             <InfoRow label="Stad" value={deal.city} />
             {(deal as any).postal_code && <InfoRow label="Postcode" value={(deal as any).postal_code} />}
             {deal.address && <InfoRow label="Adres" value={deal.address} />}
-            <InfoRow label="Starttijd" value={format(new Date(deal.start_time), "d MMMM yyyy HH:mm", { locale: nl })} />
+            <InfoRow label="Starttijd modus" value={(deal as any).start_time_mode === "flexible" ? "Flexibel" : "Vast"} />
+            {deal.start_time && (deal as any).start_time_mode !== "flexible" && (
+              <InfoRow label="Starttijd" value={format(new Date(deal.start_time), "d MMMM yyyy HH:mm", { locale: nl })} />
+            )}
             <InfoRow label="Verloopt op" value={format(new Date(deal.expiry_time), "d MMMM yyyy HH:mm", { locale: nl })} />
             {deal.description && <InfoRow label="Omschrijving" value={deal.description} />}
           </CardContent>
