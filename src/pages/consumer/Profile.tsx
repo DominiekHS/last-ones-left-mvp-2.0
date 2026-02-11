@@ -106,7 +106,7 @@ export default function Profile() {
         <Card className="mt-4">
           <CardContent className="p-4">
             <Button variant="outline" size="sm" asChild className="w-full">
-              <Link to="/merchant/profiel">Bedrijfsprofiel bewerken</Link>
+              <Link to="/merchant/profiel">Mijn bedrijfsprofiel</Link>
             </Button>
           </CardContent>
         </Card>
