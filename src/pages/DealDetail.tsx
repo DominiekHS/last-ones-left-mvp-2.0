@@ -33,12 +33,12 @@ export default function DealDetail() {
   const isAdmin = roles.includes("admin");
   const isConsumer = roles.includes("consumer") && !isAdmin && !merchant;
 
-  // Track view
+  // Track view (skip if merchant is viewing their own deal)
   useEffect(() => {
-    if (id) {
+    if (id && !isMerchantOwner) {
       supabase.from("deal_events").insert({ deal_id: id, event_type: "view", user_id: user?.id || null }).then();
     }
-  }, [id, user]);
+  }, [id, user, isMerchantOwner]);
 
   // Check if already claimed (only for consumers)
   useEffect(() => {
