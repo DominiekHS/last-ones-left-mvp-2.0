@@ -56,6 +56,7 @@ export default function AdForm() {
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [wasExpired, setWasExpired] = useState(false);
 
   // Load existing deal for edit
   useEffect(() => {
@@ -93,6 +94,8 @@ export default function AdForm() {
             if ((data as any).discount_type !== "unique") {
               setUniversalCode(data.discount_code);
             }
+            // Track if the deal was expired when editing started
+            setWasExpired(new Date(data.expiry_time) < new Date());
           }
         });
 
@@ -337,8 +340,8 @@ export default function AdForm() {
       return;
     }
 
-    // Reset stats (views/clicks) when editing an existing deal
-    if (isEdit && dealId) {
+    // Reset stats only when reactivating an expired deal
+    if (isEdit && dealId && wasExpired) {
       await supabase.from("deal_events").delete().eq("deal_id", dealId);
     }
 
