@@ -337,6 +337,11 @@ export default function AdForm() {
       return;
     }
 
+    // Reset stats (views/clicks) when editing an existing deal
+    if (isEdit && dealId) {
+      await supabase.from("deal_events").delete().eq("deal_id", dealId);
+    }
+
     // Handle unique codes
     if (discountType === "unique" && dealId) {
       // Delete existing codes on edit
