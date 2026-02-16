@@ -1,0 +1,14 @@
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'jeu_de_boules';
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'shuffleboard';
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'boulderen';
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'pitch_putt';
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'voet_darts';
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'voetgolf';
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'minigolf';
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'padel';
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'pickleball';
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'tennis';
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'karten';
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'pool';
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'airhockey';
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'darts';
