@@ -22,7 +22,7 @@ export default function DealAnalytics() {
 
   const kpis = useMemo(() => {
     const views = events?.filter(e => e.event_type === "view").length || 0;
-    const websiteClicks = events?.filter(e => e.event_type === "checkout_click").length || 0;
+    const websiteClicks = events?.filter(e => e.event_type === "click").length || 0;
     const conversion = views > 0 ? (websiteClicks / views) * 100 : 0;
     return { views, websiteClicks, conversion };
   }, [events]);
