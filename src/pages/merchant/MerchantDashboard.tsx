@@ -154,7 +154,7 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
             <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[deal.category]}</Badge>
           </div>
           <p className="text-xs text-muted-foreground">
-            {deal.city}{deal.start_time ? ` · Start: ${format(new Date(deal.start_time), "d MMM HH:mm", { locale: nl })}` : ""} ·{" "}
+            {deal.city}{deal.start_time ? ` · Start: ${format(new Date(deal.start_time), "d MMM HH:mm", { locale: nl })}` : ""} · Eind: {format(new Date(deal.expiry_time), "d MMM HH:mm", { locale: nl })} ·{" "}
             -{deal.discount_percentage}% · €{(deal.original_price * (1 - deal.discount_percentage / 100)).toFixed(2)}
           </p>
           <div className="flex gap-4 text-xs text-muted-foreground">
