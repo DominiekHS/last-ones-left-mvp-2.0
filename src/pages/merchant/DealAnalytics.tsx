@@ -10,7 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ArrowLeft, Info, Eye, MousePointerClick, ShoppingCart, TrendingUp } from "lucide-react";
+import { ArrowLeft, Info, Eye, MousePointerClick, TrendingUp } from "lucide-react";
 import { useDealEvents } from "@/hooks/useDealAnalytics";
 import { useMemo } from "react";
 
@@ -22,10 +22,9 @@ export default function DealAnalytics() {
 
   const kpis = useMemo(() => {
     const views = events?.filter(e => e.event_type === "view").length || 0;
-    const detailClicks = events?.filter(e => e.event_type === "click").length || 0;
-    const checkoutClicks = events?.filter(e => e.event_type === "checkout_click").length || 0;
-    const checkoutConversion = views > 0 ? (checkoutClicks / views) * 100 : 0;
-    return { views, detailClicks, checkoutClicks, checkoutConversion };
+    const websiteClicks = events?.filter(e => e.event_type === "checkout_click").length || 0;
+    const conversion = views > 0 ? (websiteClicks / views) * 100 : 0;
+    return { views, websiteClicks, conversion };
   }, [events]);
 
   if (!authLoading && (!user || !roles.includes("merchant"))) {
@@ -36,8 +35,8 @@ export default function DealAnalytics() {
     return (
       <div className="container py-6 max-w-5xl space-y-4">
         <Skeleton className="h-8 w-64" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
     );
@@ -84,15 +83,14 @@ export default function DealAnalytics() {
       </div>
 
       {eventsLoading ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <KPICard icon={<Eye className="h-4 w-4" />} label="Views" value={kpis.views} tooltip="Aantal keer dat de advertentie is bekeken" />
-          <KPICard icon={<MousePointerClick className="h-4 w-4" />} label="Detail-kliks" value={kpis.detailClicks} tooltip="Aantal keer dat de advertentiekaart is geopend" />
-          <KPICard icon={<ShoppingCart className="h-4 w-4" />} label="Checkout-kliks" value={kpis.checkoutClicks} tooltip="Aantal keer dat de checkout-knop is geklikt" />
-          <KPICard icon={<TrendingUp className="h-4 w-4" />} label="Checkout-conversie" value={`${kpis.checkoutConversion.toFixed(1)}%`} tooltip="Checkout-kliks / Views" />
+          <KPICard icon={<MousePointerClick className="h-4 w-4" />} label="Kliks-naar-website" value={kpis.websiteClicks} tooltip="Aantal keer dat er naar de website is doorgeklikt" />
+          <KPICard icon={<TrendingUp className="h-4 w-4" />} label="Conversie" value={`${kpis.conversion.toFixed(1)}%`} tooltip="Kliks-naar-website / Views" />
         </div>
       )}
 
