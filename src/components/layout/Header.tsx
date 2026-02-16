@@ -48,7 +48,7 @@ export function Header() {
             <>
               {isMerchant && (
                 <Button variant="ghost" size="sm" asChild>
-                  <Link to="/merchant"><Store className="mr-1 h-4 w-4" />Dashboard</Link>
+                  <Link to="/merchant"><Store className="mr-1 h-4 w-4" />Mijn Advertenties</Link>
                 </Button>
               )}
               {isAdmin && (
@@ -129,7 +129,7 @@ export function Header() {
               )}
               {isMerchant && (
                 <Link to="/merchant" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>
-                  Merchant Dashboard
+                  Mijn Advertenties
                 </Link>
               )}
               {isAdmin && (
