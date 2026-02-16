@@ -632,6 +632,20 @@ export type Database = {
         | "voetbal"
         | "basketbal"
         | "overig"
+        | "jeu_de_boules"
+        | "shuffleboard"
+        | "boulderen"
+        | "pitch_putt"
+        | "voet_darts"
+        | "voetgolf"
+        | "minigolf"
+        | "padel"
+        | "pickleball"
+        | "tennis"
+        | "karten"
+        | "pool"
+        | "airhockey"
+        | "darts"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -775,6 +789,20 @@ export const Constants = {
         "voetbal",
         "basketbal",
         "overig",
+        "jeu_de_boules",
+        "shuffleboard",
+        "boulderen",
+        "pitch_putt",
+        "voet_darts",
+        "voetgolf",
+        "minigolf",
+        "padel",
+        "pickleball",
+        "tennis",
+        "karten",
+        "pool",
+        "airhockey",
+        "darts",
       ],
     },
   },
