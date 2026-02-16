@@ -72,7 +72,7 @@ export default function MerchantDashboard() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold">Dashboard</h1>
+          <h1 className="font-display text-2xl font-bold">Mijn Advertenties</h1>
           <p className="text-muted-foreground">{merchant.company_name}</p>
         </div>
         <div className="flex gap-2">
