@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link, Navigate } from "react-router-dom";
-import { Plus, Trash2, Pencil, Eye, MousePointerClick, ChevronRight, AlertTriangle, Ban, AlertCircle } from "lucide-react";
+import { Plus, Trash2, Pencil, Eye, MousePointerClick, ChevronRight, AlertTriangle, Ban, AlertCircle, Copy } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -208,7 +208,11 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {!isExpired && (
+          {isExpired ? (
+            <Button size="sm" asChild onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+              <Link to={`/merchant/ads/new?copyFrom=${deal.id}`}><Copy className="mr-1 h-3 w-3" />Kopieer</Link>
+            </Button>
+          ) : (
             <>
               <Button variant="outline" size="sm" asChild onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                 <Link to={`/merchant/ads/${deal.id}/edit`}><Pencil className="h-3 w-3" /></Link>
