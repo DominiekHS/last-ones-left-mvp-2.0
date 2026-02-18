@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate, useParams, Navigate } from "react-router-dom";
+import { useNavigate, useParams, Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,8 @@ interface FormErrors {
 
 export default function AdForm() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const copyFromId = searchParams.get("copyFrom");
   const isEdit = !!id;
   const { user, merchant, roles, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -58,13 +60,14 @@ export default function AdForm() {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [wasExpired, setWasExpired] = useState(false);
 
-  // Load existing deal for edit
+  // Load existing deal for edit OR copy
+  const loadDealId = isEdit ? id : copyFromId;
   useEffect(() => {
-    if (isEdit && id) {
+    if (loadDealId) {
       supabase
         .from("deals")
         .select("*")
-        .eq("id", id)
+        .eq("id", loadDealId)
         .maybeSingle()
         .then(({ data }) => {
           if (data) {
@@ -77,10 +80,12 @@ export default function AdForm() {
             setOriginalPrice(String(data.original_price));
             setDiscountPercentage(String(data.discount_percentage));
             setStartTimeMode(((data as any).start_time_mode as "fixed" | "flexible") || "fixed");
-            if (data.start_time) {
+            if (isEdit && data.start_time) {
               setStartTime(data.start_time.slice(0, 16));
             }
-            setExpiryTime(data.expiry_time.slice(0, 16));
+            if (isEdit) {
+              setExpiryTime(data.expiry_time.slice(0, 16));
+            }
             setCheckoutLink(data.checkout_link);
             setExistingImageUrl(data.image_url);
             setRedemptionMethod(((data as any).redemption_method as "online_checkout" | "at_counter" | "online_pay_pos_refund") || "online_checkout");
@@ -95,29 +100,36 @@ export default function AdForm() {
               setUniversalCode(data.discount_code);
             }
             // Track if the deal was expired when editing started
-            setWasExpired(new Date(data.expiry_time) < new Date());
+            if (isEdit) {
+              setWasExpired(new Date(data.expiry_time) < new Date());
+            }
           }
         });
 
-      // Load unique codes if edit
-      supabase
-        .from("unique_codes" as any)
-        .select("code")
-        .eq("deal_id", id)
-        .then(({ data }: any) => {
-          if (data && data.length > 0) {
-            setDiscountType("unique");
-            setUniqueCodeCount(String(data.length));
-            setUniqueCodesText(data.map((c: any) => c.code).join("\n"));
-          }
-        });
+      // Load unique codes only for edit (not copy — new codes needed)
+      if (isEdit) {
+        supabase
+          .from("unique_codes" as any)
+          .select("code")
+          .eq("deal_id", loadDealId)
+          .then(({ data }: any) => {
+            if (data && data.length > 0) {
+              setDiscountType("unique");
+              setUniqueCodeCount(String(data.length));
+              setUniqueCodesText(data.map((c: any) => c.code).join("\n"));
+            }
+          });
+      } else if (copyFromId) {
+        // For copies with unique codes, keep the type but clear the codes
+        // The discount_type is already set above from the deal data
+      }
     }
-    if (merchant?.city && !isEdit) {
+    if (merchant?.city && !isEdit && !copyFromId) {
       setCity(merchant.city);
       setPostalCode(merchant.postcode || "");
       setAddress(merchant.address);
     }
-  }, [isEdit, id, merchant]);
+  }, [isEdit, loadDealId, merchant, copyFromId]);
 
   // Image preview
   useEffect(() => {
@@ -389,7 +401,7 @@ export default function AdForm() {
             </Button>
             <div>
               <h1 className="font-display text-2xl font-bold">
-                {isEdit ? "Advertentie bewerken" : "Advertentie maken"}
+                {isEdit ? "Advertentie bewerken" : copyFromId ? "Advertentie kopiëren" : "Advertentie maken"}
               </h1>
               <p className="text-sm text-muted-foreground">
                 Vul je lege plekken en trek nieuwe klanten aan

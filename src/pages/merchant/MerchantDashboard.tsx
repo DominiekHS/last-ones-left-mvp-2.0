@@ -185,12 +185,16 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" asChild onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-            <Link to={`/merchant/ads/${deal.id}/edit`}><Pencil className="h-3 w-3" /></Link>
-          </Button>
-          <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
-            <Trash2 className="h-3 w-3" />
-          </Button>
+          {!isExpired && (
+            <>
+              <Button variant="outline" size="sm" asChild onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                <Link to={`/merchant/ads/${deal.id}/edit`}><Pencil className="h-3 w-3" /></Link>
+              </Button>
+              <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </>
+          )}
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </div>
       </CardContent>

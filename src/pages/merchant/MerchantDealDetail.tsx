@@ -11,7 +11,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
-import { ArrowLeft, Pencil, Trash2, ExternalLink, Eye, MousePointerClick, BarChart3, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, ExternalLink, Eye, MousePointerClick, BarChart3, AlertTriangle, Copy } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function MerchantDealDetail() {
@@ -131,12 +131,20 @@ export default function MerchantDealDetail() {
             <Button variant="outline" size="sm" asChild>
               <Link to={`/merchant/deals/${deal.id}/analytics`}><BarChart3 className="mr-1 h-4 w-4" />Analytics</Link>
             </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link to={`/merchant/ads/${deal.id}/edit`}><Pencil className="mr-1 h-4 w-4" />Bewerk</Link>
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleDelete}>
-              <Trash2 className="mr-1 h-4 w-4" />Verwijder
-            </Button>
+            {isExpired ? (
+              <Button size="sm" asChild>
+                <Link to={`/merchant/ads/new?copyFrom=${deal.id}`}><Copy className="mr-1 h-4 w-4" />Kopieer advertentie</Link>
+              </Button>
+            ) : (
+              <>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to={`/merchant/ads/${deal.id}/edit`}><Pencil className="mr-1 h-4 w-4" />Bewerk</Link>
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleDelete}>
+                  <Trash2 className="mr-1 h-4 w-4" />Verwijder
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
