@@ -217,7 +217,7 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
           </div>
         </div>
         <div className="flex items-center gap-2 ml-auto">
-          <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+          <Button variant="outline" size="sm" className="text-destructive border-destructive/50 hover:bg-destructive/10 hover:text-destructive" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
             <Trash2 className="h-3 w-3" />
           </Button>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
