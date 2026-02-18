@@ -43,10 +43,16 @@ export default function Vouchers() {
     return deal && new Date(deal.expiry_time) >= now && !v.became_inactive_at;
   }) || [];
 
+  const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
   const inactiveVouchers = vouchers?.filter((v) => {
     const deal = v.deals as any;
     const isExpired = !deal || new Date(deal.expiry_time) < now;
-    return isExpired || !!v.became_inactive_at;
+    const isInactive = isExpired || !!v.became_inactive_at;
+    if (!isInactive) return false;
+    // Only show inactive vouchers from the last 24 hours
+    const inactiveAt = v.became_inactive_at ? new Date(v.became_inactive_at) : (deal ? new Date(deal.expiry_time) : null);
+    return inactiveAt && inactiveAt >= twentyFourHoursAgo;
   }) || [];
 
   const displayVouchers = showInactive
