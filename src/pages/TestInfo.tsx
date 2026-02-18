@@ -36,7 +36,7 @@ export default function TestInfo() {
         <div className="space-y-1">
           <h2 className="font-display font-semibold text-lg">Wat kun je verwachten?</h2>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Bedrijven bieden activiteiten aan om vandaag en morgen te doen</li>
+            <li>Bedrijven bieden activiteiten aan die jij vandaag en morgen kunt beleven</li>
             <li>Jouw spontaniteit wordt beloond met korting</li>
             <li>Er wordt hard gewerkt om dit platform constant te verbeteren, help je mee?</li>
           </ul>
@@ -45,12 +45,12 @@ export default function TestInfo() {
         <div className="space-y-1">
           <h2 className="font-display font-semibold text-lg">Meehelpen door feedback te delen?</h2>
           <p>
-            Ja graag! Jouw feedback helpt ons om Last Ones Left beter te maken! Heb je suggesties, vragen
+            Ja graag! Jouw feedback helpt enorm om Last Ones Left beter te maken! Heb je suggesties, vragen
             of kom je een probleem tegen? Neem dan gerust{" "}
             <Link to="/contact" className="text-primary font-medium underline underline-offset-2">
               contact
             </Link>{" "}
-            met ons op.
+            op met Last Ones Left.
           </p>
         </div>
       </div>
