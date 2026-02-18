@@ -25,7 +25,7 @@ const Index = () => {
 
   return (
     <>
-      <div className="bg-destructive border-y-4 border-foreground text-center py-3 px-4">
+      <div className="bg-success border-y-4 border-foreground text-center py-3 px-4">
         <span className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
           TEST VERSIE – LEES{" "}
           <Link to="/testversie" className="underline underline-offset-4 hover:opacity-80">
