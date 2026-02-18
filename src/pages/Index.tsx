@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { useActiveDeals } from "@/hooks/useDeals";
 import { DealCard } from "@/components/deals/DealCard";
 import { DealFilters } from "@/components/deals/DealFilters";
@@ -24,6 +25,13 @@ const Index = () => {
 
   return (
     <>
+      <div className="bg-foreground text-background text-center py-2 px-4 text-sm font-medium tracking-wide">
+        TEST VERSIE – LEES{" "}
+        <Link to="/testversie" className="underline underline-offset-2 font-bold hover:opacity-80">
+          HIER
+        </Link>{" "}
+        MEER
+      </div>
       <section className="bg-primary text-primary-foreground py-8 sm:py-12">
         <div className="container text-center space-y-3">
           <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">

@@ -33,6 +33,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDealDetail from "./pages/admin/AdminDealDetail";
 import AdminDealPreview from "./pages/admin/AdminDealPreview";
 import AdminMerchantDetail from "./pages/admin/AdminMerchantDetail";
+import TestInfo from "./pages/TestInfo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/algemene-voorwaarden" element={<Terms />} />
               <Route path="/privacybeleid" element={<Privacy />} />
+              <Route path="/testversie" element={<TestInfo />} />
               <Route path="/help" element={<HelpCenter />} />
               <Route path="/help/:categorySlug" element={<HelpCategory />} />
               <Route path="/merchant" element={<MerchantDashboard />} />
