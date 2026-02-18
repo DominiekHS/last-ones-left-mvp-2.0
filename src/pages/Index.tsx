@@ -27,7 +27,7 @@ const Index = () => {
     <>
       <div className="bg-success border-y-4 border-foreground text-center py-3 px-4">
         <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-          Test versie – Lees{" "}
+          Testversie – Lees{" "}
           <Link to="/testversie" className="underline underline-offset-4 hover:opacity-80">
             hier
           </Link>{" "}
