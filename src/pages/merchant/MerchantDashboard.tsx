@@ -98,7 +98,7 @@ export default function MerchantDashboard() {
             size="sm"
             onClick={() => setFilter(f)}
           >
-            {f === "all" ? "Alle" : f === "active" ? "Actief" : "Verlopen: kopieer hier je advertenties!"}
+            {f === "all" ? "Alle" : f === "active" ? "Actief" : "Verlopen (kopieer hier je advertenties)"}
           </Button>
         ))}
       </div>

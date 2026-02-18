@@ -155,7 +155,7 @@ export default function MerchantDealDetail() {
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             Alle {uniqueCodeStats.total} unieke kortingscodes zijn gebruikt. Deze advertentie is automatisch op inactief gezet. 
-            Bewerk de advertentie om nieuwe codes toe te voegen en de verlooptijd te verlengen.
+            Kopieer en bewerk de advertentie om een nieuwe advertentie te maken.
           </AlertDescription>
         </Alert>
       )}
