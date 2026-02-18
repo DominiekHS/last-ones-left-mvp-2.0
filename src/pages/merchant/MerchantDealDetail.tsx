@@ -11,7 +11,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
-import { ArrowLeft, Pencil, Trash2, ExternalLink, Eye, MousePointerClick, BarChart3 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, ExternalLink, Eye, MousePointerClick, BarChart3, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function MerchantDealDetail() {
   const { dealId } = useParams<{ dealId: string }>();
@@ -139,6 +140,17 @@ export default function MerchantDealDetail() {
           </div>
         </div>
       </div>
+
+      {/* Alert when all unique codes are used */}
+      {deal.discount_type === "unique" && uniqueCodeStats && uniqueCodeStats.available === 0 && uniqueCodeStats.total > 0 && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Alle {uniqueCodeStats.total} unieke kortingscodes zijn gebruikt. Deze advertentie is automatisch op inactief gezet. 
+            Bewerk de advertentie om nieuwe codes toe te voegen en de verlooptijd te verlengen.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Stats bar */}
       <div className="flex gap-6 text-sm text-muted-foreground">
