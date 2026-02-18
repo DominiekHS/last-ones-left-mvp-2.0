@@ -43,9 +43,9 @@ export default function TestInfo() {
         </div>
 
         <div className="space-y-1">
-          <h2 className="font-display font-semibold text-lg">Feedback?</h2>
+          <h2 className="font-display font-semibold text-lg">Meehelpen door feedback te delen?</h2>
           <p>
-            Jouw feedback helpt ons om Last Ones Left beter te maken! Heb je suggesties, vragen
+            Ja graag! Jouw feedback helpt ons om Last Ones Left beter te maken! Heb je suggesties, vragen
             of kom je een probleem tegen? Neem dan gerust{" "}
             <Link to="/contact" className="text-primary font-medium underline underline-offset-2">
               contact
