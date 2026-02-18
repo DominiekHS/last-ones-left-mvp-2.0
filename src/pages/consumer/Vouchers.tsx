@@ -50,9 +50,13 @@ export default function Vouchers() {
     const isExpired = !deal || new Date(deal.expiry_time) < now;
     const isInactive = isExpired || !!v.became_inactive_at;
     if (!isInactive) return false;
-    // Only show inactive vouchers from the last 24 hours
-    const inactiveAt = v.became_inactive_at ? new Date(v.became_inactive_at) : (deal ? new Date(deal.expiry_time) : null);
-    return inactiveAt && inactiveAt >= twentyFourHoursAgo;
+    // Only show inactive vouchers from the last 24 hours based on the earliest inactive moment
+    const inactiveAt = v.became_inactive_at ? new Date(v.became_inactive_at) : null;
+    const claimedAt = new Date(v.claimed_at);
+    // Use the earliest available timestamp: became_inactive_at, or if the deal expired, use expiry_time
+    const referenceTime = inactiveAt || (deal ? new Date(deal.expiry_time) : claimedAt);
+    // Also filter out if claimed more than 24 hours ago and inactive
+    return referenceTime >= twentyFourHoursAgo && claimedAt >= twentyFourHoursAgo;
   }) || [];
 
   const displayVouchers = showInactive
