@@ -197,18 +197,6 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
                 <AlertCircle className="mr-1 h-3 w-3" />Alle codes op
               </Badge>
             )}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {deal.city}{deal.start_time ? ` · Start: ${format(new Date(deal.start_time), "d MMM HH:mm", { locale: nl })}` : ""} · Eind: {format(new Date(deal.expiry_time), "d MMM HH:mm", { locale: nl })} ·{" "}
-            -{deal.discount_percentage}% · €{(deal.original_price * (1 - deal.discount_percentage / 100)).toFixed(2)}
-          </p>
-          <div className="flex gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{stats?.views || 0} weergaven</span>
-            <span className="flex items-center gap-1"><MousePointerClick className="h-3 w-3" />{stats?.clicks || 0} klikken</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-4 ml-auto">
-          <div className="flex items-center gap-2">
             {isExpired ? (
               <Button size="sm" asChild onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                 <Link to={`/merchant/ads/new?copyFrom=${deal.id}`}><Copy className="mr-1 h-3 w-3" />Kopieer</Link>
@@ -219,12 +207,20 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
               </Button>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
-              <Trash2 className="h-3 w-3" />
-            </Button>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <p className="text-xs text-muted-foreground">
+            {deal.city}{deal.start_time ? ` · Start: ${format(new Date(deal.start_time), "d MMM HH:mm", { locale: nl })}` : ""} · Eind: {format(new Date(deal.expiry_time), "d MMM HH:mm", { locale: nl })} ·{" "}
+            -{deal.discount_percentage}% · €{(deal.original_price * (1 - deal.discount_percentage / 100)).toFixed(2)}
+          </p>
+          <div className="flex gap-4 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{stats?.views || 0} weergaven</span>
+            <span className="flex items-center gap-1"><MousePointerClick className="h-3 w-3" />{stats?.clicks || 0} klikken</span>
           </div>
+        </div>
+        <div className="flex items-center gap-2 ml-auto">
+          <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+            <Trash2 className="h-3 w-3" />
+          </Button>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </div>
       </CardContent>
     </Card>
