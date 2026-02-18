@@ -36,9 +36,9 @@ export default function TestInfo() {
         <div className="space-y-1">
           <h2 className="font-display font-semibold text-lg">Wat kun je verwachten?</h2>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Het aanbod aan deals is beperkt tijdens de testperiode.</li>
-            <li>Sommige functies kunnen nog in ontwikkeling zijn.</li>
-            <li>Er kunnen kleine fouten of onvolkomenheden voorkomen.</li>
+            <li>Bedrijven bieden activiteiten aan om vandaag en morgen te doen</li>
+            <li>Jouw spontaniteit wordt beloond met korting</li>
+            <li>Er wordt hard gewerkt om dit platform constant te verbeteren, help je mee?</li>
           </ul>
         </div>
 
