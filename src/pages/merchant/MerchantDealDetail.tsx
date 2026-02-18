@@ -202,9 +202,9 @@ export default function MerchantDealDetail() {
 
         {/* Card 2 — Verzilvering */}
         <div className="relative">
-          <div className="absolute -top-2 right-0">
+          <div className="absolute -top-10 right-0">
             <Button variant="outline" size="sm" onClick={handleDelete} className="text-destructive hover:text-destructive">
-              <Trash2 className="mr-1 h-3 w-3" />Verwijder
+              <Trash2 className="mr-1 h-3 w-3" />Verwijder advertentie
             </Button>
           </div>
           <Card>
