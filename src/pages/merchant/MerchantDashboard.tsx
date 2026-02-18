@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link, Navigate } from "react-router-dom";
 import { Plus, Trash2, Pencil, Eye, MousePointerClick, ChevronRight, AlertTriangle, Ban, AlertCircle } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
@@ -13,11 +14,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { getMerchantEffectiveStatus } from "@/lib/merchant-status";
+type DealFilter = "all" | "active" | "expired";
 
 export default function MerchantDashboard() {
   const { user, merchant, roles, loading } = useAuth();
   const { data: deals, isLoading } = useMerchantDeals(merchant?.id);
   const queryClient = useQueryClient();
+  const [filter, setFilter] = useState<DealFilter>("all");
 
   if (!loading && (!user || !roles.includes("merchant"))) {
     return <Navigate to="/login" />;
@@ -87,22 +90,42 @@ export default function MerchantDashboard() {
         </div>
       </div>
 
+      <div className="flex gap-2">
+        {(["all", "active", "expired"] as const).map((f) => (
+          <Button
+            key={f}
+            variant={filter === f ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilter(f)}
+          >
+            {f === "all" ? "Alle" : f === "active" ? "Actief" : "Verlopen"}
+          </Button>
+        ))}
+      </div>
+
       {isLoading ? (
         <p className="text-muted-foreground">Laden...</p>
       ) : deals && deals.length > 0 ? (
         <div className="space-y-3">
-          {deals.map((deal) => {
-            const isExpired = new Date(deal.expiry_time) < new Date();
-            return (
-              <DealRow
-                key={deal.id}
-                deal={deal}
-                isExpired={isExpired}
-                merchantId={merchant.id}
-                onDelete={() => handleDelete(deal.id)}
-              />
-            );
-          })}
+          {deals
+            .filter((deal) => {
+              const isExpired = new Date(deal.expiry_time) < new Date();
+              if (filter === "active") return !isExpired;
+              if (filter === "expired") return isExpired;
+              return true;
+            })
+            .map((deal) => {
+              const isExpired = new Date(deal.expiry_time) < new Date();
+              return (
+                <DealRow
+                  key={deal.id}
+                  deal={deal}
+                  isExpired={isExpired}
+                  merchantId={merchant.id}
+                  onDelete={() => handleDelete(deal.id)}
+                />
+              );
+            })}
         </div>
       ) : (
         <Card>
