@@ -26,8 +26,9 @@ export default function TestInfo() {
         <div className="space-y-1">
           <h2 className="font-display font-semibold text-lg">Wat is dit?</h2>
           <p>
-            Last Ones Left is een platform voor last-minute deals bij activiteiten bij jou in de buurt.
-            Op dit moment draaien we een testversie om het platform te verbeteren voordat we live gaan.
+            Last Ones Left is hét online marktplaatsplatform voor last-minute deals voor activiteiten
+            bij jou in de buurt. Op dit moment draaien we een testversie om het platform te testen.
+            Leuk dat je gebruik wilt maken van Last Ones Left!
           </p>
         </div>
 
