@@ -207,27 +207,24 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
             <span className="flex items-center gap-1"><MousePointerClick className="h-3 w-3" />{stats?.clicks || 0} klikken</span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {isExpired ? (
-            <>
+        <div className="flex items-center gap-4 ml-auto">
+          <div className="flex items-center gap-2">
+            {isExpired ? (
               <Button size="sm" asChild onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                 <Link to={`/merchant/ads/new?copyFrom=${deal.id}`}><Copy className="mr-1 h-3 w-3" />Kopieer</Link>
               </Button>
-              <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
-                <Trash2 className="h-3 w-3" />
-              </Button>
-            </>
-          ) : (
-            <>
+            ) : (
               <Button variant="outline" size="sm" asChild onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                 <Link to={`/merchant/ads/${deal.id}/edit`}><Pencil className="h-3 w-3" /></Link>
               </Button>
-              <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
-                <Trash2 className="h-3 w-3" />
-              </Button>
-            </>
-          )}
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+              <Trash2 className="h-3 w-3" />
+            </Button>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </div>
         </div>
       </CardContent>
     </Card>
