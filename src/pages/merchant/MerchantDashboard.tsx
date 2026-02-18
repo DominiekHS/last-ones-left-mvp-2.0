@@ -202,7 +202,7 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
                 <Link to={`/merchant/ads/new?copyFrom=${deal.id}`}><Copy className="mr-1 h-3 w-3" />Kopieer</Link>
               </Button>
             ) : (
-              <Button variant="outline" size="sm" asChild onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+              <Button variant="outline" size="sm" className="text-success border-success/50 hover:bg-success/10 hover:text-success" asChild onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                 <Link to={`/merchant/ads/${deal.id}/edit`}><Pencil className="h-3 w-3" /></Link>
               </Button>
             )}
