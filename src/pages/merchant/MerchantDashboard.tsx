@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link, Navigate } from "react-router-dom";
-import { Plus, Trash2, Pencil, Eye, MousePointerClick, ChevronRight, AlertTriangle, Ban } from "lucide-react";
+import { Plus, Trash2, Pencil, Eye, MousePointerClick, ChevronRight, AlertTriangle, Ban, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
@@ -139,6 +139,23 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
     },
   });
 
+  const { data: uniqueCodeStats } = useQuery({
+    queryKey: ["unique-codes-stats", deal.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("unique_codes")
+        .select("status")
+        .eq("deal_id", deal.id);
+      if (error) return null;
+      const total = data.length;
+      const available = data.filter((c) => c.status === "available").length;
+      return { total, available };
+    },
+    enabled: deal.discount_type === "unique",
+  });
+
+  const allCodesUsed = deal.discount_type === "unique" && uniqueCodeStats && uniqueCodeStats.available === 0 && uniqueCodeStats.total > 0;
+
   return (
     <Card
       className="cursor-pointer hover:border-primary/40 transition-colors"
@@ -152,6 +169,11 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
               {isExpired ? "Verlopen" : "Actief"}
             </Badge>
             <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[deal.category]}</Badge>
+            {allCodesUsed && (
+              <Badge variant="destructive" className="text-xs">
+                <AlertCircle className="mr-1 h-3 w-3" />Alle codes op
+              </Badge>
+            )}
           </div>
           <p className="text-xs text-muted-foreground">
             {deal.city}{deal.start_time ? ` · Start: ${format(new Date(deal.start_time), "d MMM HH:mm", { locale: nl })}` : ""} · Eind: {format(new Date(deal.expiry_time), "d MMM HH:mm", { locale: nl })} ·{" "}
