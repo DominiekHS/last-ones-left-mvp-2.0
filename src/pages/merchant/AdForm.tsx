@@ -1,4 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
+
+/** Convert an ISO/UTC timestamp to a `datetime-local` value in the browser's local timezone */
+function toLocalDatetimeString(isoString: string): string {
+  const d = new Date(isoString);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 import { useNavigate, useParams, Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -81,10 +88,10 @@ export default function AdForm() {
             setDiscountPercentage(String(data.discount_percentage));
             setStartTimeMode(((data as any).start_time_mode as "fixed" | "flexible") || "fixed");
             if (isEdit && data.start_time) {
-              setStartTime(data.start_time.slice(0, 16));
+              setStartTime(toLocalDatetimeString(data.start_time));
             }
             if (isEdit) {
-              setExpiryTime(data.expiry_time.slice(0, 16));
+              setExpiryTime(toLocalDatetimeString(data.expiry_time));
             }
             setCheckoutLink(data.checkout_link);
             setExistingImageUrl(data.image_url);
