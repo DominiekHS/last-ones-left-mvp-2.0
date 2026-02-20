@@ -70,10 +70,10 @@ export function Header() {
               {!isMerchant && !isAdmin && (
                     <>
                       <DropdownMenuItem onClick={() => navigate("/vouchers")}>
-                        Mijn Vouchers
+                        Mijn kortingscodes
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/geschiedenis")}>
-                        Geschiedenis
+                        Mijn activiteiten
                       </DropdownMenuItem>
                     </>
                   )}
@@ -120,10 +120,10 @@ export function Header() {
               {!isMerchant && !isAdmin && (
                 <>
                   <Link to="/vouchers" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>
-                    Mijn Vouchers
+                    Mijn kortingscodes
                   </Link>
                   <Link to="/geschiedenis" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>
-                    Geschiedenis
+                    Mijn activiteiten
                   </Link>
                 </>
               )}

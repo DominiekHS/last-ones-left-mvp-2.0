@@ -65,7 +65,7 @@ export default function Vouchers() {
 
   return (
     <div className="container py-6 max-w-2xl space-y-4">
-      <h1 className="font-display text-2xl font-bold">Mijn Vouchers</h1>
+      <h1 className="font-display text-2xl font-bold">Mijn kortingscodes</h1>
 
       <div className="flex items-center gap-2">
         <Switch
