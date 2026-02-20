@@ -100,7 +100,22 @@ export default function AdminDealPreview() {
           <span>Verloopt {formatDistanceToNow(expiryDate, { locale: nl, addSuffix: true })}</span>
         </div>
 
-        {deal.counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter" ? (
+        {(deal as any).pricing_model === "per_person_variable" ? (
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="p-4 space-y-2">
+              <h3 className="font-display font-semibold text-sm">Prijs</h3>
+              {(deal as any).price_per_person ? (
+                <>
+                  <p className="text-sm text-muted-foreground">Normale prijs: <span className="font-semibold text-foreground">€{Number((deal as any).price_per_person).toFixed(2)} p.p.</span></p>
+                  <p className="text-sm text-muted-foreground">Met korting: <span className="font-semibold text-foreground">€{(Number((deal as any).price_per_person) * (1 - deal.discount_percentage / 100)).toFixed(2)} p.p.</span></p>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">Je krijgt <span className="font-semibold text-foreground">{deal.discount_percentage}%</span> korting op het totaalbedrag.</p>
+              )}
+              <p className="text-sm text-muted-foreground">De totaalprijs hangt af van het aantal personen dat je kiest in de checkout.</p>
+            </CardContent>
+          </Card>
+        ) : deal.counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter" ? (
           <div className="flex items-baseline gap-3">
             <Badge className="bg-primary text-primary-foreground font-bold text-base px-3 py-1">
               {deal.discount_percentage}% korting aan de kassa
@@ -112,7 +127,6 @@ export default function AdminDealPreview() {
             <span className="text-lg text-muted-foreground line-through">€{Number(deal.original_price).toFixed(2)}</span>
           </div>
         )}
-
         {deal.description && (
           <p className="text-sm leading-relaxed">{deal.description}</p>
         )}
