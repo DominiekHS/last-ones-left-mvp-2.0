@@ -380,6 +380,9 @@ export default function DealDetail() {
 }
 
 function MerchantPreviewCTA({ dealId }: { dealId: string }) {
+  const { data: deal } = useDeal(dealId);
+  const isExpired = deal ? new Date(deal.expiry_time) < new Date() : false;
+
   const { data: stats } = useQuery({
     queryKey: ["deal-stats", dealId],
     queryFn: async () => {
@@ -405,9 +408,15 @@ function MerchantPreviewCTA({ dealId }: { dealId: string }) {
         </CardContent>
       </Card>
       <div className="flex gap-2">
-        <Button asChild className="flex-1">
-          <Link to={`/merchant/ads/${dealId}/edit`}><Pencil className="mr-1 h-4 w-4" />Bewerk advertentie</Link>
-        </Button>
+        {isExpired ? (
+          <Button asChild className="flex-1">
+            <Link to={`/merchant/ads/new?copyFrom=${dealId}`}><Copy className="mr-1 h-4 w-4" />Kopieer advertentie</Link>
+          </Button>
+        ) : (
+          <Button asChild className="flex-1">
+            <Link to={`/merchant/ads/${dealId}/edit`}><Pencil className="mr-1 h-4 w-4" />Bewerk advertentie</Link>
+          </Button>
+        )}
         <Button variant="outline" asChild className="flex-1">
           <Link to={`/merchant/deals/${dealId}`}><ArrowLeft className="mr-1 h-4 w-4" />Terug naar advertentiebeheer</Link>
         </Button>
