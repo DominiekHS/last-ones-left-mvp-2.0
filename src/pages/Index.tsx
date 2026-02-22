@@ -37,7 +37,7 @@ const Index = () => {
       </div>
       <section className="bg-primary text-primary-foreground py-8 sm:py-12">
         <div className="container relative text-center space-y-3">
-          <img src={lolLogo} alt="Last Ones Left logo" className="absolute left-1/2 -translate-x-[calc(50%+16rem)] sm:-translate-x-[calc(50%+18rem)] top-1/2 -translate-y-1/2 h-16 w-16 sm:h-20 sm:w-20 rounded-full hidden sm:block" />
+          <img src={lolLogo} alt="Last Ones Left logo" className="absolute left-1/2 -translate-x-[calc(50%+20rem)] sm:-translate-x-[calc(50%+22rem)] top-1/2 -translate-y-1/2 h-16 w-16 sm:h-20 sm:w-20 rounded-full hidden sm:block" />
           <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">
             Bezoek. Beleef. Bespaar.
           </h1>
