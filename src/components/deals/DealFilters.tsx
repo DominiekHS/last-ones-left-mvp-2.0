@@ -57,7 +57,7 @@ export function DealFilters({ category, city, onCategoryChange, onCityChange, ca
           </PopoverTrigger>
           <PopoverContent className="w-[--radix-popover-trigger-width] p-0 bg-popover z-50" align="start">
             <Command>
-              <CommandInput placeholder="Zoek een plaats…" />
+              
               <CommandList>
                 <CommandEmpty>Geen plaatsen gevonden</CommandEmpty>
                 <CommandGroup>
