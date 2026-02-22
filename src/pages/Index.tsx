@@ -36,16 +36,14 @@ const Index = () => {
         </h2>
       </div>
       <section className="bg-primary text-primary-foreground py-8 sm:py-12">
-        <div className="container flex items-center justify-center gap-4 sm:gap-6">
-          <img src={lolLogo} alt="Last Ones Left logo" className="h-16 w-16 sm:h-20 sm:w-20 rounded-full flex-shrink-0" />
-          <div className="text-center space-y-3">
+        <div className="container relative text-center space-y-3">
+          <img src={lolLogo} alt="Last Ones Left logo" className="absolute left-1/2 -translate-x-[calc(50%+12rem)] sm:-translate-x-[calc(50%+14rem)] top-1/2 -translate-y-1/2 h-16 w-16 sm:h-20 sm:w-20 rounded-full hidden sm:block" />
           <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">
             Bezoek. Beleef. Bespaar.
           </h1>
           <p className="text-primary-foreground/70 text-lg max-w-lg mx-auto">
             Ontdek last-minute deals bij jou in de buurt! Wat ga jij doen vandaag?
           </p>
-          </div>
         </div>
       </section>
 
