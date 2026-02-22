@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import lolLogo from "@/assets/lol-logo.png";
 import { useActiveDeals } from "@/hooks/useDeals";
 import { DealCard } from "@/components/deals/DealCard";
 import { DealFilters } from "@/components/deals/DealFilters";
@@ -35,13 +36,16 @@ const Index = () => {
         </h2>
       </div>
       <section className="bg-primary text-primary-foreground py-8 sm:py-12">
-        <div className="container text-center space-y-3">
+        <div className="container flex items-center justify-center gap-4 sm:gap-6">
+          <img src={lolLogo} alt="Last Ones Left logo" className="h-16 w-16 sm:h-20 sm:w-20 rounded-full flex-shrink-0" />
+          <div className="text-center space-y-3">
           <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">
             Bezoek. Beleef. Bespaar.
           </h1>
           <p className="text-primary-foreground/70 text-lg max-w-lg mx-auto">
             Ontdek last-minute deals bij jou in de buurt! Wat ga jij doen vandaag?
           </p>
+          </div>
         </div>
       </section>
 
