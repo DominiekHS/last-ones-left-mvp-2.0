@@ -226,53 +226,45 @@ export default function DealDetail() {
 
       {/* Kleine lettertjes */}
       <Card>
-        <CardContent className="p-4">
-          <Accordion type="single" collapsible>
-            <AccordionItem value="fine-print" className="border-0">
-              <AccordionTrigger className="py-2 hover:no-underline">
-                <div className="flex items-center gap-2 text-left">
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium text-sm">Kleine lettertjes</p>
-                    <p className="text-xs text-muted-foreground font-normal">Inwisselen, annuleren en voorwaarden</p>
-                  </div>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-4 pt-2">
-                  <div>
-                    <h4 className="font-semibold text-sm mb-1">📋 Inwisselinstructies</h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {(deal as any).redemption_instructions || (
-                        (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter"
-                          ? "Toon je voucher aan de kassa. De korting wordt verrekend op het bedrag op jouw kassabon."
-                          : "Je ontvangt na claimen een kortingscode. Gebruik deze op de betaalpagina van de aanbieder, of toon je voucher als dat bij deze deal geldt."
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-sm mb-1">🚫 Annuleringsbeleid</h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {(deal as any).cancellation_policy || "Annuleren en wijzigingen lopen via de aanbieder. Last-minute deals kunnen beperkingen hebben."}
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-sm mb-1">📜 Algemene voorwaarden</h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {(deal as any).terms_summary || "Door deze deal te claimen ga je akkoord met de voorwaarden van Last Ones Left en de aanbieder."}
-                    </p>
-                     <Link to="/algemene-voorwaarden" className="text-sm text-primary hover:underline font-medium mt-1 inline-block">
-                       Lees de algemene voorwaarden →
-                     </Link>
-                     <br />
-                     <Link to="/help" className="text-sm text-primary hover:underline font-medium mt-1 inline-block">
-                       Hulp nodig? Bekijk het Helpcenter →
-                     </Link>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+        <CardContent className="p-4 space-y-4">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <p className="font-medium text-sm">Kleine lettertjes</p>
+              <p className="text-xs text-muted-foreground">Inwisselen, annuleren en voorwaarden</p>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-semibold text-sm mb-1">📋 Inwisselinstructies</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {(deal as any).redemption_instructions || (
+                  (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter"
+                    ? "Toon je voucher aan de kassa. De korting wordt verrekend op het bedrag op jouw kassabon."
+                    : "Je ontvangt na claimen een kortingscode. Gebruik deze op de betaalpagina van de aanbieder, of toon je voucher als dat bij deze deal geldt."
+                )}
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-sm mb-1">🚫 Annuleringsbeleid</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {(deal as any).cancellation_policy || "Annuleren en wijzigingen lopen via de aanbieder. Last-minute deals kunnen beperkingen hebben."}
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-sm mb-1">📜 Algemene voorwaarden</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {(deal as any).terms_summary || "Door deze deal te claimen ga je akkoord met de voorwaarden van Last Ones Left en de aanbieder."}
+              </p>
+               <Link to="/algemene-voorwaarden" className="text-sm text-primary hover:underline font-medium mt-1 inline-block">
+                 Lees de algemene voorwaarden →
+               </Link>
+               <br />
+               <Link to="/help" className="text-sm text-primary hover:underline font-medium mt-1 inline-block">
+                 Hulp nodig? Bekijk het Helpcenter →
+               </Link>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
