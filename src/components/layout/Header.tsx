@@ -56,6 +56,16 @@ export function Header() {
                   <Link to="/admin"><Shield className="mr-1 h-4 w-4" />Admin</Link>
                 </Button>
               )}
+              {!isMerchant && !isAdmin && (
+                <>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/vouchers">Mijn kortingscodes</Link>
+                  </Button>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/geschiedenis">Mijn activiteiten</Link>
+                  </Button>
+                </>
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
@@ -67,16 +77,6 @@ export function Header() {
                   <DropdownMenuItem onClick={() => navigate("/profiel")}>
                     Mijn Profiel
                   </DropdownMenuItem>
-              {!isMerchant && !isAdmin && (
-                    <>
-                      <DropdownMenuItem onClick={() => navigate("/vouchers")}>
-                        Mijn kortingscodes
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate("/geschiedenis")}>
-                        Mijn activiteiten
-                      </DropdownMenuItem>
-                    </>
-                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />Uitloggen
