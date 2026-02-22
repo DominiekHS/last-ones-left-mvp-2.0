@@ -59,9 +59,12 @@ export default function AdForm() {
   const [universalCode, setUniversalCode] = useState("");
   const [uniqueCodeCount, setUniqueCodeCount] = useState("");
   const [uniqueCodesText, setUniqueCodesText] = useState("");
-  const [redemptionInstructions, setRedemptionInstructions] = useState("");
-  const [cancellationPolicy, setCancellationPolicy] = useState("");
-  const [termsSummary, setTermsSummary] = useState("");
+  const DEFAULT_REDEMPTION_INSTRUCTIONS = "Je ontvangt na claimen een kortingscode. Gebruik deze op de betaalpagina van de aanbieder, of toon je voucher als dat bij deze deal geldt.";
+  const DEFAULT_CANCELLATION_POLICY = "Annuleren en wijzigingen lopen via de aanbieder. Last-minute deals kunnen beperkingen hebben.";
+  const DEFAULT_TERMS_SUMMARY = "Door deze deal te claimen ga je akkoord met de voorwaarden van Last Ones Left en de aanbieder.";
+  const [redemptionInstructions, setRedemptionInstructions] = useState(DEFAULT_REDEMPTION_INSTRUCTIONS);
+  const [cancellationPolicy, setCancellationPolicy] = useState(DEFAULT_CANCELLATION_POLICY);
+  const [termsSummary, setTermsSummary] = useState(DEFAULT_TERMS_SUMMARY);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
