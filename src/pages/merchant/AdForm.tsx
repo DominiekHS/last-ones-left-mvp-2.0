@@ -457,20 +457,6 @@ export default function AdForm() {
               </button>
               <button
                 type="button"
-                onClick={() => setRedemptionMethod("at_counter")}
-                className={`rounded-lg border-2 p-4 text-left transition-colors ${
-                  redemptionMethod === "at_counter"
-                    ? "border-primary bg-primary/5"
-                    : "border-input hover:border-primary/30"
-                }`}
-              >
-                <p className="font-display font-semibold text-sm">Online reserveren - afrekenen op locatie - korting aan kassa terug</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Klant hoeft online niet te betalen, maar betaalt pas op locatie. Op locatie tonen ze de kortingscode en krijgen ze de korting terug/verrekend.
-                </p>
-              </button>
-              <button
-                type="button"
                 onClick={() => setRedemptionMethod("online_pay_pos_refund")}
                 className={`rounded-lg border-2 p-4 text-left transition-colors ${
                   redemptionMethod === "online_pay_pos_refund"
@@ -481,6 +467,20 @@ export default function AdForm() {
                 <p className="font-display font-semibold text-sm">Online afrekenen zonder kortingscode, korting aan kassa terug</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Klanten betalen online het volledige bedrag. Op locatie tonen ze de kortingscode en krijgen ze de korting terug/verrekend.
+                </p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRedemptionMethod("at_counter")}
+                className={`rounded-lg border-2 p-4 text-left transition-colors ${
+                  redemptionMethod === "at_counter"
+                    ? "border-primary bg-primary/5"
+                    : "border-input hover:border-primary/30"
+                }`}
+              >
+                <p className="font-display font-semibold text-sm">Online reserveren - afrekenen op locatie - korting aan kassa terug</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Klant hoeft online niet te betalen, maar betaalt pas op locatie. Op locatie tonen ze de kortingscode en krijgen ze de korting terug/verrekend.
                 </p>
               </button>
             </div>
