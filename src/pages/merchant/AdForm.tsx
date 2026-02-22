@@ -464,9 +464,9 @@ export default function AdForm() {
                     : "border-input hover:border-primary/30"
                 }`}
               >
-                <p className="font-display font-semibold text-sm">Korting aan de kassa</p>
+                <p className="font-display font-semibold text-sm">Online reserveren - afrekenen op locatie - korting aan kassa terug</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Klant betaalt/verrekent op locatie. Geen online kortingscode-veld nodig.
+                  Klant hoeft online niet te betalen, maar betaalt pas op locatie. Op locatie tonen ze de kortingscode en krijgen ze de korting terug/verrekend.
                 </p>
               </button>
               <button
@@ -478,7 +478,7 @@ export default function AdForm() {
                     : "border-input hover:border-primary/30"
                 }`}
               >
-                <p className="font-display font-semibold text-sm">Online reserveren, korting aan kassa terug</p>
+                <p className="font-display font-semibold text-sm">Online afrekenen zonder kortingscode, korting aan kassa terug</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Klanten betalen online het volledige bedrag. Op locatie tonen ze de kortingscode en krijgen ze de korting terug/verrekend.
                 </p>
