@@ -137,9 +137,6 @@ export default function DealDetail() {
         <div className="flex flex-wrap gap-2">
           <Badge className="bg-primary text-primary-foreground font-bold">-{deal.discount_percentage}%</Badge>
           <Badge variant="outline">{CATEGORY_LABELS[deal.category]}</Badge>
-          {deal.redemption_method === "online_checkout" && <Badge variant="outline">Korting online</Badge>}
-          {deal.redemption_method === "at_counter" && <Badge variant="outline">Korting aan de kassa</Badge>}
-          {deal.redemption_method === "online_pay_pos_refund" && <Badge variant="outline">Korting terug aan kassa</Badge>}
           {isExpired && <Badge variant="destructive">Verlopen</Badge>}
         </div>
 
@@ -198,6 +195,32 @@ export default function DealDetail() {
         {deal.description && (
           <p className="text-sm leading-relaxed">{deal.description}</p>
         )}
+
+        {/* Verzilvermethode */}
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="p-4 space-y-1">
+            <h3 className="font-display font-semibold text-sm">Hoe wordt de korting verzilverd?</h3>
+            {deal.redemption_method === "online_checkout" && (
+              <>
+                <p className="text-sm font-medium">Online afrekenen met kortingscode</p>
+                <p className="text-xs text-muted-foreground">Gebruik de kortingscode op de betaalpagina van de aanbieder om direct online korting te krijgen.</p>
+              </>
+            )}
+            {deal.redemption_method === "at_counter" && (
+              <>
+                <p className="text-sm font-medium">Korting aan de kassa</p>
+                <p className="text-xs text-muted-foreground">Betaal en verreken op locatie. Toon je kortingscode bij de kassa om de korting te ontvangen.</p>
+              </>
+            )}
+            {deal.redemption_method === "online_pay_pos_refund" && (
+              <>
+                <p className="text-sm font-medium">Online reserveren, korting aan kassa terug</p>
+                <p className="text-xs text-muted-foreground">Betaal het volledige bedrag online. Op locatie toon je de kortingscode en krijg je de korting terug/verrekend.</p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
 
         {/* Hoe werkt het? sectie */}
         {deal.redemption_method === "online_pay_pos_refund" && (
