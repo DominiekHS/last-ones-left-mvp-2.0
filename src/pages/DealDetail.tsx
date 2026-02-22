@@ -208,13 +208,13 @@ export default function DealDetail() {
             )}
             {deal.redemption_method === "at_counter" && (
               <>
-                <p className="text-sm font-medium">Korting aan de kassa</p>
-                <p className="text-xs text-muted-foreground">Betaal en verreken op locatie. Toon je kortingscode bij de kassa om de korting te ontvangen.</p>
+                <p className="text-sm font-medium">Online reserveren - afrekenen op locatie - korting aan kassa terug</p>
+                <p className="text-xs text-muted-foreground">Klant hoeft online niet te betalen, maar betaalt pas op locatie. Op locatie toon je de kortingscode en krijg je de korting terug/verrekend.</p>
               </>
             )}
             {deal.redemption_method === "online_pay_pos_refund" && (
               <>
-                <p className="text-sm font-medium">Online reserveren, korting aan kassa terug</p>
+                <p className="text-sm font-medium">Online afrekenen zonder kortingscode, korting aan kassa terug</p>
                 <p className="text-xs text-muted-foreground">Betaal het volledige bedrag online. Op locatie toon je de kortingscode en krijg je de korting terug/verrekend.</p>
               </>
             )}
