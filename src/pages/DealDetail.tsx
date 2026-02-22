@@ -221,25 +221,6 @@ export default function DealDetail() {
           </CardContent>
         </Card>
 
-
-        {/* Hoe werkt het? sectie */}
-        {deal.redemption_method === "online_pay_pos_refund" && (
-          <Card className="border-primary/20 bg-primary/5">
-            <CardContent className="p-4 space-y-2">
-              <h3 className="font-display font-semibold text-sm">Hoe werkt het?</h3>
-              <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-                <li>Reserveer en betaal online via de knop "Naar afrekenen".</li>
-                <li>Na betaling ga je naar de locatie.</li>
-                <li>Laat bij de kassa je Last Ones Left kortingscode zien.</li>
-                <li>Je krijgt de korting op locatie terug/verrekend.</li>
-              </ol>
-              <p className="text-xs text-muted-foreground font-medium mt-2">
-                ℹ️ Online zie je geen kortingscode-veld — dat klopt.
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleShare}>
             <Share2 className="mr-1 h-4 w-4" />Delen
