@@ -33,6 +33,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDealDetail from "./pages/admin/AdminDealDetail";
 import AdminDealPreview from "./pages/admin/AdminDealPreview";
 import AdminMerchantDetail from "./pages/admin/AdminMerchantDetail";
+import AdminConsumerDetail from "./pages/admin/AdminConsumerDetail";
 import TestInfo from "./pages/TestInfo";
 import NotFound from "./pages/NotFound";
 
@@ -76,6 +77,7 @@ const App = () => (
               <Route path="/admin/deals/:dealId" element={<AdminDealDetail />} />
               <Route path="/admin/deals/:dealId/preview" element={<AdminDealPreview />} />
               <Route path="/admin/ondernemers/:merchantId" element={<AdminMerchantDetail />} />
+              <Route path="/admin/consumenten/:userId" element={<AdminConsumerDetail />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>

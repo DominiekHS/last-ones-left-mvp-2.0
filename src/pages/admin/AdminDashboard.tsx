@@ -226,7 +226,7 @@ export default function AdminDashboard() {
               c.email.toLowerCase().includes(consumerSearch.toLowerCase())
             )
             .map((c) => (
-              <Card key={c.id}>
+              <Card key={c.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/consumenten/${c.user_id}`)}>
                 <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex-1 space-y-1">
                     <h3 className="font-display font-semibold">{c.full_name || "Geen naam"}</h3>
@@ -234,6 +234,7 @@ export default function AdminDashboard() {
                       {c.email} · Lid sinds {format(new Date(c.created_at), "d MMM yyyy", { locale: nl })}
                     </p>
                   </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </CardContent>
               </Card>
             ))}
