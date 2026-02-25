@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+
 import lolLogo from "@/assets/lol-logo.png";
 import { useActiveDeals } from "@/hooks/useDeals";
 import { DealCard } from "@/components/deals/DealCard";
@@ -26,15 +26,6 @@ const Index = () => {
 
   return (
     <>
-      <div className="bg-gradient-to-b from-success to-primary text-center py-3 px-4">
-        <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-          Testversie – Lees{" "}
-          <Link to="/testversie" className="underline underline-offset-4 hover:opacity-80">
-            hier
-          </Link>{" "}
-          meer
-        </h2>
-      </div>
       <section className="bg-primary text-primary-foreground py-8 sm:py-12">
         <div className="container relative text-center space-y-3">
           <img src={lolLogo} alt="Last Ones Left logo" className="absolute left-1/2 -translate-x-[calc(50%+22rem)] sm:-translate-x-[calc(50%+24rem)] top-1/2 -translate-y-1/2 h-20 w-20 sm:h-24 sm:w-24 rounded-full hidden sm:block" />
