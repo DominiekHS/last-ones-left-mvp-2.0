@@ -40,6 +40,9 @@ export function Header() {
           <span className="hidden sm:inline-block rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
             DEALS
           </span>
+          <Link to="/testversie" className="ml-2 inline-flex items-center rounded-full bg-success px-3 py-1 text-xs font-semibold text-success-foreground hover:opacity-80 transition-opacity">
+            Testversie – Lees meer!
+          </Link>
         </Link>
 
         {/* Desktop nav */}
