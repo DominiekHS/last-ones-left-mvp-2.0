@@ -50,6 +50,60 @@ export type Database = {
         }
         Relationships: []
       }
+      claim_history: {
+        Row: {
+          city: string
+          claimed_at: string
+          created_at: string
+          deal_id: string | null
+          discount_code: string
+          discount_percentage: number | null
+          id: string
+          merchant_name: string
+          original_price: number | null
+          price_per_person: number | null
+          pricing_model: string | null
+          start_time: string | null
+          title: string
+          user_id: string
+          voucher_id: string | null
+        }
+        Insert: {
+          city?: string
+          claimed_at?: string
+          created_at?: string
+          deal_id?: string | null
+          discount_code?: string
+          discount_percentage?: number | null
+          id?: string
+          merchant_name?: string
+          original_price?: number | null
+          price_per_person?: number | null
+          pricing_model?: string | null
+          start_time?: string | null
+          title?: string
+          user_id: string
+          voucher_id?: string | null
+        }
+        Update: {
+          city?: string
+          claimed_at?: string
+          created_at?: string
+          deal_id?: string | null
+          discount_code?: string
+          discount_percentage?: number | null
+          id?: string
+          merchant_name?: string
+          original_price?: number | null
+          price_per_person?: number | null
+          pricing_model?: string | null
+          start_time?: string | null
+          title?: string
+          user_id?: string
+          voucher_id?: string | null
+        }
+        Relationships: []
+      }
       deal_events: {
         Row: {
           created_at: string
