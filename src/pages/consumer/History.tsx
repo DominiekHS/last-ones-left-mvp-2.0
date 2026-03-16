@@ -16,8 +16,8 @@ export default function History() {
     queryKey: ["consumer-history", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("consumer_activity_history")
-        .select("deal_id, title, merchant_name, city, start_time, claimed_at, completed_at")
+        .from("claim_history")
+        .select("deal_id, title, merchant_name, city, start_time, claimed_at")
         .order("claimed_at", { ascending: false });
       if (error) throw error;
       return data;

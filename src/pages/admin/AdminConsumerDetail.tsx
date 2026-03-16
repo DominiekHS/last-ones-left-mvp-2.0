@@ -27,12 +27,12 @@ export default function AdminConsumerDetail() {
     enabled: !!userId && roles.includes("admin"),
   });
 
-  const { data: vouchers, isLoading } = useQuery({
-    queryKey: ["admin-consumer-vouchers", userId],
+  const { data: history, isLoading } = useQuery({
+    queryKey: ["admin-consumer-history", userId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("vouchers")
-        .select("*, deals(title, city, merchants(company_name), discount_percentage, original_price, pricing_model, price_per_person)")
+        .from("claim_history")
+        .select("*")
         .eq("user_id", userId!)
         .order("claimed_at", { ascending: false });
       if (error) throw error;
