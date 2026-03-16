@@ -3,9 +3,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Ticket } from "lucide-react";
+import { ArrowLeft, Ticket, Store, MapPin, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 
@@ -27,12 +26,12 @@ export default function AdminConsumerDetail() {
     enabled: !!userId && roles.includes("admin"),
   });
 
-  const { data: vouchers, isLoading } = useQuery({
-    queryKey: ["admin-consumer-vouchers", userId],
+  const { data: history, isLoading } = useQuery({
+    queryKey: ["admin-consumer-history", userId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("vouchers")
-        .select("*, deals(title, city, merchants(company_name), discount_percentage, original_price, pricing_model, price_per_person)")
+        .from("claim_history")
+        .select("*")
         .eq("user_id", userId!)
         .order("claimed_at", { ascending: false });
       if (error) throw error;
@@ -44,20 +43,6 @@ export default function AdminConsumerDetail() {
   if (!loading && (!user || !roles.includes("admin"))) {
     return <Navigate to="/" />;
   }
-
-  const statusLabel = (v: any) => {
-    if (v.status === "archived") return "Gearchiveerd";
-    if (v.became_inactive_at) return "Inactief";
-    const deal = v.deals as any;
-    if (deal && new Date(deal.expiry_time) < new Date()) return "Verlopen";
-    return "Actief";
-  };
-
-  const statusVariant = (v: any): "default" | "secondary" | "outline" => {
-    const label = statusLabel(v);
-    if (label === "Actief") return "default";
-    return "secondary";
-  };
 
   return (
     <div className="container py-6 max-w-3xl space-y-6">
@@ -79,52 +64,44 @@ export default function AdminConsumerDetail() {
 
       <div>
         <h2 className="font-display text-lg font-semibold mb-3">
-          Kortingscodes geschiedenis ({vouchers?.length || 0})
+          Claimgeschiedenis ({history?.length || 0})
         </h2>
 
         {isLoading ? (
           <p className="text-muted-foreground">Laden...</p>
-        ) : vouchers && vouchers.length > 0 ? (
+        ) : history && history.length > 0 ? (
           <div className="space-y-3">
-            {vouchers.map((v) => {
-              const deal = v.deals as any;
-              return (
-                <Card key={v.id}>
-                  <CardContent className="p-4 space-y-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h3 className="font-display font-semibold">{deal?.title || "Onbekende deal"}</h3>
-                        <p className="text-xs text-muted-foreground">
-                          {deal?.merchants?.company_name} · {deal?.city}
-                        </p>
-                      </div>
-                      <Badge variant={statusVariant(v)}>{statusLabel(v)}</Badge>
-                    </div>
-
+            {history.map((h) => (
+              <Card key={h.id}>
+                <CardContent className="p-4 space-y-1.5">
+                  <h3 className="font-display font-semibold">{h.title || "Onbekende deal"}</h3>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Store className="h-3.5 w-3.5" />
+                      {h.merchant_name}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {h.city}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <CalendarDays className="h-3.5 w-3.5" />
+                      Geclaimd: {format(new Date(h.claimed_at), "d MMM yyyy · HH:mm", { locale: nl })}
+                    </span>
+                  </div>
+                  {h.discount_code && h.discount_code !== "ARCHIVED" && (
                     <div className="flex items-center gap-2 bg-muted p-2 rounded-md">
-                      <code className="font-mono font-bold flex-1 text-sm">
-                        {v.discount_code === "ARCHIVED" ? "—" : v.discount_code}
-                      </code>
+                      <code className="font-mono font-bold text-sm">{h.discount_code}</code>
                     </div>
-
-                    <div className="flex flex-wrap gap-x-4 text-xs text-muted-foreground">
-                      <span>Geclaimd: {format(new Date(v.claimed_at), "d MMM yyyy HH:mm", { locale: nl })}</span>
-                      {v.became_inactive_at && (
-                        <span>Inactief sinds: {format(new Date(v.became_inactive_at), "d MMM yyyy HH:mm", { locale: nl })}</span>
-                      )}
-                      {v.archived_at && (
-                        <span>Gearchiveerd: {format(new Date(v.archived_at), "d MMM yyyy HH:mm", { locale: nl })}</span>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                  )}
+                </CardContent>
+              </Card>
+            ))}
           </div>
         ) : (
           <div className="text-center py-8 space-y-2">
             <Ticket className="h-8 w-8 mx-auto text-muted-foreground" />
-            <p className="text-muted-foreground">Deze consument heeft nog geen kortingscodes.</p>
+            <p className="text-muted-foreground">Deze consument heeft nog geen claims.</p>
           </div>
         )}
       </div>
