@@ -26,6 +26,7 @@ export const CATEGORIES = [
   { value: "pool", label: "Pool" },
   { value: "airhockey", label: "Airhockey" },
   { value: "darts", label: "Darts" },
+  { value: "rondvaart", label: "Rondvaart" },
   { value: "overig", label: "Overig" },
 ] as const;
 
