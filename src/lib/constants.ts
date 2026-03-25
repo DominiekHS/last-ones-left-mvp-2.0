@@ -58,6 +58,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   pool: "Pool",
   airhockey: "Airhockey",
   darts: "Darts",
+  rondvaart: "Rondvaart",
   overig: "Overig",
 };
 
