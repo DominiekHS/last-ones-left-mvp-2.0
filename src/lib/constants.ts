@@ -26,6 +26,7 @@ export const CATEGORIES = [
   { value: "pool", label: "Pool" },
   { value: "airhockey", label: "Airhockey" },
   { value: "darts", label: "Darts" },
+  { value: "rondvaart", label: "Rondvaart" },
   { value: "overig", label: "Overig" },
 ] as const;
 
@@ -57,6 +58,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   pool: "Pool",
   airhockey: "Airhockey",
   darts: "Darts",
+  rondvaart: "Rondvaart",
   overig: "Overig",
 };
 

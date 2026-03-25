@@ -1,0 +1,1 @@
+ALTER TYPE public.venue_category ADD VALUE IF NOT EXISTS 'rondvaart';
