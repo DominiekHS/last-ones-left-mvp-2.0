@@ -20,6 +20,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import PaymentStepsDisplay from "@/components/deals/PaymentStepsDisplay";
 
 export default function DealDetail() {
   const { id } = useParams<{ id: string }>();
@@ -227,6 +228,11 @@ export default function DealDetail() {
           </Button>
         </div>
       </div>
+
+      {/* Stappenplan betalen */}
+      {(deal as any).payment_steps && Array.isArray((deal as any).payment_steps) && (deal as any).payment_steps.length > 0 && (
+        <PaymentStepsDisplay steps={(deal as any).payment_steps} />
+      )}
 
       {/* Kleine lettertjes */}
       <Card>

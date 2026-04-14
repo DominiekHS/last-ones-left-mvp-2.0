@@ -210,6 +210,7 @@ export type Database = {
           indicative_price_from: number | null
           merchant_id: string
           original_price: number
+          payment_steps: Json | null
           postal_code: string
           price_per_person: number | null
           pricing_model: string
@@ -239,6 +240,7 @@ export type Database = {
           indicative_price_from?: number | null
           merchant_id: string
           original_price: number
+          payment_steps?: Json | null
           postal_code?: string
           price_per_person?: number | null
           pricing_model?: string
@@ -268,6 +270,7 @@ export type Database = {
           indicative_price_from?: number | null
           merchant_id?: string
           original_price?: number
+          payment_steps?: Json | null
           postal_code?: string
           price_per_person?: number | null
           pricing_model?: string

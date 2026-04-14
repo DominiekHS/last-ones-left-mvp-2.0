@@ -20,6 +20,7 @@ import { CATEGORIES } from "@/lib/constants";
 import { toast } from "@/hooks/use-toast";
 import { AlertTriangle, Plus, Upload, ArrowLeft } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import PaymentStepsEditor, { type PaymentStep } from "@/components/merchant/PaymentStepsEditor";
 
 type VenueCategory = Database["public"]["Enums"]["venue_category"];
 
@@ -65,6 +66,7 @@ export default function AdForm() {
   const [redemptionInstructions, setRedemptionInstructions] = useState(DEFAULT_REDEMPTION_INSTRUCTIONS);
   const [cancellationPolicy, setCancellationPolicy] = useState(DEFAULT_CANCELLATION_POLICY);
   const [termsSummary, setTermsSummary] = useState(DEFAULT_TERMS_SUMMARY);
+  const [paymentSteps, setPaymentSteps] = useState<PaymentStep[]>([]);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -106,6 +108,14 @@ export default function AdForm() {
             setRedemptionInstructions((data as any).redemption_instructions || "");
             setCancellationPolicy((data as any).cancellation_policy || "");
             setTermsSummary((data as any).terms_summary || "");
+            if ((data as any).payment_steps) {
+              try {
+                const ps = typeof (data as any).payment_steps === "string"
+                  ? JSON.parse((data as any).payment_steps)
+                  : (data as any).payment_steps;
+                if (Array.isArray(ps)) setPaymentSteps(ps);
+              } catch {}
+            }
             if ((data as any).discount_type !== "unique") {
               setUniversalCode(data.discount_code);
             }
@@ -284,6 +294,15 @@ export default function AdForm() {
         }
       }
     }
+    // Validate payment steps
+    for (let i = 0; i < paymentSteps.length; i++) {
+      if (paymentSteps[i].text.trim().length > 0 && paymentSteps[i].text.trim().length < 5) {
+        e[`paymentStep_${i}`] = `Stap ${i + 1}: minimaal 5 tekens`;
+      }
+      if (!paymentSteps[i].text.trim()) {
+        e[`paymentStep_${i}`] = `Stap ${i + 1}: tekst is verplicht`;
+      }
+    }
 
     return e;
   };
@@ -349,7 +368,8 @@ export default function AdForm() {
       redemption_instructions: redemptionInstructions.trim(),
       cancellation_policy: cancellationPolicy.trim(),
       terms_summary: termsSummary.trim(),
-    };
+      payment_steps: paymentSteps.length > 0 ? paymentSteps.filter(s => s.text.trim()) : null,
+    } as any;
 
     let dealId = id;
     let error;
@@ -1026,7 +1046,15 @@ export default function AdForm() {
           </CardContent>
         </Card>
 
-        {/* Section 8: Kleine lettertjes */}
+        {/* Section 8: Stappenplan betalen */}
+        <PaymentStepsEditor
+          steps={paymentSteps}
+          onChange={setPaymentSteps}
+          dealId={id}
+          userId={user?.id}
+        />
+
+        {/* Section 9: Kleine lettertjes */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="font-display text-lg">Kleine lettertjes (optioneel)</CardTitle>
