@@ -251,9 +251,9 @@ export default function AdminVoucherUsage() {
                 }
               />
             </div>
-            <Button variant="outline" onClick={exportCSV} disabled={!claims?.length}>
+            <Button variant="outline" onClick={exportExcel} disabled={!claims?.length}>
               <Download className="mr-2 h-4 w-4" />
-              Export CSV
+              Export Excel
             </Button>
           </div>
         </CardContent>
