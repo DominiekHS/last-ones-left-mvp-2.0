@@ -43,7 +43,7 @@ export default function AdminDashboard() {
   const defaultEnd = format(new Date(), "yyyy-MM-dd");
   const [consumerStartDate, setConsumerStartDate] = useState(defaultStart);
   const [consumerEndDate, setConsumerEndDate] = useState(defaultEnd);
-  const [claimScope, setClaimScope] = useState<"all_time" | "in_period">("all_time");
+  
   const [consumerListMode, setConsumerListMode] = useState<"new" | "all">("all");
 
   const { data: merchants } = useQuery({
@@ -111,12 +111,6 @@ export default function AdminDashboard() {
     // Build claims map per consumer
     const claimsMap = new Map<string, { count: number; lastClaimed: string | null }>();
     for (const claim of allClaims) {
-      if (!filteredUserIds.has(claim.user_id)) continue;
-      // If scope is in_period, only count claims within the date range
-      if (claimScope === "in_period") {
-        const claimedAt = new Date(claim.claimed_at);
-        if (claimedAt < start || claimedAt > end) continue;
-      }
       const existing = claimsMap.get(claim.user_id);
       if (existing) {
         existing.count++;
@@ -143,7 +137,7 @@ export default function AdminDashboard() {
       totalClaims,
       avgClaims: filtered.length > 0 ? Math.round((totalClaims / filtered.length) * 10) / 10 : 0,
     };
-  }, [consumers, allClaims, consumerStartDate, consumerEndDate, claimScope]);
+  }, [consumers, allClaims, consumerStartDate, consumerEndDate]);
 
   // Build enriched list for "all" mode too (with claim stats for all consumers)
   const allConsumersEnriched = useMemo(() => {
@@ -326,22 +320,6 @@ export default function AdminDashboard() {
                     onChange={(e) => setConsumerEndDate(e.target.value)}
                     className="w-40"
                   />
-                </div>
-                <div className="flex gap-1">
-                  <Button
-                    variant={claimScope === "all_time" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setClaimScope("all_time")}
-                  >
-                    Claims alle tijd
-                  </Button>
-                  <Button
-                    variant={claimScope === "in_period" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setClaimScope("in_period")}
-                  >
-                    Claims in periode
-                  </Button>
                 </div>
               </div>
             </CardContent>
