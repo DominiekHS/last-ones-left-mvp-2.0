@@ -95,7 +95,7 @@ export default function DealAnalytics() {
       )}
 
       <p className="text-xs text-muted-foreground">
-        Statistieken over de volledige looptijd van deze advertentie (max. 24 uur).
+        Statistieken over de volledige looptijd van deze advertentie.
       </p>
     </div>
   );
