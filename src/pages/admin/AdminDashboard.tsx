@@ -108,9 +108,15 @@ export default function AdminDashboard() {
 
     const filteredUserIds = new Set(filtered.map((c) => c.user_id));
 
-    // Build claims map per consumer
+    // Count claims that happened within the date range (all consumers)
+    let totalClaims = 0;
     const claimsMap = new Map<string, { count: number; lastClaimed: string | null }>();
     for (const claim of allClaims) {
+      const claimedAt = new Date(claim.claimed_at);
+      if (claimedAt < start || claimedAt > end) continue;
+      totalClaims++;
+      // Only track per-consumer stats for filtered consumers (for the list)
+      if (!filteredUserIds.has(claim.user_id)) continue;
       const existing = claimsMap.get(claim.user_id);
       if (existing) {
         existing.count++;
@@ -121,8 +127,6 @@ export default function AdminDashboard() {
         claimsMap.set(claim.user_id, { count: 1, lastClaimed: claim.claimed_at });
       }
     }
-
-    const totalClaims = Array.from(claimsMap.values()).reduce((sum, v) => sum + v.count, 0);
 
     // Add claim stats to filtered consumers, then apply search
     const enriched = filtered.map((c) => ({
