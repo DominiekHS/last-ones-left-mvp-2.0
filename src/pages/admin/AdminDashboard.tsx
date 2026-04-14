@@ -20,7 +20,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert } from "lucide-react";
+import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { CATEGORY_LABELS } from "@/lib/constants";
@@ -155,6 +155,7 @@ export default function AdminDashboard() {
           <TabsTrigger value="merchants">Ondernemers ({merchants?.length || 0})</TabsTrigger>
           <TabsTrigger value="consumers">Consumenten ({consumers?.length || 0})</TabsTrigger>
           <TabsTrigger value="deals">Deals ({deals?.length || 0})</TabsTrigger>
+          <TabsTrigger value="vouchers" onClick={() => navigate("/admin/kortingscodes")}>Kortingscodes</TabsTrigger>
         </TabsList>
 
         <TabsContent value="merchants" className="space-y-3 mt-4">
