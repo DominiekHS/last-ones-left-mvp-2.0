@@ -163,7 +163,8 @@ export default function AdminDashboard() {
     }));
   }, [consumers, allClaims]);
 
-  const displayedConsumers = consumerStats.filtered;
+  const [consumerListMode, setConsumerListMode] = useState<"all" | "new">("all");
+  const displayedConsumers = consumerListMode === "new" ? consumerStats.filtered : allConsumersEnriched;
 
   const searchedConsumers = displayedConsumers.filter((c) =>
     c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
@@ -329,10 +330,32 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          {/* KPI cards */}
+          {/* KPI cards — clickable to toggle list */}
           <div className="grid grid-cols-3 gap-3">
-            <StatCard icon={<Users className="h-4 w-4" />} label="Totaal consumenten" value={consumers?.length ?? 0} />
-            <StatCard icon={<Users className="h-4 w-4" />} label="Nieuwe consumenten" value={consumerStats.newCount} />
+            <Card
+              className={`cursor-pointer transition-colors ${consumerListMode === "all" ? "ring-2 ring-primary" : "hover:bg-accent/50"}`}
+              onClick={() => setConsumerListMode("all")}
+            >
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="rounded-full p-2 bg-primary/10 text-primary"><Users className="h-4 w-4" /></div>
+                <div>
+                  <p className="text-2xl font-bold">{consumers?.length ?? 0}</p>
+                  <p className="text-xs text-muted-foreground">Totaal consumenten</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card
+              className={`cursor-pointer transition-colors ${consumerListMode === "new" ? "ring-2 ring-primary" : "hover:bg-accent/50"}`}
+              onClick={() => setConsumerListMode("new")}
+            >
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="rounded-full p-2 bg-primary/10 text-primary"><Users className="h-4 w-4" /></div>
+                <div>
+                  <p className="text-2xl font-bold">{consumerStats.newCount}</p>
+                  <p className="text-xs text-muted-foreground">Nieuwe consumenten</p>
+                </div>
+              </CardContent>
+            </Card>
             <StatCard icon={<Ticket className="h-4 w-4" />} label="Geclaimde codes" value={consumerStats.totalClaims} />
           </div>
 
@@ -347,7 +370,9 @@ export default function AdminDashboard() {
           </div>
 
           {searchedConsumers.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">Geen consumenten gevonden in deze periode.</p>
+            <p className="text-sm text-muted-foreground text-center py-4">
+              {consumerListMode === "new" ? "Geen nieuwe consumenten gevonden in deze periode." : "Geen consumenten gevonden."}
+            </p>
           )}
           {searchedConsumers.map((c) => (
             <Card key={c.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/consumenten/${c.user_id}`)}>
