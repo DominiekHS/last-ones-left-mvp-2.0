@@ -375,48 +375,104 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-            <StatCard icon={<Ticket className="h-4 w-4" />} label="Geclaimde codes" value={consumerStats.totalClaims} />
-          </div>
-
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Zoek op naam of e-mail..."
-              value={consumerSearch}
-              onChange={(e) => setConsumerSearch(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-
-          {searchedConsumers.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              {consumerListMode === "new" ? "Geen nieuwe consumenten gevonden in deze periode." : "Geen consumenten gevonden."}
-            </p>
-          )}
-          {searchedConsumers.map((c) => (
-            <Card key={c.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/consumenten/${c.user_id}`)}>
-              <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-display font-semibold">{c.full_name || "Geen naam"}</h3>
-                    {c.claimsCount > 0 && (
-                      <Badge variant="secondary" className="text-xs">
-                        <Ticket className="h-3 w-3 mr-1" />
-                        {c.claimsCount} claims
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {c.email} · Aangemaakt: {format(new Date(c.created_at), "d MMM yyyy", { locale: nl })}
-                    {c.lastClaimedAt && (
-                      <> · Laatste claim: {format(new Date(c.lastClaimedAt), "d MMM yyyy HH:mm", { locale: nl })}</>
-                    )}
-                  </p>
+            <Card
+              className={`cursor-pointer transition-colors ${consumerListMode === "claims" ? "ring-2 ring-primary" : "hover:bg-accent/50"}`}
+              onClick={() => setConsumerListMode("claims")}
+            >
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="rounded-full p-2 bg-primary/10 text-primary"><Ticket className="h-4 w-4" /></div>
+                <div>
+                  <p className="text-2xl font-bold">{consumerStats.totalClaims}</p>
+                  <p className="text-xs text-muted-foreground">Geclaimde codes</p>
                 </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </CardContent>
             </Card>
-          ))}
+          </div>
+
+          {consumerListMode !== "claims" && (
+            <>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Zoek op naam of e-mail..."
+                  value={consumerSearch}
+                  onChange={(e) => setConsumerSearch(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+
+              {searchedConsumers.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  {consumerListMode === "new" ? "Geen nieuwe consumenten gevonden in deze periode." : "Geen consumenten gevonden."}
+                </p>
+              )}
+              {searchedConsumers.map((c) => (
+                <Card key={c.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/consumenten/${c.user_id}`)}>
+                  <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-display font-semibold">{c.full_name || "Geen naam"}</h3>
+                        {c.claimsCount > 0 && (
+                          <Badge variant="secondary" className="text-xs">
+                            <Ticket className="h-3 w-3 mr-1" />
+                            {c.claimsCount} claims
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {c.email} · Aangemaakt: {format(new Date(c.created_at), "d MMM yyyy", { locale: nl })}
+                        {c.lastClaimedAt && (
+                          <> · Laatste claim: {format(new Date(c.lastClaimedAt), "d MMM yyyy HH:mm", { locale: nl })}</>
+                        )}
+                      </p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </CardContent>
+                </Card>
+              ))}
+            </>
+          )}
+
+          {consumerListMode === "claims" && (
+            <>
+              {filteredClaims.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">Geen geclaimde codes gevonden in deze periode.</p>
+              ) : (
+                <div className="space-y-3">
+                  {filteredClaims.map((h) => (
+                    <Card key={h.id}>
+                      <CardContent className="p-4 space-y-1.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-display font-semibold">{h.title || "Onbekende deal"}</h3>
+                          {h.discount_code && h.discount_code !== "ARCHIVED" && (
+                            <Badge variant="outline" className="font-mono text-xs">{h.discount_code}</Badge>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Users className="h-3.5 w-3.5" />
+                            {consumerNameMap.get(h.user_id) || "Onbekend"}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Store className="h-3.5 w-3.5" />
+                            {h.merchant_name}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-3.5 w-3.5" />
+                            {h.city}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <CalendarDays className="h-3.5 w-3.5" />
+                            {format(new Date(h.claimed_at), "d MMM yyyy · HH:mm", { locale: nl })}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </TabsContent>
 
         <TabsContent value="deals" className="space-y-3 mt-4">
