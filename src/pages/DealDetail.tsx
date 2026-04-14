@@ -229,6 +229,11 @@ export default function DealDetail() {
         </div>
       </div>
 
+      {/* Stappenplan betalen */}
+      {(deal as any).payment_steps && Array.isArray((deal as any).payment_steps) && (deal as any).payment_steps.length > 0 && (
+        <PaymentStepsDisplay steps={(deal as any).payment_steps} />
+      )}
+
       {/* Kleine lettertjes */}
       <Card>
         <CardContent className="p-4 space-y-4">
