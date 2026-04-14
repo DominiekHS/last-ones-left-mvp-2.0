@@ -44,7 +44,7 @@ export default function AdminDashboard() {
   const [consumerStartDate, setConsumerStartDate] = useState(defaultStart);
   const [consumerEndDate, setConsumerEndDate] = useState(defaultEnd);
   
-  const [consumerListMode, setConsumerListMode] = useState<"new" | "all">("all");
+  
 
   const { data: merchants } = useQuery({
     queryKey: ["admin-merchants"],
@@ -326,29 +326,9 @@ export default function AdminDashboard() {
           </Card>
 
           {/* KPI cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <StatCard icon={<Users className="h-4 w-4" />} label="Totaal consumenten" value={consumers?.length ?? 0} />
-            <StatCard icon={<Users className="h-4 w-4" />} label="Nieuwe consumenten" value={consumerStats.newCount} />
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard icon={<Users className="h-4 w-4" />} label="Consumenten" value={consumerStats.newCount} />
             <StatCard icon={<Ticket className="h-4 w-4" />} label="Geclaimde codes" value={consumerStats.totalClaims} />
-            <StatCard icon={<Tag className="h-4 w-4" />} label="Gem. claims/consument" value={consumerStats.avgClaims} />
-          </div>
-
-          {/* List mode toggle + Search */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant={consumerListMode === "all" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setConsumerListMode("all")}
-            >
-              Alle consumenten
-            </Button>
-            <Button
-              variant={consumerListMode === "new" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setConsumerListMode("new")}
-            >
-              Nieuwe consumenten
-            </Button>
           </div>
 
           <div className="relative">
@@ -362,11 +342,7 @@ export default function AdminDashboard() {
           </div>
 
           {searchedConsumers.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              {consumerListMode === "new"
-                ? "Geen nieuwe consumenten gevonden in deze periode."
-                : "Geen consumenten gevonden."}
-            </p>
+            <p className="text-sm text-muted-foreground text-center py-4">Geen consumenten gevonden in deze periode.</p>
           )}
           {searchedConsumers.map((c) => (
             <Card key={c.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/consumenten/${c.user_id}`)}>
