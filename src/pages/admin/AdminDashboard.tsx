@@ -325,7 +325,8 @@ export default function AdminDashboard() {
           </Card>
 
           {/* KPI cards */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <StatCard icon={<Users className="h-4 w-4" />} label="Totaal consumenten" value={consumers?.length ?? 0} />
             <StatCard icon={<Users className="h-4 w-4" />} label="Nieuwe consumenten" value={consumerStats.newCount} />
             <StatCard icon={<Ticket className="h-4 w-4" />} label="Geclaimde codes" value={consumerStats.totalClaims} />
             <StatCard icon={<Tag className="h-4 w-4" />} label="Gem. claims/consument" value={consumerStats.avgClaims} />
