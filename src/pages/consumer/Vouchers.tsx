@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Copy, ExternalLink, Ticket } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { toast } from "@/hooks/use-toast";
 import { Link, Navigate } from "react-router-dom";
 import { useState } from "react";
+import PaymentStepsDisplay from "@/components/deals/PaymentStepsDisplay";
 
 export default function Vouchers() {
   const { user, roles, loading } = useAuth();
@@ -23,7 +25,7 @@ export default function Vouchers() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("vouchers")
-        .select("*, deals(title, city, start_time, expiry_time, checkout_link, discount_percentage, original_price, redemption_method, pricing_model, price_per_person, merchants(company_name))")
+        .select("*, deals(title, city, start_time, expiry_time, checkout_link, discount_percentage, original_price, redemption_method, pricing_model, price_per_person, payment_steps, id, merchants(company_name))")
         .eq("user_id", user!.id)
         .is("deleted_at", null)
         .in("status", ["active", "inactive"])
@@ -150,6 +152,25 @@ export default function Vouchers() {
                         <ExternalLink className="mr-1 h-4 w-4" />
                         {deal?.redemption_method === "online_pay_pos_refund" ? "Reserveer online" : "Naar afrekenen"}
                       </a>
+                    </Button>
+                  )}
+
+                  {deal?.payment_steps && Array.isArray(deal.payment_steps) && deal.payment_steps.length > 0 && (
+                    <Accordion type="single" collapsible>
+                      <AccordionItem value="steps" className="border-none">
+                        <AccordionTrigger className="py-2 text-xs font-medium hover:no-underline">
+                          📝 Stappenplan reserveren/betalen
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <PaymentStepsDisplay steps={deal.payment_steps as any} />
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  )}
+
+                  {deal?.id && isActive && (
+                    <Button variant="link" size="sm" asChild className="h-auto p-0 text-xs">
+                      <Link to={`/deal/${deal.id}`}>Bekijk deal →</Link>
                     </Button>
                   )}
 
