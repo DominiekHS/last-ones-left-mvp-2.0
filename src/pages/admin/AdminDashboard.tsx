@@ -43,7 +43,7 @@ export default function AdminDashboard() {
   const defaultEnd = format(new Date(), "yyyy-MM-dd");
   const [consumerStartDate, setConsumerStartDate] = useState(defaultStart);
   const [consumerEndDate, setConsumerEndDate] = useState(defaultEnd);
-  const [claimScope, setClaimScope] = useState<"all_time" | "in_period">("all_time");
+  const claimScope = "all_time" as const;
   const [consumerListMode, setConsumerListMode] = useState<"new" | "all">("all");
 
   const { data: merchants } = useQuery({
@@ -326,22 +326,6 @@ export default function AdminDashboard() {
                     onChange={(e) => setConsumerEndDate(e.target.value)}
                     className="w-40"
                   />
-                </div>
-                <div className="flex gap-1">
-                  <Button
-                    variant={claimScope === "all_time" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setClaimScope("all_time")}
-                  >
-                    Claims alle tijd
-                  </Button>
-                  <Button
-                    variant={claimScope === "in_period" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setClaimScope("in_period")}
-                  >
-                    Claims in periode
-                  </Button>
                 </div>
               </div>
             </CardContent>
