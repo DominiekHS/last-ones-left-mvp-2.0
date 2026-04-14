@@ -20,6 +20,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import PaymentStepsDisplay from "@/components/deals/PaymentStepsDisplay";
 
 export default function DealDetail() {
   const { id } = useParams<{ id: string }>();
