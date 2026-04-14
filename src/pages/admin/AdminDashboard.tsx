@@ -111,12 +111,6 @@ export default function AdminDashboard() {
     // Build claims map per consumer
     const claimsMap = new Map<string, { count: number; lastClaimed: string | null }>();
     for (const claim of allClaims) {
-      if (!filteredUserIds.has(claim.user_id)) continue;
-      // If scope is in_period, only count claims within the date range
-      if (claimScope === "in_period") {
-        const claimedAt = new Date(claim.claimed_at);
-        if (claimedAt < start || claimedAt > end) continue;
-      }
       const existing = claimsMap.get(claim.user_id);
       if (existing) {
         existing.count++;
