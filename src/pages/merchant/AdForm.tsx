@@ -20,6 +20,7 @@ import { CATEGORIES } from "@/lib/constants";
 import { toast } from "@/hooks/use-toast";
 import { AlertTriangle, Plus, Upload, ArrowLeft } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import PaymentStepsEditor, { type PaymentStep } from "@/components/merchant/PaymentStepsEditor";
 
 type VenueCategory = Database["public"]["Enums"]["venue_category"];
 
@@ -65,6 +66,7 @@ export default function AdForm() {
   const [redemptionInstructions, setRedemptionInstructions] = useState(DEFAULT_REDEMPTION_INSTRUCTIONS);
   const [cancellationPolicy, setCancellationPolicy] = useState(DEFAULT_CANCELLATION_POLICY);
   const [termsSummary, setTermsSummary] = useState(DEFAULT_TERMS_SUMMARY);
+  const [paymentSteps, setPaymentSteps] = useState<PaymentStep[]>([]);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -106,6 +108,14 @@ export default function AdForm() {
             setRedemptionInstructions((data as any).redemption_instructions || "");
             setCancellationPolicy((data as any).cancellation_policy || "");
             setTermsSummary((data as any).terms_summary || "");
+            if ((data as any).payment_steps) {
+              try {
+                const ps = typeof (data as any).payment_steps === "string"
+                  ? JSON.parse((data as any).payment_steps)
+                  : (data as any).payment_steps;
+                if (Array.isArray(ps)) setPaymentSteps(ps);
+              } catch {}
+            }
             if ((data as any).discount_type !== "unique") {
               setUniversalCode(data.discount_code);
             }
