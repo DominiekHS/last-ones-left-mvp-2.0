@@ -164,13 +164,31 @@ export default function AdminDashboard() {
     }));
   }, [consumers, allClaims]);
 
-  const [consumerListMode, setConsumerListMode] = useState<"all" | "new">("all");
+  const [consumerListMode, setConsumerListMode] = useState<"all" | "new" | "claims">("all");
   const displayedConsumers = consumerListMode === "new" ? consumerStats.filtered : allConsumersEnriched;
 
   const searchedConsumers = displayedConsumers.filter((c) =>
     c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
     c.email.toLowerCase().includes(consumerSearch.toLowerCase())
   );
+
+  // Claims filtered by period for the claims list view
+  const filteredClaims = useMemo(() => {
+    if (!allClaims) return [];
+    const start = startOfDay(new Date(consumerStartDate));
+    const end = endOfDay(new Date(consumerEndDate));
+    return allClaims.filter((c) => {
+      const claimedAt = new Date(c.claimed_at);
+      return claimedAt >= start && claimedAt <= end;
+    });
+  }, [allClaims, consumerStartDate, consumerEndDate]);
+
+  // Build a lookup of consumer names
+  const consumerNameMap = useMemo(() => {
+    const map = new Map<string, string>();
+    consumers?.forEach((c) => map.set(c.user_id, c.full_name || c.email));
+    return map;
+  }, [consumers]);
 
   const { data: deals } = useQuery({
     queryKey: ["admin-deals"],
