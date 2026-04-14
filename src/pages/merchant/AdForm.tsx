@@ -294,6 +294,15 @@ export default function AdForm() {
         }
       }
     }
+    // Validate payment steps
+    for (let i = 0; i < paymentSteps.length; i++) {
+      if (paymentSteps[i].text.trim().length > 0 && paymentSteps[i].text.trim().length < 5) {
+        e[`paymentStep_${i}`] = `Stap ${i + 1}: minimaal 5 tekens`;
+      }
+      if (!paymentSteps[i].text.trim()) {
+        e[`paymentStep_${i}`] = `Stap ${i + 1}: tekst is verplicht`;
+      }
+    }
 
     return e;
   };
