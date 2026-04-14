@@ -368,7 +368,8 @@ export default function AdForm() {
       redemption_instructions: redemptionInstructions.trim(),
       cancellation_policy: cancellationPolicy.trim(),
       terms_summary: termsSummary.trim(),
-    };
+      payment_steps: paymentSteps.length > 0 ? paymentSteps.filter(s => s.text.trim()) : null,
+    } as any;
 
     let dealId = id;
     let error;
@@ -1045,7 +1046,15 @@ export default function AdForm() {
           </CardContent>
         </Card>
 
-        {/* Section 8: Kleine lettertjes */}
+        {/* Section 8: Stappenplan betalen */}
+        <PaymentStepsEditor
+          steps={paymentSteps}
+          onChange={setPaymentSteps}
+          dealId={id}
+          userId={user?.id}
+        />
+
+        {/* Section 9: Kleine lettertjes */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="font-display text-lg">Kleine lettertjes (optioneel)</CardTitle>
