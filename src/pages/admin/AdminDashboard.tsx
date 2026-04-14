@@ -44,6 +44,7 @@ export default function AdminDashboard() {
   const [consumerStartDate, setConsumerStartDate] = useState(defaultStart);
   const [consumerEndDate, setConsumerEndDate] = useState(defaultEnd);
   const [claimScope, setClaimScope] = useState<"all_time" | "in_period">("all_time");
+  const [consumerListMode, setConsumerListMode] = useState<"new" | "all">("all");
 
   const { data: merchants } = useQuery({
     queryKey: ["admin-merchants"],
@@ -144,7 +145,29 @@ export default function AdminDashboard() {
     };
   }, [consumers, allClaims, consumerStartDate, consumerEndDate, claimScope]);
 
-  const searchedConsumers = consumerStats.filtered.filter((c) =>
+  // Build enriched list for "all" mode too (with claim stats for all consumers)
+  const allConsumersEnriched = useMemo(() => {
+    if (!consumers || !allClaims) return [];
+    const claimsMap = new Map<string, { count: number; lastClaimed: string | null }>();
+    for (const claim of allClaims) {
+      const existing = claimsMap.get(claim.user_id);
+      if (existing) {
+        existing.count++;
+        if (!existing.lastClaimed || claim.claimed_at > existing.lastClaimed) existing.lastClaimed = claim.claimed_at;
+      } else {
+        claimsMap.set(claim.user_id, { count: 1, lastClaimed: claim.claimed_at });
+      }
+    }
+    return consumers.map((c) => ({
+      ...c,
+      claimsCount: claimsMap.get(c.user_id)?.count || 0,
+      lastClaimedAt: claimsMap.get(c.user_id)?.lastClaimed || null,
+    }));
+  }, [consumers, allClaims]);
+
+  const displayedConsumers = consumerListMode === "new" ? consumerStats.filtered : allConsumersEnriched;
+
+  const searchedConsumers = displayedConsumers.filter((c) =>
     c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
     c.email.toLowerCase().includes(consumerSearch.toLowerCase())
   );
@@ -332,7 +355,24 @@ export default function AdminDashboard() {
             <StatCard icon={<Tag className="h-4 w-4" />} label="Gem. claims/consument" value={consumerStats.avgClaims} />
           </div>
 
-          {/* Search */}
+          {/* List mode toggle + Search */}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant={consumerListMode === "all" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setConsumerListMode("all")}
+            >
+              Alle consumenten
+            </Button>
+            <Button
+              variant={consumerListMode === "new" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setConsumerListMode("new")}
+            >
+              Nieuwe consumenten
+            </Button>
+          </div>
+
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -344,7 +384,11 @@ export default function AdminDashboard() {
           </div>
 
           {searchedConsumers.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">Geen consumenten gevonden.</p>
+            <p className="text-sm text-muted-foreground text-center py-4">
+              {consumerListMode === "new"
+                ? "Geen nieuwe consumenten gevonden in deze periode."
+                : "Geen consumenten gevonden."}
+            </p>
           )}
           {searchedConsumers.map((c) => (
             <Card key={c.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/consumenten/${c.user_id}`)}>
