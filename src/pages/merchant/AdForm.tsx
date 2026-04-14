@@ -224,8 +224,14 @@ export default function AdForm() {
         e.startTime = "Starttijd is verplicht";
       } else if (start.getTime() < now.getTime() + 5 * 60 * 1000) {
         e.startTime = "Starttijd moet minimaal 5 minuten in de toekomst liggen";
-      } else if (start.getTime() > now.getTime() + 24 * 60 * 60 * 1000) {
-        e.startTime = "Starttijd moet binnen 24 uur liggen";
+      } else {
+        // End of tomorrow: midnight at the end of the next calendar day
+        const endOfTomorrow = new Date(now);
+        endOfTomorrow.setDate(endOfTomorrow.getDate() + 2);
+        endOfTomorrow.setHours(0, 0, 0, 0);
+        if (start.getTime() > endOfTomorrow.getTime()) {
+          e.startTime = "Starttijd moet vandaag of morgen zijn";
+        }
       }
 
       if (!expiryTime) {
