@@ -86,7 +86,8 @@ export default function AdminDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("claim_history")
-        .select("user_id, claimed_at");
+        .select("*")
+        .order("claimed_at", { ascending: false });
       if (error) throw error;
       return data || [];
     },
