@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,8 +21,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket } from "lucide-react";
-import { format } from "date-fns";
+import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket, CalendarDays } from "lucide-react";
+import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { nl } from "date-fns/locale";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { getMerchantEffectiveStatus, STATUS_LABELS, STATUS_VARIANTS } from "@/lib/merchant-status";
@@ -36,6 +37,13 @@ export default function AdminDashboard() {
   const [consumerSearch, setConsumerSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended" | "blocked">("all");
   const [dealStatusFilter, setDealStatusFilter] = useState<"all" | "active" | "expired">("all");
+
+  // Consumer date filter
+  const defaultStart = format(subDays(new Date(), 30), "yyyy-MM-dd");
+  const defaultEnd = format(new Date(), "yyyy-MM-dd");
+  const [consumerStartDate, setConsumerStartDate] = useState(defaultStart);
+  const [consumerEndDate, setConsumerEndDate] = useState(defaultEnd);
+  const [claimScope, setClaimScope] = useState<"all_time" | "in_period">("all_time");
 
   const { data: merchants } = useQuery({
     queryKey: ["admin-merchants"],
@@ -53,7 +61,6 @@ export default function AdminDashboard() {
   const { data: consumers } = useQuery({
     queryKey: ["admin-consumers"],
     queryFn: async () => {
-      // Get consumer user_ids
       const { data: consumerRoles, error: rolesError } = await supabase
         .from("user_roles")
         .select("user_id")
@@ -61,7 +68,6 @@ export default function AdminDashboard() {
       if (rolesError) throw rolesError;
       if (!consumerRoles?.length) return [];
       const userIds = consumerRoles.map((r) => r.user_id);
-      // Get profiles for those users
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
@@ -72,6 +78,76 @@ export default function AdminDashboard() {
     },
     enabled: roles.includes("admin"),
   });
+
+  // Fetch all claim history for consumer stats (admin-only via RLS)
+  const { data: allClaims } = useQuery({
+    queryKey: ["admin-all-claims"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("claim_history")
+        .select("user_id, claimed_at");
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: roles.includes("admin"),
+  });
+
+  // Derived: filtered consumers + claim stats
+  const consumerStats = useMemo(() => {
+    if (!consumers || !allClaims) return { filtered: [], newCount: 0, totalClaims: 0, avgClaims: 0 };
+
+    const start = startOfDay(new Date(consumerStartDate));
+    const end = endOfDay(new Date(consumerEndDate));
+
+    // Filter consumers by created_at in period
+    const filtered = consumers.filter((c) => {
+      const created = new Date(c.created_at);
+      return created >= start && created <= end;
+    });
+
+    const filteredUserIds = new Set(filtered.map((c) => c.user_id));
+
+    // Build claims map per consumer
+    const claimsMap = new Map<string, { count: number; lastClaimed: string | null }>();
+    for (const claim of allClaims) {
+      if (!filteredUserIds.has(claim.user_id)) continue;
+      // If scope is in_period, only count claims within the date range
+      if (claimScope === "in_period") {
+        const claimedAt = new Date(claim.claimed_at);
+        if (claimedAt < start || claimedAt > end) continue;
+      }
+      const existing = claimsMap.get(claim.user_id);
+      if (existing) {
+        existing.count++;
+        if (!existing.lastClaimed || claim.claimed_at > existing.lastClaimed) {
+          existing.lastClaimed = claim.claimed_at;
+        }
+      } else {
+        claimsMap.set(claim.user_id, { count: 1, lastClaimed: claim.claimed_at });
+      }
+    }
+
+    const totalClaims = Array.from(claimsMap.values()).reduce((sum, v) => sum + v.count, 0);
+
+    // Add claim stats to filtered consumers, then apply search
+    const enriched = filtered.map((c) => ({
+      ...c,
+      claimsCount: claimsMap.get(c.user_id)?.count || 0,
+      lastClaimedAt: claimsMap.get(c.user_id)?.lastClaimed || null,
+    }));
+
+    return {
+      filtered: enriched,
+      newCount: filtered.length,
+      totalClaims,
+      avgClaims: filtered.length > 0 ? Math.round((totalClaims / filtered.length) * 10) / 10 : 0,
+    };
+  }, [consumers, allClaims, consumerStartDate, consumerEndDate, claimScope]);
+
+  const searchedConsumers = consumerStats.filtered.filter((c) =>
+    c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
+    c.email.toLowerCase().includes(consumerSearch.toLowerCase())
+  );
 
   const { data: deals } = useQuery({
     queryKey: ["admin-deals"],
@@ -205,7 +281,57 @@ export default function AdminDashboard() {
           })}
         </TabsContent>
 
-        <TabsContent value="consumers" className="space-y-3 mt-4">
+        <TabsContent value="consumers" className="space-y-4 mt-4">
+          {/* Date range filter */}
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Startdatum</Label>
+                  <Input
+                    type="date"
+                    value={consumerStartDate}
+                    onChange={(e) => setConsumerStartDate(e.target.value)}
+                    className="w-40"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Einddatum</Label>
+                  <Input
+                    type="date"
+                    value={consumerEndDate}
+                    onChange={(e) => setConsumerEndDate(e.target.value)}
+                    className="w-40"
+                  />
+                </div>
+                <div className="flex gap-1">
+                  <Button
+                    variant={claimScope === "all_time" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setClaimScope("all_time")}
+                  >
+                    Claims alle tijd
+                  </Button>
+                  <Button
+                    variant={claimScope === "in_period" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setClaimScope("in_period")}
+                  >
+                    Claims in periode
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* KPI cards */}
+          <div className="grid grid-cols-3 gap-3">
+            <StatCard icon={<Users className="h-4 w-4" />} label="Nieuwe consumenten" value={consumerStats.newCount} />
+            <StatCard icon={<Ticket className="h-4 w-4" />} label="Geclaimde codes" value={consumerStats.totalClaims} />
+            <StatCard icon={<Tag className="h-4 w-4" />} label="Gem. claims/consument" value={consumerStats.avgClaims} />
+          </div>
+
+          {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -215,30 +341,34 @@ export default function AdminDashboard() {
               className="pl-9"
             />
           </div>
-          {consumers?.filter((c) =>
-            c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
-            c.email.toLowerCase().includes(consumerSearch.toLowerCase())
-          ).length === 0 && (
+
+          {searchedConsumers.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-4">Geen consumenten gevonden.</p>
           )}
-          {consumers
-            ?.filter((c) =>
-              c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
-              c.email.toLowerCase().includes(consumerSearch.toLowerCase())
-            )
-            .map((c) => (
-              <Card key={c.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/consumenten/${c.user_id}`)}>
-                <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-                  <div className="flex-1 space-y-1">
+          {searchedConsumers.map((c) => (
+            <Card key={c.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/consumenten/${c.user_id}`)}>
+              <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-display font-semibold">{c.full_name || "Geen naam"}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {c.email} · Lid sinds {format(new Date(c.created_at), "d MMM yyyy", { locale: nl })}
-                    </p>
+                    {c.claimsCount > 0 && (
+                      <Badge variant="secondary" className="text-xs">
+                        <Ticket className="h-3 w-3 mr-1" />
+                        {c.claimsCount} claims
+                      </Badge>
+                    )}
                   </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </CardContent>
-              </Card>
-            ))}
+                  <p className="text-xs text-muted-foreground">
+                    {c.email} · Aangemaakt: {format(new Date(c.created_at), "d MMM yyyy", { locale: nl })}
+                    {c.lastClaimedAt && (
+                      <> · Laatste claim: {format(new Date(c.lastClaimedAt), "d MMM yyyy HH:mm", { locale: nl })}</>
+                    )}
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </CardContent>
+            </Card>
+          ))}
         </TabsContent>
 
         <TabsContent value="deals" className="space-y-3 mt-4">

@@ -1,16 +1,23 @@
+import { useState } from "react";
 import { useParams, Navigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ArrowLeft, Ticket, Store, MapPin, CalendarDays } from "lucide-react";
-import { format } from "date-fns";
+import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { nl } from "date-fns/locale";
 
 export default function AdminConsumerDetail() {
   const { userId } = useParams<{ userId: string }>();
   const { user, roles, loading } = useAuth();
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const { data: profile } = useQuery({
     queryKey: ["admin-consumer-profile", userId],
@@ -44,6 +51,14 @@ export default function AdminConsumerDetail() {
     return <Navigate to="/" />;
   }
 
+  const filteredHistory = history?.filter((h) => {
+    if (!startDate && !endDate) return true;
+    const claimed = new Date(h.claimed_at);
+    if (startDate && claimed < startOfDay(new Date(startDate))) return false;
+    if (endDate && claimed > endOfDay(new Date(endDate))) return false;
+    return true;
+  });
+
   return (
     <div className="container py-6 max-w-3xl space-y-6">
       <Button variant="ghost" size="sm" asChild>
@@ -64,14 +79,41 @@ export default function AdminConsumerDetail() {
 
       <div>
         <h2 className="font-display text-lg font-semibold mb-3">
-          Claimgeschiedenis ({history?.length || 0})
+          Geclaimde kortingscodes ({filteredHistory?.length || 0})
         </h2>
+
+        {/* Date filter */}
+        <div className="flex flex-wrap items-end gap-3 mb-4">
+          <div className="space-y-1">
+            <Label className="text-xs">Vanaf</Label>
+            <Input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-40"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Tot</Label>
+            <Input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-40"
+            />
+          </div>
+          {(startDate || endDate) && (
+            <Button variant="ghost" size="sm" onClick={() => { setStartDate(""); setEndDate(""); }}>
+              Wis filter
+            </Button>
+          )}
+        </div>
 
         {isLoading ? (
           <p className="text-muted-foreground">Laden...</p>
-        ) : history && history.length > 0 ? (
+        ) : filteredHistory && filteredHistory.length > 0 ? (
           <div className="space-y-3">
-            {history.map((h) => (
+            {filteredHistory.map((h) => (
               <Card key={h.id}>
                 <CardContent className="p-4 space-y-1.5">
                   <h3 className="font-display font-semibold">{h.title || "Onbekende deal"}</h3>
@@ -101,7 +143,9 @@ export default function AdminConsumerDetail() {
         ) : (
           <div className="text-center py-8 space-y-2">
             <Ticket className="h-8 w-8 mx-auto text-muted-foreground" />
-            <p className="text-muted-foreground">Deze consument heeft nog geen claims.</p>
+            <p className="text-muted-foreground">
+              {startDate || endDate ? "Geen claims gevonden in deze periode." : "Deze consument heeft nog geen claims."}
+            </p>
           </div>
         )}
       </div>
