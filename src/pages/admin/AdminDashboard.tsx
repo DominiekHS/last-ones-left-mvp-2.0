@@ -137,7 +137,7 @@ export default function AdminDashboard() {
       totalClaims,
       avgClaims: filtered.length > 0 ? Math.round((totalClaims / filtered.length) * 10) / 10 : 0,
     };
-  }, [consumers, allClaims, consumerStartDate, consumerEndDate, claimScope]);
+  }, [consumers, allClaims, consumerStartDate, consumerEndDate]);
 
   // Build enriched list for "all" mode too (with claim stats for all consumers)
   const allConsumersEnriched = useMemo(() => {
