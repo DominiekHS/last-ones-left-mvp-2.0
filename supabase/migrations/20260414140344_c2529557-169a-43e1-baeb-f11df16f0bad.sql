@@ -1,0 +1,1 @@
+ALTER TABLE public.deals ADD COLUMN payment_steps jsonb DEFAULT NULL;
