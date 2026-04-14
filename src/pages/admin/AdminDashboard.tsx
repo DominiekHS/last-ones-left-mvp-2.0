@@ -159,7 +159,7 @@ export default function AdminDashboard() {
     }));
   }, [consumers, allClaims]);
 
-  const displayedConsumers = consumerListMode === "new" ? consumerStats.filtered : allConsumersEnriched;
+  const displayedConsumers = consumerStats.filtered;
 
   const searchedConsumers = displayedConsumers.filter((c) =>
     c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
