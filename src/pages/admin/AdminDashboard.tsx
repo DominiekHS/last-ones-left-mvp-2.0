@@ -43,7 +43,7 @@ export default function AdminDashboard() {
   const defaultEnd = format(new Date(), "yyyy-MM-dd");
   const [consumerStartDate, setConsumerStartDate] = useState(defaultStart);
   const [consumerEndDate, setConsumerEndDate] = useState(defaultEnd);
-  const claimScope = "all_time" as const;
+  
   const [consumerListMode, setConsumerListMode] = useState<"new" | "all">("all");
 
   const { data: merchants } = useQuery({
