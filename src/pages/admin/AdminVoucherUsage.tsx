@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import * as XLSX from "xlsx";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -132,8 +133,8 @@ export default function AdminVoucherUsage() {
     setPage(0);
   };
 
-  // CSV Export
-  const exportCSV = () => {
+  // Excel Export
+  const exportExcel = () => {
     if (!claims?.length) return;
     const headers = [
       "Datum geclaimd",
@@ -155,15 +156,11 @@ export default function AdminVoucherUsage() {
         ? format(new Date(c.start_time), "dd-MM-yyyy HH:mm", { locale: nl })
         : "",
     ]);
-    const csv =
-      [headers, ...rows].map((r) => r.map((v) => `"${v}"`).join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `kortingscodes_${startDate}_${endDate}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    ws["!cols"] = headers.map(() => ({ wch: 22 }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Kortingscodes");
+    XLSX.writeFile(wb, `kortingscodes_${startDate}_${endDate}.xlsx`);
   };
 
   if (!loading && (!user || !roles.includes("admin"))) {
@@ -254,9 +251,9 @@ export default function AdminVoucherUsage() {
                 }
               />
             </div>
-            <Button variant="outline" onClick={exportCSV} disabled={!claims?.length}>
+            <Button variant="outline" onClick={exportExcel} disabled={!claims?.length}>
               <Download className="mr-2 h-4 w-4" />
-              Export CSV
+              Export Excel
             </Button>
           </div>
         </CardContent>
