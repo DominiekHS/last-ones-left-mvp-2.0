@@ -7,12 +7,65 @@ import { DealFilters } from "@/components/deals/DealFilters";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Ticket } from "lucide-react";
 
+function getAmsterdamDayBoundaries(offset: 0 | 1): [Date, Date] {
+  const now = new Date();
+  // Build a date string in Europe/Amsterdam timezone
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Amsterdam",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const parts = formatter.formatToParts(now);
+  const y = parts.find(p => p.type === "year")!.value;
+  const m = parts.find(p => p.type === "month")!.value;
+  const d = parts.find(p => p.type === "day")!.value;
+
+  // Create date objects for the target day in Amsterdam time
+  const base = new Date(`${y}-${m}-${d}T00:00:00`);
+  base.setDate(base.getDate() + offset);
+
+  // Convert Amsterdam local boundaries to UTC by formatting back
+  const dayStr = base.toLocaleDateString("en-CA"); // YYYY-MM-DD
+  // Use a trick: create Date from Amsterdam midnight
+  const startLocal = new Date(new Date(`${dayStr}T00:00:00+00:00`).toLocaleString("en-US", { timeZone: "Europe/Amsterdam" }));
+  
+  // Simpler approach: calculate offset from Amsterdam timezone
+  const jan = new Date(`${y}-01-01T12:00:00Z`);
+  const jul = new Date(`${y}-07-01T12:00:00Z`);
+  const janOffset = new Date(jan.toLocaleString("en-US", { timeZone: "Europe/Amsterdam" })).getTime() - jan.getTime();
+  const julOffset = new Date(jul.toLocaleString("en-US", { timeZone: "Europe/Amsterdam" })).getTime() - jul.getTime();
+  // Current offset: check if we're in DST
+  const nowAmsterdam = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Amsterdam" }));
+  const currentOffsetMs = nowAmsterdam.getTime() - now.getTime();
+  
+  const dayStart = new Date(`${dayStr}T00:00:00Z`);
+  dayStart.setTime(dayStart.getTime() - currentOffsetMs);
+  
+  const dayEnd = new Date(`${dayStr}T23:59:59.999Z`);
+  dayEnd.setTime(dayEnd.getTime() - currentOffsetMs);
+  
+  return [dayStart, dayEnd];
+}
+
 const Index = () => {
   const [category, setCategory] = useState("all");
   const [city, setCity] = useState("");
+  const [dayFilter, setDayFilter] = useState<"all" | "today" | "tomorrow">("all");
   const { data: deals, isLoading } = useActiveDeals(category, city);
-  // Separate query without category filter for stable category counts
   const { data: allDealsForCounts } = useActiveDeals("all", city);
+
+  const filteredDeals = useMemo(() => {
+    if (!deals || dayFilter === "all") return deals;
+    const offset = dayFilter === "today" ? 0 : 1;
+    const [dayStart, dayEnd] = getAmsterdamDayBoundaries(offset as 0 | 1);
+    return deals.filter((deal) => {
+      const activeFrom = new Date(deal.created_at);
+      const activeUntil = new Date(deal.expiry_time);
+      // Overlap check: activeFrom <= dayEnd AND activeUntil >= dayStart
+      return activeFrom <= dayEnd && activeUntil >= dayStart;
+    });
+  }, [deals, dayFilter]);
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -41,8 +94,10 @@ const Index = () => {
       <DealFilters
         category={category}
         city={city}
+        dayFilter={dayFilter}
         onCategoryChange={setCategory}
         onCityChange={setCity}
+        onDayFilterChange={setDayFilter}
         categoryCounts={categoryCounts}
       />
 
@@ -53,9 +108,9 @@ const Index = () => {
               <Skeleton key={i} className="h-72 rounded-lg" />
             ))}
           </div>
-        ) : deals && deals.length > 0 ? (
+        ) : filteredDeals && filteredDeals.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {deals.map((deal) => (
+            {filteredDeals.map((deal) => (
               <DealCard key={deal.id} deal={deal} />
             ))}
           </div>

@@ -11,12 +11,14 @@ import { cn } from "@/lib/utils";
 interface DealFiltersProps {
   category: string;
   city: string;
+  dayFilter: "all" | "today" | "tomorrow";
   onCategoryChange: (v: string) => void;
   onCityChange: (v: string) => void;
+  onDayFilterChange: (v: "all" | "today" | "tomorrow") => void;
   categoryCounts?: Record<string, number>;
 }
 
-export function DealFilters({ category, city, onCategoryChange, onCityChange, categoryCounts = {} }: DealFiltersProps) {
+export function DealFilters({ category, city, dayFilter, onCategoryChange, onCityChange, onDayFilterChange, categoryCounts = {} }: DealFiltersProps) {
   const { data: cities = [], isLoading: citiesLoading } = useCities();
   const [open, setOpen] = useState(false);
 
@@ -39,7 +41,7 @@ export function DealFilters({ category, city, onCategoryChange, onCityChange, ca
 
   return (
     <div className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b py-3">
-      <div className="container flex flex-wrap gap-2">
+      <div className="container flex flex-wrap gap-2 items-center">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -111,6 +113,27 @@ export function DealFilters({ category, city, onCategoryChange, onCityChange, ca
             ))}
           </SelectContent>
         </Select>
+
+        <div className="flex rounded-md border border-input overflow-hidden">
+          {([
+            { value: "all", label: "Alles" },
+            { value: "today", label: "Vandaag" },
+            { value: "tomorrow", label: "Morgen" },
+          ] as const).map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => onDayFilterChange(opt.value)}
+              className={cn(
+                "px-3 py-2 text-sm font-medium transition-colors",
+                dayFilter === opt.value
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-background text-foreground hover:bg-accent"
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
