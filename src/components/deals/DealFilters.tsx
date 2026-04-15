@@ -41,7 +41,7 @@ export function DealFilters({ category, city, dayFilter, onCategoryChange, onCit
 
   return (
     <div className="sticky top-14 z-40 bg-background/95 backdrop-blur border-b py-3">
-      <div className="container flex flex-wrap gap-2">
+      <div className="container flex flex-wrap gap-2 items-center">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
