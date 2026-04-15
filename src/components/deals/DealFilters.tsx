@@ -18,7 +18,7 @@ interface DealFiltersProps {
   categoryCounts?: Record<string, number>;
 }
 
-export function DealFilters({ category, city, onCategoryChange, onCityChange, categoryCounts = {} }: DealFiltersProps) {
+export function DealFilters({ category, city, dayFilter, onCategoryChange, onCityChange, onDayFilterChange, categoryCounts = {} }: DealFiltersProps) {
   const { data: cities = [], isLoading: citiesLoading } = useCities();
   const [open, setOpen] = useState(false);
 
