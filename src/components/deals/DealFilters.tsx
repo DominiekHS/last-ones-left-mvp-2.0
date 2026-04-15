@@ -113,6 +113,27 @@ export function DealFilters({ category, city, dayFilter, onCategoryChange, onCit
             ))}
           </SelectContent>
         </Select>
+
+        <div className="flex rounded-md border border-input overflow-hidden">
+          {([
+            { value: "all", label: "Alles" },
+            { value: "today", label: "Vandaag" },
+            { value: "tomorrow", label: "Morgen" },
+          ] as const).map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => onDayFilterChange(opt.value)}
+              className={cn(
+                "px-3 py-2 text-sm font-medium transition-colors",
+                dayFilter === opt.value
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-background text-foreground hover:bg-accent"
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
