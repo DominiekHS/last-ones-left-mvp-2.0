@@ -60,7 +60,7 @@ const Index = () => {
     const offset = dayFilter === "today" ? 0 : 1;
     const [dayStart, dayEnd] = getAmsterdamDayBoundaries(offset as 0 | 1);
     return deals.filter((deal) => {
-      const activeFrom = new Date(deal.created_at);
+      const activeFrom = new Date(deal.start_time || deal.created_at);
       const activeUntil = new Date(deal.expiry_time);
       // Overlap check: activeFrom <= dayEnd AND activeUntil >= dayStart
       return activeFrom <= dayEnd && activeUntil >= dayStart;
