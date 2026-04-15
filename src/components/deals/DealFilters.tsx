@@ -11,8 +11,10 @@ import { cn } from "@/lib/utils";
 interface DealFiltersProps {
   category: string;
   city: string;
+  dayFilter: "all" | "today" | "tomorrow";
   onCategoryChange: (v: string) => void;
   onCityChange: (v: string) => void;
+  onDayFilterChange: (v: "all" | "today" | "tomorrow") => void;
   categoryCounts?: Record<string, number>;
 }
 
