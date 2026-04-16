@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +22,9 @@ export default function Login() {
     if (error) {
       toast({ title: "Inloggen mislukt", description: error.message, variant: "destructive" });
     } else {
-      navigate("/");
+      // Use safe internal path only
+      const safe = redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/";
+      navigate(safe);
     }
     setLoading(false);
   };
