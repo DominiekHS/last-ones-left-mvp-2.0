@@ -209,6 +209,7 @@ export type Database = {
           image_url: string | null
           indicative_price_from: number | null
           merchant_id: string
+          notification_sent_at: string | null
           original_price: number
           payment_steps: Json | null
           postal_code: string
@@ -239,6 +240,7 @@ export type Database = {
           image_url?: string | null
           indicative_price_from?: number | null
           merchant_id: string
+          notification_sent_at?: string | null
           original_price: number
           payment_steps?: Json | null
           postal_code?: string
@@ -269,6 +271,7 @@ export type Database = {
           image_url?: string | null
           indicative_price_from?: number | null
           merchant_id?: string
+          notification_sent_at?: string | null
           original_price?: number
           payment_steps?: Json | null
           postal_code?: string
@@ -488,11 +491,40 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_log: {
+        Row: {
+          deal_id: string
+          error_details: string | null
+          errors_count: number
+          id: string
+          sent_at: string
+          sent_count: number
+        }
+        Insert: {
+          deal_id: string
+          error_details?: string | null
+          errors_count?: number
+          id?: string
+          sent_at?: string
+          sent_count?: number
+        }
+        Update: {
+          deal_id?: string
+          error_details?: string | null
+          errors_count?: number
+          id?: string
+          sent_at?: string
+          sent_count?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
           date_of_birth: string | null
           email: string
+          email_notifications_enabled: boolean
+          email_notifications_updated_at: string | null
           full_name: string
           id: string
           updated_at: string
@@ -502,6 +534,8 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           email?: string
+          email_notifications_enabled?: boolean
+          email_notifications_updated_at?: string | null
           full_name?: string
           id?: string
           updated_at?: string
@@ -511,6 +545,8 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           email?: string
+          email_notifications_enabled?: boolean
+          email_notifications_updated_at?: string | null
           full_name?: string
           id?: string
           updated_at?: string
