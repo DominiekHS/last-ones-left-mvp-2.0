@@ -411,6 +411,11 @@ export default function AdForm() {
     }
 
     toast({ title: isEdit ? "Advertentie bijgewerkt!" : "Advertentie geplaatst!" });
+    if (!isEdit && dealId) {
+      supabase.functions
+        .invoke("send-deal-notifications", { body: { dealId } })
+        .catch((err) => console.error("notification trigger failed", err));
+    }
     navigate("/merchant");
     setSaving(false);
   };
