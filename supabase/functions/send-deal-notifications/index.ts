@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
       .eq("email_notifications_enabled", true);
 
     const recipients = (profiles ?? []).filter((p) => p.email);
-    const origin = req.headers.get("origin") || "https://lastonesleft.lovable.app";
+    const origin = "https://id-preview--b749b3f9-6f4b-447c-9d89-5acfe43fb2c7.lovable.app";
     const dealLink = `${origin}/deal/${deal.id}`;
     const expiry = new Date(deal.expiry_time).toLocaleString("nl-NL", {
       timeZone: "Europe/Amsterdam",
