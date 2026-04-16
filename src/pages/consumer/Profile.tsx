@@ -13,7 +13,7 @@ export default function Profile() {
   const { user, profile, roles, merchant, loading, refreshProfile } = useAuth();
   const isMerchant = roles.includes("merchant");
   const isAdmin = roles.includes("admin");
-  const isConsumer = roles.includes("consumer");
+  const isConsumer = roles.includes("consumer") || (!isMerchant && !isAdmin);
   const [fullName, setFullName] = useState("");
   const [dob, setDob] = useState("");
   const [emailNotifications, setEmailNotifications] = useState(false);
