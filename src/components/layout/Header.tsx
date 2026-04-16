@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Menu, X, User, LogOut, Store, Shield } from "lucide-react";
+import { NotificationBellToggle } from "@/components/NotificationBellToggle";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -61,6 +62,7 @@ export function Header() {
               )}
               {!isMerchant && !isAdmin && (
                 <>
+                  <NotificationBellToggle />
                   <Button variant="ghost" size="sm" asChild>
                     <Link to="/vouchers">Mijn kortingscodes</Link>
                   </Button>
