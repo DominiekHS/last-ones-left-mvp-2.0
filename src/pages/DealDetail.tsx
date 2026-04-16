@@ -295,7 +295,7 @@ export default function DealDetail() {
             </Button>
             <p className="text-xs text-center text-muted-foreground">
               Al een account?{" "}
-              <Link to={`/inloggen?redirect=/deal/${deal.id}`} className="underline text-foreground">
+              <Link to={`/login?redirect=/deal/${deal.id}`} className="underline text-foreground">
                 Log in
               </Link>
             </p>

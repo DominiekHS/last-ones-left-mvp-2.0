@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Menu, X, User, LogOut, Store, Shield } from "lucide-react";
@@ -15,6 +15,7 @@ import {
 export function Header() {
   const { user, profile, roles, merchant, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isMerchant = roles.includes("merchant");
@@ -30,6 +31,8 @@ export function Header() {
     await signOut();
     navigate("/");
   };
+
+  const redirectTarget = `${location.pathname}${location.search}${location.hash}`;
 
   return (
     <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
@@ -92,7 +95,7 @@ export function Header() {
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild>
-                <Link to="/login">Inloggen</Link>
+                <Link to={`/login?redirect=${encodeURIComponent(redirectTarget)}`}>Inloggen</Link>
               </Button>
               <Button variant="outline" size="sm" asChild>
                 <Link to="/merchant/registreren" aria-label="Registreren als ondernemer">Registreren als ondernemer</Link>
@@ -148,7 +151,7 @@ export function Header() {
             </>
           ) : (
             <>
-              <Link to="/login" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>
+              <Link to={`/login?redirect=${encodeURIComponent(redirectTarget)}`} className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>
                 Inloggen
               </Link>
               <Link to="/merchant/registreren" className="block py-2 text-sm" onClick={() => setMobileOpen(false)} aria-label="Registreren als ondernemer">
