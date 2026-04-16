@@ -33,6 +33,8 @@ export function Header() {
   };
 
   const redirectTarget = `${location.pathname}${location.search}${location.hash}`;
+
+  return (
     <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="container flex h-14 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
