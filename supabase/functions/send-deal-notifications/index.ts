@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
 
     const recipients = (profiles ?? []).filter((p) => p.email);
     const origin = "https://id-preview--b749b3f9-6f4b-447c-9d89-5acfe43fb2c7.lovable.app";
-    const dealLink = `${origin}/deal/${deal.id}`;
+    const dealLinkBase = `${origin}/deal/${deal.id}`;
     const expiry = new Date(deal.expiry_time).toLocaleString("nl-NL", {
       timeZone: "Europe/Amsterdam",
       dateStyle: "short",
@@ -87,6 +87,7 @@ Deno.serve(async (req) => {
 
     // Send sequentially in small batches to respect rate limits
     for (const r of recipients) {
+      const dealLink = `${dealLinkBase}?as=${r.user_id}`;
       const html = `
         <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto;">
           <h2 style="color:#111;">Nieuwe deal op Last Ones Left</h2>
