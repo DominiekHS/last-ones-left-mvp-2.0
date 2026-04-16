@@ -25,7 +25,7 @@ import PaymentStepsDisplay from "@/components/deals/PaymentStepsDisplay";
 export default function DealDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: deal, isLoading } = useDeal(id!);
-  const { user, merchant, roles } = useAuth();
+  const { user, merchant, roles, loading: authLoading } = useAuth();
   const [claimed, setClaimed] = useState(false);
   const [claimedCode, setClaimedCode] = useState<string | null>(null);
   const [claiming, setClaiming] = useState(false);
@@ -280,13 +280,25 @@ export default function DealDetail() {
 
       {isMerchantOwner ? (
         <MerchantPreviewCTA dealId={deal.id} />
+      ) : authLoading ? (
+        <Card>
+          <CardContent className="p-4">
+            <Skeleton className="h-12 w-full" />
+          </CardContent>
+        </Card>
       ) : !user ? (
         <Card>
           <CardContent className="p-4 space-y-3">
             <p className="text-sm font-medium text-foreground">Korting claimen en reserveren?</p>
             <Button asChild className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base py-5">
-              <Link to="/registreren">Account aanmaken (± 1 minuut)</Link>
+              <Link to={`/registreren?redirect=/deal/${deal.id}`}>Account aanmaken (± 1 minuut)</Link>
             </Button>
+            <p className="text-xs text-center text-muted-foreground">
+              Al een account?{" "}
+              <Link to={`/inloggen?redirect=/deal/${deal.id}`} className="underline text-foreground">
+                Log in
+              </Link>
+            </p>
           </CardContent>
         </Card>
       ) : !isConsumer ? (
