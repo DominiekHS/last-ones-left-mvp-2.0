@@ -24,11 +24,25 @@ import PaymentStepsDisplay from "@/components/deals/PaymentStepsDisplay";
 
 export default function DealDetail() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const expectedUserId = searchParams.get("as");
   const { data: deal, isLoading } = useDeal(id!);
-  const { user, merchant, roles, loading: authLoading } = useAuth();
+  const { user, merchant, roles, loading: authLoading, signOut } = useAuth();
   const [claimed, setClaimed] = useState(false);
   const [claimedCode, setClaimedCode] = useState<string | null>(null);
   const [claiming, setClaiming] = useState(false);
+
+  // If link was for a specific account but a different user is logged in, sign out and redirect to login
+  useEffect(() => {
+    if (authLoading || !expectedUserId || !id) return;
+    if (user && user.id !== expectedUserId) {
+      const target = `/deal/${id}?as=${expectedUserId}`;
+      signOut().then(() => {
+        navigate(`/login?redirect=${encodeURIComponent(target)}`, { replace: true });
+      });
+    }
+  }, [authLoading, expectedUserId, user, id, signOut, navigate]);
 
   const isMerchantOwner = merchant && deal && deal.merchant_id === merchant.id;
   const isAdmin = roles.includes("admin");
