@@ -116,16 +116,29 @@ export default function DealForm() {
     };
 
     let error;
+    let newDealId: string | null = null;
     if (isEdit) {
       ({ error } = await supabase.from("deals").update(dealData).eq("id", id));
     } else {
-      ({ error } = await supabase.from("deals").insert(dealData));
+      const { data: inserted, error: insertErr } = await supabase
+        .from("deals")
+        .insert(dealData)
+        .select("id")
+        .maybeSingle();
+      error = insertErr;
+      newDealId = inserted?.id ?? null;
     }
 
     if (error) {
       toast({ title: "Fout", description: error.message, variant: "destructive" });
     } else {
       toast({ title: isEdit ? "Deal bijgewerkt!" : "Deal geplaatst!" });
+      // Fire-and-forget notification email for newly created deals
+      if (!isEdit && newDealId) {
+        supabase.functions
+          .invoke("send-deal-notifications", { body: { dealId: newDealId } })
+          .catch((err) => console.error("notification trigger failed", err));
+      }
       navigate("/merchant");
     }
     setSaving(false);
