@@ -344,7 +344,7 @@ export default function AdForm() {
     if (!merchant) return;
 
     setSaving(true);
-    const imageUrl = await uploadImage();
+    const imageUrl = await handleImageUpload();
     if (imageFile && !imageUrl) {
       setSaving(false);
       return;
