@@ -157,6 +157,55 @@ Dit project draait op **Lovable Cloud** (Supabase + AI Gateway) en gebruikt **Re
 - ❌ **Per-user token-quota's** — niet zinvol zolang we Lovable AI Gateway niet gebruiken voor user-facing AI features.
 - ❌ **Aparte dev/prod Resend keys** — overkill voor MVP; de $0 free tier (3000/maand) is je natural cap.
 
+## Dependency auditing policy
+
+Third-party npm packages zijn de grootste bron van supply-chain risico. We draaien daarom een audit vóór elke productie-deploy en houden de dependency footprint klein.
+
+### Tooling
+
+| Tool | Wanneer | Wat |
+|---|---|---|
+| `npm audit` | Vóór elke deploy (handmatig) | Scant `package-lock.json` tegen de npm advisory database |
+| Lovable dependency scan | In de editor beschikbaar | Wrapper rond `npm audit`; toont alleen high/critical |
+
+### Severity-beleid
+
+| Severity | Actie |
+|---|---|
+| 🔴 Critical | **Blokkeert deploy.** Direct upgraden of package vervangen. |
+| 🟠 High | **Blokkeert deploy.** Upgraden binnen dezelfde dag, of bewust accepteren met opgave van reden + ETA in deze file. |
+| 🟡 Moderate | Plannen binnen de sprint. Geen blokker. |
+| ⚪ Low / Info | Loggen, geen actie tenzij triviaal te fixen. |
+
+### Fix workflow
+
+1. Probeer een **patch- of minor-upgrade** van de directe dependency. Lockfile committen.
+2. Lukt dat niet (alleen via major bump)? → check breaking changes, upgrade in een aparte iteratie met UI-test.
+3. Geen fix beschikbaar? → documenteer als "geaccepteerd risico" hieronder met datum + reden + plan.
+4. Verwijder ongebruikte packages — minder dependencies = minder aanvalsvlak.
+
+### Pre-deploy checklist
+
+Loop deze lijst af vóór je op **Publish** klikt voor een productie-release:
+
+- [ ] `npm audit` (of Lovable dependency scan) gedraaid → 0 high/critical
+- [ ] Eventuele uitzonderingen staan in de tabel "Geaccepteerde risico's" hieronder
+- [ ] `package-lock.json` is gecommit en consistent
+- [ ] Build draait schoon (`bash scripts/build-safe.sh`) — geen secrets in bundle
+- [ ] Edge functions getest met geldige + ongeldige input (zie [`docs/api-security.md`](docs/api-security.md))
+- [ ] RLS policies gecontroleerd op nieuwe tabellen (zie [`docs/rls.md`](docs/rls.md))
+
+### Geaccepteerde risico's
+
+Geen openstaande items op dit moment. Voeg hier toe in dit format als je een finding bewust accepteert:
+
+```
+- <package>@<versie> — <CVE/advisory id> (<severity>)
+  Reden: <waarom geen fix nu>
+  Plan: <wanneer / hoe wordt dit opgelost>
+  Datum: <YYYY-MM-DD>
+```
+
 ## Vragen / vondsten
 
 Open een private GitHub Security Advisory of mail de project owner. Maak géén public issue voor security-meldingen.
