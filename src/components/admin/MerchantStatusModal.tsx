@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { recordAdminAction } from "@/lib/audit";
 
 interface MerchantStatusModalProps {
   open: boolean;
