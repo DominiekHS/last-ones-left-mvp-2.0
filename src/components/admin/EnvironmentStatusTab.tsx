@@ -19,17 +19,17 @@ interface EnvStatus {
   checks: ServiceCheck[];
 }
 
-const StatusIcon = ({ status }: { status: ServiceCheck["status"] }) => {
+function renderStatusIcon(status: ServiceCheck["status"]) {
   if (status === "ok") return <CheckCircle2 className="h-5 w-5 text-success" />;
   if (status === "missing") return <XCircle className="h-5 w-5 text-destructive" />;
   return <HelpCircle className="h-5 w-5 text-muted-foreground" />;
-};
+}
 
-const statusBadge = (status: ServiceCheck["status"]) => {
+function renderStatusBadge(status: ServiceCheck["status"]) {
   if (status === "ok") return <Badge className="bg-success text-success-foreground hover:bg-success">OK</Badge>;
   if (status === "missing") return <Badge variant="destructive">Ontbreekt</Badge>;
   return <Badge variant="secondary">Onbekend</Badge>;
-};
+}
 
 export function EnvironmentStatusTab() {
   const { data, isLoading, error, refetch, isFetching } = useQuery<EnvStatus>({
@@ -91,12 +91,12 @@ export function EnvironmentStatusTab() {
                 {data.checks.map((c) => (
                   <div key={c.key} className="flex items-start gap-3 rounded-md border p-3">
                     <div className="mt-0.5">
-                      <StatusIcon status={c.status} />
+                      {renderStatusIcon(c.status)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <p className="font-medium">{c.name}</p>
-                        {statusBadge(c.status)}
+                        {renderStatusBadge(c.status)}
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">{c.description}</p>
                       <p className="text-xs text-muted-foreground mt-1 font-mono">{c.key}</p>
