@@ -23,11 +23,23 @@
 
 | Function | Klasse | verify_jwt | In-code auth | Input validatie | Notes |
 |---|---|---|---|---|---|
-| `send-contact-message` | PUBLIC (form) | false | ❌ — bewust publiek | ✅ name/email/message length | Spam-risico beperkt door Resend free-tier cap (zie SECURITY.md). |
-| `merchant-signup` | PUBLIC (signup) | false | ❌ — bewust publiek | ✅ alle velden + min length | Beveiligd via `app_settings.merchant_signup_enabled` feature flag. Service role nodig om auth-user aan te maken. |
+| `send-contact-message` | PUBLIC (form) | false | ❌ — bewust publiek | ✅ Zod (.strict) — name/email/message + body-size | Spam-risico beperkt door Resend free-tier cap (zie SECURITY.md). |
+| `merchant-signup` | PUBLIC (signup) | false | ❌ — bewust publiek | ✅ Zod (.strict) — alle velden + venue_type enum + body-size | Beveiligd via `app_settings.merchant_signup_enabled` feature flag. |
 | `admin-env-status` | ADMIN | false | ✅ `requireUser` + role check | n.v.t. (GET) | Gefixt vóór deze ronde. |
-| `send-deal-notifications` | COSTLY | false | ✅ `requireUser` + admin OR owner | ✅ dealId | **Gefixt in #11**: was open, nu admin-of-owner-only. |
+| `send-deal-notifications` | COSTLY | false | ✅ `requireUser` + admin OR owner | ✅ Zod (.strict) — dealId UUID + body-size | **Gefixt in #11**: was open, nu admin-of-owner-only. |
 | `cleanup-vouchers` | CRON | false | ✅ `requireCronSecret` | n.v.t. | **Gefixt in #11**: was open, nu cron-only via `x-cron-secret` header. |
+
+### Input-validatie beleid (#13)
+
+Alle edge functions die een JSON-body accepteren gebruiken de gedeelde helper `_shared/validation.ts`:
+
+- **Body-size guard**: max 100KB → `413 PAYLOAD_TOO_LARGE`.
+- **Zod schema's** met `.strict()` → onbekende velden worden geweigerd (anti-overposting).
+- **Consistente 400-shape**: `{ error: "VALIDATION_ERROR", fields: { veldnaam: "Nederlandse melding" } }`.
+- **Geen interne details** in 500-responses (geen `e.message`, alleen generieke melding; details staan in edge-function logs).
+- **Sanitization**: HTML in mails wordt geëscaped via `escapeHtml`; user content wordt nergens als raw HTML gerenderd in React.
+
+> **Bij elk nieuw endpoint**: definieer een Zod schema, roep `parseJsonBody(req, Schema)` aan, en check `instanceof Response`.
 
 ### Waarom `verify_jwt = false` op alle functions?
 
@@ -170,5 +182,6 @@ Zonder header → 401. Met verkeerde header → 401. ✅
    - PROTECTED → `requireUser(req)` in edge function, of RLS `auth.uid() = user_id` in DB
    - MERCHANT/ADMIN → `requireRole(req, 'merchant'|'admin')`
    - CRON → `requireCronSecret(req)` + zet als secret in Lovable Cloud
-3. Voeg expliciet toe aan `supabase/config.toml` met `verify_jwt = false` (we valideren altijd in-code).
-4. Update test-checklist §5 met een rij voor het nieuwe endpoint.
+3. **Input-validatie (verplicht)**: definieer een Zod schema met `.strict()` in de function en gebruik `parseJsonBody(req, Schema)` uit `_shared/validation.ts`.
+4. Voeg expliciet toe aan `supabase/config.toml` met `verify_jwt = false` (we valideren altijd in-code).
+5. Update test-checklist §5 met een rij voor het nieuwe endpoint.
