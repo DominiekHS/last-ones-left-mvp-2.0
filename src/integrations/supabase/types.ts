@@ -113,6 +113,48 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_log: {
+        Row: {
+          created_at: string
+          endpoint: string | null
+          event_name: string
+          id: string
+          ip_hash: string | null
+          metadata: Json
+          request_id: string | null
+          role: string | null
+          severity: string
+          status_code: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          endpoint?: string | null
+          event_name: string
+          id?: string
+          ip_hash?: string | null
+          metadata?: Json
+          request_id?: string | null
+          role?: string | null
+          severity?: string
+          status_code?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string | null
+          event_name?: string
+          id?: string
+          ip_hash?: string | null
+          metadata?: Json
+          request_id?: string | null
+          role?: string | null
+          severity?: string
+          status_code?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       claim_history: {
         Row: {
           city: string
