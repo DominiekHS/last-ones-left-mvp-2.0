@@ -2,3 +2,6 @@ project_id = "otosschuqvmgymmdnawm"
 
 [functions.send-contact-message]
 verify_jwt = false
+
+[functions.admin-env-status]
+verify_jwt = false
