@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import { friendlyDbError } from "@/lib/friendly-errors";
 import { Navigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Camera, Pencil, X, Save, Mail, Building2, MapPin, Phone, Globe, FileText } from "lucide-react";
@@ -124,7 +125,7 @@ export default function MerchantProfile() {
       .eq("id", merchant.id);
 
     if (error) {
-      toast({ title: "Fout", description: error.message, variant: "destructive" });
+      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
     } else {
       await refreshProfile();
       queryClient.invalidateQueries({ queryKey: ["deals"] });

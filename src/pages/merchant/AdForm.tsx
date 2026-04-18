@@ -413,7 +413,7 @@ export default function AdForm() {
       }));
       const { error: codesError } = await (supabase.from("unique_codes" as any) as any).insert(codes);
       if (codesError) {
-        toast({ title: "Codes opslaan mislukt", description: codesError.message, variant: "destructive" });
+        toast({ title: "Codes opslaan mislukt", description: friendlyDbError(codesError), variant: "destructive" });
       }
     }
 

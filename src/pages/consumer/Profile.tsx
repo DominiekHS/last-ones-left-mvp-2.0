@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
+import { friendlyDbError } from "@/lib/friendly-errors";
 import { Navigate, Link } from "react-router-dom";
 
 export default function Profile() {
@@ -47,7 +48,7 @@ export default function Profile() {
       ]);
       const error = merchantRes.error || profileRes.error;
       if (error) {
-        toast({ title: "Fout", description: error.message, variant: "destructive" });
+        toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
       } else {
         await refreshProfile();
         toast({ title: "Opgeslagen!" });
@@ -62,7 +63,7 @@ export default function Profile() {
         .update(updateData)
         .eq("user_id", user!.id);
       if (error) {
-        toast({ title: "Fout", description: error.message, variant: "destructive" });
+        toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
       } else {
         await refreshProfile();
         toast({ title: "Opgeslagen!" });
@@ -83,7 +84,7 @@ export default function Profile() {
       .eq("user_id", user!.id);
     if (error) {
       setEmailNotifications(!checked);
-      toast({ title: "Fout", description: error.message, variant: "destructive" });
+      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
     } else {
       await refreshProfile();
       toast({ title: "Instelling opgeslagen" });

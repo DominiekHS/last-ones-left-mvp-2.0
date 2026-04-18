@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CATEGORIES } from "@/lib/constants";
 import { toast } from "@/hooks/use-toast";
+import { friendlyDbError } from "@/lib/friendly-errors";
 import { Navigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -137,7 +138,7 @@ export default function DealForm() {
     }
 
     if (error) {
-      toast({ title: "Fout", description: error.message, variant: "destructive" });
+      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
     } else {
       toast({ title: isEdit ? "Deal bijgewerkt!" : "Deal geplaatst!" });
       // Fire-and-forget notification email for newly created deals
