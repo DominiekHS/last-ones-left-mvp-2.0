@@ -94,7 +94,13 @@ export default function MerchantDealDetail() {
   const isExpired = new Date(deal.expiry_time) < new Date();
   const isVariableAmount = (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter";
   const discountedPrice = deal.original_price * (1 - deal.discount_percentage / 100);
-  const isOnline = deal.redemption_method === "online_checkout";
+  const hasCheckoutLink = deal.redemption_method === "online_checkout" || deal.redemption_method === "online_pay_pos_refund";
+  const methodLabel =
+    deal.redemption_method === "online_checkout"
+      ? "Online (checkout link)"
+      : deal.redemption_method === "online_pay_pos_refund"
+      ? "Online betalen, korting aan kassa"
+      : "Aan de kassa";
 
   const handleDelete = async () => {
     if (!confirm("Weet je zeker dat je deze advertentie wilt verwijderen?")) return;
