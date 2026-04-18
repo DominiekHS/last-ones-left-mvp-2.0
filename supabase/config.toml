@@ -5,3 +5,18 @@ verify_jwt = false
 
 [functions.admin-env-status]
 verify_jwt = false
+
+# Publieke signup-flow: kan niet ingelogd zijn op het moment van aanroep.
+# Beveiliging gebeurt in-code via app_settings.merchant_signup_enabled flag.
+[functions.merchant-signup]
+verify_jwt = false
+
+# Cron-only: beveiligd via x-cron-secret header (zie _shared/auth.ts).
+# verify_jwt=false nodig zodat pg_cron / externe scheduler kan aanroepen
+# zonder user-JWT.
+[functions.cleanup-vouchers]
+verify_jwt = false
+
+# Vereist ingelogde admin OF deal-eigenaar; in-code gecheckt via requireUser().
+[functions.send-deal-notifications]
+verify_jwt = false
