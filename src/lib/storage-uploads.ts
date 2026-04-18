@@ -77,6 +77,7 @@ export interface UploadResult {
 export async function uploadImage(opts: UploadOptions): Promise<UploadResult> {
   const validation = validateImageFile(opts.file);
   if (!validation.ok) throw new Error(validation.message);
+  const ext = validation.ext;
 
   const baseName = opts.fixedName ?? safeUuid();
   const segments = [opts.userId];
