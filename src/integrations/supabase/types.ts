@@ -832,6 +832,7 @@ export type Database = {
         Args: { _deal_id: string; _user_id: string }
         Returns: boolean
       }
+      is_merchant_active: { Args: { _merchant_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "consumer" | "merchant" | "admin"
