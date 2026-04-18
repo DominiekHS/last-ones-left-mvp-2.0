@@ -1,7 +1,12 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { corsHeaders, requireUser } from "../_shared/auth.ts";
+import { z, parseJsonBody } from "../_shared/validation.ts";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
+
+const NotifySchema = z.object({
+  dealId: z.string().uuid("dealId moet een geldige UUID zijn"),
+}).strict();
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -12,14 +17,12 @@ Deno.serve(async (req) => {
   const auth = await requireUser(req);
   if (auth instanceof Response) return auth;
 
+  // 2. Input-validatie
+  const parsed = await parseJsonBody(req, NotifySchema);
+  if (parsed instanceof Response) return parsed;
+  const { dealId } = parsed;
+
   try {
-    const { dealId } = await req.json();
-    if (!dealId || typeof dealId !== "string") {
-      return new Response(JSON.stringify({ error: "dealId required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");

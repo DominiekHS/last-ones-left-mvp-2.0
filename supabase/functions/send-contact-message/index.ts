@@ -1,3 +1,5 @@
+import { z, parseJsonBody } from "../_shared/validation.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -6,6 +8,12 @@ const corsHeaders = {
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 const RECIPIENT = "contactlastonesleft@gmail.com";
+
+const ContactSchema = z.object({
+  name: z.string().trim().min(1, "Naam verplicht").max(100, "Naam te lang"),
+  email: z.string().trim().email("Ongeldig e-mailadres").max(254),
+  message: z.string().trim().min(1, "Bericht verplicht").max(2000, "Bericht te lang"),
+}).strict();
 
 const escapeHtml = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
@@ -16,28 +24,11 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const parsed = await parseJsonBody(req, ContactSchema);
+  if (parsed instanceof Response) return parsed;
+  const { name, email, message } = parsed;
+
   try {
-    const body = await req.json();
-    const name = typeof body.name === "string" ? body.name.trim() : "";
-    const email = typeof body.email === "string" ? body.email.trim() : "";
-    const message = typeof body.message === "string" ? body.message.trim() : "";
-
-    if (!name || name.length > 100) {
-      return new Response(JSON.stringify({ error: "Naam is ongeldig" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    if (!email || email.length > 255 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return new Response(JSON.stringify({ error: "E-mailadres is ongeldig" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    if (!message || message.length > 2000) {
-      return new Response(JSON.stringify({ error: "Bericht is ongeldig" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     if (!LOVABLE_API_KEY || !RESEND_API_KEY) {
@@ -82,8 +73,9 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error("send-contact-message error", e);
+    // Geen interne details lekken naar de client.
     return new Response(
-      JSON.stringify({ error: (e as Error).message }),
+      JSON.stringify({ error: "Verzenden mislukt" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
