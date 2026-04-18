@@ -20,13 +20,13 @@ interface EnvStatus {
 }
 
 const StatusIcon = ({ status }: { status: ServiceCheck["status"] }) => {
-  if (status === "ok") return <CheckCircle2 className="h-5 w-5 text-green-600" />;
+  if (status === "ok") return <CheckCircle2 className="h-5 w-5 text-success" />;
   if (status === "missing") return <XCircle className="h-5 w-5 text-destructive" />;
   return <HelpCircle className="h-5 w-5 text-muted-foreground" />;
 };
 
 const statusBadge = (status: ServiceCheck["status"]) => {
-  if (status === "ok") return <Badge variant="default" className="bg-green-600 hover:bg-green-600">OK</Badge>;
+  if (status === "ok") return <Badge className="bg-success text-success-foreground hover:bg-success">OK</Badge>;
   if (status === "missing") return <Badge variant="destructive">Ontbreekt</Badge>;
   return <Badge variant="secondary">Onbekend</Badge>;
 };
@@ -70,7 +70,7 @@ export function EnvironmentStatusTab() {
               <div className="rounded-lg border p-4 bg-muted/40">
                 <div className="flex items-center gap-3">
                   {data.ok ? (
-                    <CheckCircle2 className="h-6 w-6 text-green-600" />
+                    <CheckCircle2 className="h-6 w-6 text-success" />
                   ) : (
                     <XCircle className="h-6 w-6 text-destructive" />
                   )}
