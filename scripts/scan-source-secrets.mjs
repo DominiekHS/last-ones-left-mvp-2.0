@@ -16,6 +16,10 @@ import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import { join, extname, basename } from "node:path";
 
 const SCAN_DIRS = ["src", "supabase/functions", "scripts", "public", "docs"];
+
+// Directories waarin de letterlijke string `SUPABASE_SERVICE_ROLE_KEY`
+// LEGITIEM mag voorkomen (server-side context).
+const SERVICE_ROLE_LITERAL_ALLOWED_DIRS = ["supabase/functions"];
 const SCAN_EXTENSIONS = new Set([
   ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs",
   ".html", ".css", ".json", ".md", ".txt", ".yml", ".yaml", ".sh",
@@ -111,6 +115,22 @@ for (const dir of SCAN_DIRS) {
         });
         if (findings.length > 50) break;
       }
+    }
+
+    // Extra check: de letterlijke string `SUPABASE_SERVICE_ROLE_KEY` mag
+    // alleen in server-side directories voorkomen. Vlag elk gebruik in
+    // bv. src/ — daar hoort hij echt nooit thuis.
+    const normalized = file.replace(/\\/g, "/");
+    const isServerSide = SERVICE_ROLE_LITERAL_ALLOWED_DIRS.some(
+      (d) => normalized.startsWith(d + "/") || normalized === d,
+    );
+    if (!isServerSide && /\bSUPABASE_SERVICE_ROLE_KEY\b/.test(content)) {
+      const idx = content.search(/\bSUPABASE_SERVICE_ROLE_KEY\b/);
+      findings.push({
+        file,
+        pattern: "Service-role key referentie in client/script context",
+        snippet: preview(content, idx),
+      });
     }
   }
 }
