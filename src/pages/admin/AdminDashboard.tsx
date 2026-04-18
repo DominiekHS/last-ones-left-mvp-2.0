@@ -31,6 +31,7 @@ import { nl } from "date-fns/locale";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { getMerchantEffectiveStatus, STATUS_LABELS, STATUS_VARIANTS } from "@/lib/merchant-status";
 import { useNavigate } from "react-router-dom";
+import { recordAdminAction } from "@/lib/audit";
 
 export default function AdminDashboard() {
   const { user, roles, loading } = useAuth();
