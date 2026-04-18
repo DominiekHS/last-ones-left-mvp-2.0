@@ -144,7 +144,9 @@ export default function DealForm() {
       if (!isEdit && newDealId) {
         supabase.functions
           .invoke("send-deal-notifications", { body: { dealId: newDealId } })
-          .catch((err) => console.error("notification trigger failed", err));
+          .catch(() => {
+            // Notificatie-trigger faalt stil — deal is wel opgeslagen.
+          });
       }
       navigate("/merchant");
     }

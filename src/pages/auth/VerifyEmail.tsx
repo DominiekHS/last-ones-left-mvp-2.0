@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { friendlyAuthError } from "@/lib/friendly-errors";
 import { Mail } from "lucide-react";
 
 export default function VerifyEmail() {
@@ -25,7 +26,7 @@ export default function VerifyEmail() {
     const { error } = await supabase.auth.resend({ type: "signup", email });
 
     if (error) {
-      toast({ title: "Fout", description: error.message, variant: "destructive" });
+      toast({ title: "Fout", description: friendlyAuthError(error), variant: "destructive" });
     } else {
       toast({ title: "Verstuurd!", description: "Verificatie-e-mail is opnieuw verzonden." });
       setCooldown(60);

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { friendlyAuthError } from "@/lib/friendly-errors";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -54,7 +55,7 @@ export default function ResetPassword() {
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
-      toast({ title: "Fout", description: error.message, variant: "destructive" });
+      toast({ title: "Fout", description: friendlyAuthError(error), variant: "destructive" });
     } else {
       toast({ title: "Gelukt!", description: "Je wachtwoord is gewijzigd. Je kunt nu inloggen." });
       await supabase.auth.signOut();

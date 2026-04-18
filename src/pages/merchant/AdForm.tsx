@@ -421,7 +421,9 @@ export default function AdForm() {
     if (!isEdit && dealId) {
       supabase.functions
         .invoke("send-deal-notifications", { body: { dealId } })
-        .catch((err) => console.error("notification trigger failed", err));
+        .catch(() => {
+          // Notificatie-trigger faalt stil — advertentie is wel opgeslagen.
+        });
     }
     navigate("/merchant");
     setSaving(false);
