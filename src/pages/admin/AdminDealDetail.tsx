@@ -15,6 +15,7 @@ import { ArrowLeft, Trash2, ExternalLink, Eye, MousePointerClick, Store } from "
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { CATEGORY_LABELS } from "@/lib/constants";
+import { recordAdminAction } from "@/lib/audit";
 
 export default function AdminDealDetail() {
   const { dealId } = useParams<{ dealId: string }>();
