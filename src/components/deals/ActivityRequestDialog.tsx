@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 import { CATEGORY_LABELS } from "@/lib/constants";
 
 const RATE_LIMIT_KEY = "lol_activity_request_log";
@@ -41,7 +42,36 @@ interface Props {
 }
 
 export function ActivityRequestDialog({ contextCity, contextCategory, contextDayFilter }: Props) {
-  const { user, profile } = useAuth();
+  const { user, profile, roles } = useAuth();
+  const isConsumer = roles.includes("consumer");
+
+  // Niet ingelogd: toon login-knop
+  if (!user) {
+    return (
+      <div className="space-y-2">
+        <p className="text-sm text-muted-foreground">
+          Log in als consument om een voorkeur door te geven.
+        </p>
+        <Button asChild size="lg">
+          <Link to="/login">Inloggen</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  // Ingelogd maar geen consument: niets tonen of melding
+  if (!isConsumer) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Alleen consumenten-accounts kunnen voorkeuren doorgeven.
+      </p>
+    );
+  }
+
+  return <ActivityRequestForm contextCity={contextCity} contextCategory={contextCategory} contextDayFilter={contextDayFilter} user={user} profile={profile} />;
+}
+
+function ActivityRequestForm({ contextCity, contextCategory, contextDayFilter, user, profile }: Props & { user: any; profile: any }) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [city, setCity] = useState(contextCity || "");
