@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Menu, X, User, LogOut, Store, Shield } from "lucide-react";
 import { NotificationBellToggle } from "@/components/NotificationBellToggle";
 import { useState } from "react";
+import { useMerchantSignupEnabled } from "@/hooks/useAppSettings";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,7 @@ export function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { enabled: merchantSignupEnabled } = useMerchantSignupEnabled();
 
   const isMerchant = roles.includes("merchant");
   const isAdmin = roles.includes("admin");
@@ -97,9 +99,11 @@ export function Header() {
               <Button variant="ghost" size="sm" asChild>
                 <Link to={`/login?redirect=${encodeURIComponent(redirectTarget)}`}>Inloggen</Link>
               </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/merchant/registreren" aria-label="Registreren als ondernemer">Registreren als ondernemer</Link>
-              </Button>
+              {merchantSignupEnabled && (
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/merchant/registreren" aria-label="Registreren als ondernemer">Registreren als ondernemer</Link>
+                </Button>
+              )}
               <Button size="sm" asChild>
                 <Link to="/registreren" aria-label="Account aanmaken als consument">Account aanmaken</Link>
               </Button>
@@ -154,9 +158,11 @@ export function Header() {
               <Link to={`/login?redirect=${encodeURIComponent(redirectTarget)}`} className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>
                 Inloggen
               </Link>
-              <Link to="/merchant/registreren" className="block py-2 text-sm" onClick={() => setMobileOpen(false)} aria-label="Registreren als ondernemer">
-                Registreren als ondernemer
-              </Link>
+              {merchantSignupEnabled && (
+                <Link to="/merchant/registreren" className="block py-2 text-sm" onClick={() => setMobileOpen(false)} aria-label="Registreren als ondernemer">
+                  Registreren als ondernemer
+                </Link>
+              )}
               <Link to="/registreren" className="block py-2 text-sm font-semibold" onClick={() => setMobileOpen(false)} aria-label="Account aanmaken als consument">
                 Account aanmaken
               </Link>

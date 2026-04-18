@@ -9,6 +9,8 @@ import { CATEGORIES } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import type { Database } from "@/integrations/supabase/types";
+import { useMerchantSignupEnabled } from "@/hooks/useAppSettings";
+import { Lock } from "lucide-react";
 
 type VenueCategory = Database["public"]["Enums"]["venue_category"];
 
@@ -24,6 +26,7 @@ export default function MerchantRegister() {
   const [postcodeError, setPostcodeError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { enabled: merchantSignupEnabled, isLoading: settingLoading } = useMerchantSignupEnabled();
 
   const normalizePostcode = (value: string): string => {
     const cleaned = value.replace(/\s/g, "").toUpperCase();
@@ -48,35 +51,27 @@ export default function MerchantRegister() {
     setLoading(true);
     const normalizedPostcode = normalizePostcode(postcode);
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: { full_name: companyName },
-      },
-    });
-
-    if (error) {
-      toast({ title: "Registratie mislukt", description: error.message, variant: "destructive" });
-      setLoading(false);
-      return;
-    }
-
-    if (data.user) {
-      // Assign merchant role
-      await supabase.from("user_roles").insert({ user_id: data.user.id, role: "merchant" });
-
-      // Create merchant record
-      await supabase.from("merchants").insert({
-        user_id: data.user.id,
+    const { data, error } = await supabase.functions.invoke("merchant-signup", {
+      body: {
+        email,
+        password,
         company_name: companyName,
         venue_type: venueType,
         address,
         postcode: normalizedPostcode,
         city,
         contact_phone: phone || null,
-      });
+      },
+    });
+
+    if (error || (data as any)?.error) {
+      const msg = (data as any)?.error || error?.message || "Onbekende fout";
+      const friendly = msg === "Merchant signup disabled"
+        ? "Registratie voor ondernemers is tijdelijk gesloten."
+        : msg;
+      toast({ title: "Registratie mislukt", description: friendly, variant: "destructive" });
+      setLoading(false);
+      return;
     }
 
     toast({
@@ -86,6 +81,38 @@ export default function MerchantRegister() {
     navigate("/verify-email");
     setLoading(false);
   };
+
+  if (settingLoading) {
+    return (
+      <div className="container py-12 text-center text-sm text-muted-foreground">Laden...</div>
+    );
+  }
+
+  if (!merchantSignupEnabled) {
+    return (
+      <div className="container flex items-center justify-center py-12">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+              <Lock className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <CardTitle className="font-display text-2xl">Registratie tijdelijk gesloten</CardTitle>
+            <CardDescription>
+              Registreren als ondernemer is op dit moment niet mogelijk. Wil je toch partner worden? Neem contact met ons op.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button asChild className="w-full">
+              <Link to="/contact">Neem contact op</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/">Terug naar home</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="container flex items-center justify-center py-12">

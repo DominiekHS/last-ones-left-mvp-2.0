@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useMerchantSignupEnabled } from "@/hooks/useAppSettings";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -14,6 +15,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
+  const { enabled: merchantSignupEnabled } = useMerchantSignupEnabled();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,10 +60,14 @@ export default function Login() {
           <div className="mt-4 text-center text-sm text-muted-foreground">
             Nog geen account?{" "}
             <Link to="/registreren" className="text-foreground underline">Registreren</Link>
-            <br />
-            <Link to="/merchant/registreren" className="text-foreground underline">
-              Registreren als ondernemer
-            </Link>
+            {merchantSignupEnabled && (
+              <>
+                <br />
+                <Link to="/merchant/registreren" className="text-foreground underline">
+                  Registreren als ondernemer
+                </Link>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
