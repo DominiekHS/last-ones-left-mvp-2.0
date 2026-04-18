@@ -136,7 +136,7 @@ export default function MerchantDashboard() {
                   deal={deal}
                   isExpired={isExpired}
                   merchantId={merchant.id}
-                  onDelete={() => handleDelete(deal.id)}
+                  onDelete={() => handleDelete(deal.id, deal.title)}
                 />
               );
             })}
