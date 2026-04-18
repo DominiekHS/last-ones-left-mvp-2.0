@@ -36,18 +36,18 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-      <div className="container flex h-14 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="font-display text-xl font-bold tracking-tight">
+      <div className="container flex h-14 items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <Link to="/" className="font-display text-xl font-bold tracking-tight whitespace-nowrap">
             Last Ones Left
-          </span>
+          </Link>
           <span className="hidden sm:inline-block rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
             DEALS
           </span>
-          <Link to="/testversie" className="ml-2 inline-flex items-center rounded-full bg-success px-3 py-1 text-xs font-semibold text-success-foreground hover:opacity-80 transition-opacity">
+          <Link to="/testversie" className="inline-flex items-center whitespace-nowrap rounded-full bg-success px-3 py-1 text-xs font-semibold text-success-foreground hover:opacity-80 transition-opacity">
             Testversie – Lees meer!
           </Link>
-        </Link>
+        </div>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-2">
