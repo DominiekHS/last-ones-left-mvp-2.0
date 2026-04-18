@@ -5,12 +5,11 @@ export function useActiveDeals(category?: string, city?: string) {
   return useQuery({
     queryKey: ["deals", "active", category, city],
     queryFn: async () => {
-      // NB: join op `merchants_public` view (geen contact-data), zodat ook anon
-      // de bedrijfsnaam onder de deal-titel ziet. Base table `merchants` is
-      // afgeschermd voor anon — die join zou null teruggeven.
+      // NB: anon heeft column-level SELECT op `merchants` voor publieke velden
+      // (geen contact_email/phone). Zie docs/rls.md.
       let query = supabase
         .from("deals")
-        .select("*, merchants:merchants_public(company_name)")
+        .select("*, merchants(company_name)")
         .gt("expiry_time", new Date().toISOString())
         .order("start_time", { ascending: true });
 
@@ -34,7 +33,7 @@ export function useDeal(id: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("deals")
-        .select("*, merchants:merchants_public(company_name, city, address, description)")
+        .select("*, merchants(company_name, city, address, description)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
