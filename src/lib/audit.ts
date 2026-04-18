@@ -11,6 +11,7 @@
  * Faalt SILENT — audit-fouten mogen nooit een user-flow breken.
  */
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 
 export type AuditSeverity = "info" | "warn" | "error";
 
@@ -45,8 +46,7 @@ export async function recordAuditEvent(payload: AuditEventPayload): Promise<void
       event_name: payload.event_name,
       severity: payload.severity ?? "info",
       user_id: user.id,
-      metadata: payload.metadata ?? {},
-    }]);
+      metadata: (payload.metadata ?? {}) as Json,
   } catch (e) {
     if (import.meta.env.DEV) console.warn("[audit] recordAuditEvent failed", e);
   }
