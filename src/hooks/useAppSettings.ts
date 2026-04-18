@@ -12,8 +12,8 @@ export function useAppSetting(key: string) {
   return useQuery({
     queryKey: ["app_setting", key],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("app_settings" as any)
+      const { data, error } = await (supabase as any)
+        .from("app_settings")
         .select("*")
         .eq("key", key)
         .maybeSingle();
