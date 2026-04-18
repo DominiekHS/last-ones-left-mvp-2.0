@@ -276,6 +276,15 @@ export default function MerchantDealDetail() {
         </Card>
         </div>
       </div>
+
+      <DangerConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Advertentie verwijderen?"
+        description={`"${deal.title}" wordt verwijderd. Een admin kan dit binnen korte tijd terugdraaien.`}
+        loading={deleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
