@@ -47,6 +47,7 @@ export async function recordAuditEvent(payload: AuditEventPayload): Promise<void
       severity: payload.severity ?? "info",
       user_id: user.id,
       metadata: (payload.metadata ?? {}) as Json,
+    }]);
   } catch (e) {
     if (import.meta.env.DEV) console.warn("[audit] recordAuditEvent failed", e);
   }
@@ -73,7 +74,7 @@ export async function recordAdminAction(payload: AdminActionPayload): Promise<vo
       target_id: payload.target_id,
       reason: payload.reason ?? null,
       notes: payload.notes ?? null,
-      metadata: payload.metadata ?? {},
+      metadata: (payload.metadata ?? {}) as Json,
     }]);
   } catch (e) {
     if (import.meta.env.DEV) console.warn("[audit] recordAdminAction failed", e);
