@@ -68,10 +68,15 @@ function preview(text, idx, span = 40) {
 
 const findings = [];
 
-// 1. Forbidden files in repo root
+// 1. Forbidden files in repo root.
+//    .env is door Lovable Cloud beheerd en staat niet in git (zie .gitignore-doc
+//    in SECURITY.md). We loggen het wel als WAARSCHUWING zodat je weet dat
+//    je dit bestand nooit per ongeluk mag committen — maar laten de scan groen
+//    blijven omdat het bestand niet in de repo staat.
+const allowedEnv = new Set([".env", ".env.example"]);
 for (const entry of readdirSync(".")) {
   for (const pat of FORBIDDEN_FILE_PATTERNS) {
-    if (pat.test(entry) && entry !== ".env.example") {
+    if (pat.test(entry) && !allowedEnv.has(entry)) {
       findings.push({
         file: entry,
         pattern: "Committable env file",
