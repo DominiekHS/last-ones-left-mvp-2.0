@@ -199,6 +199,7 @@ export default function AdminDashboard() {
       const { data, error } = await supabase
         .from("deals")
         .select("*, merchants(company_name)")
+        .is("deleted_at", null)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
