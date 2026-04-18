@@ -89,6 +89,51 @@ trufflehog git file://. --since-commit HEAD~1000 --only-verified
 
 Vind je iets → ga naar stap "Wat te doen als er TOCH een secret is gelekt".
 
+## Spending limits & budget alerts
+
+Dit project draait op **Lovable Cloud** (Supabase + AI Gateway) en gebruikt **Resend** voor e-mail. Er zijn dus maar twee plekken waar kosten kunnen exploderen — en op beide kun je een harde cap instellen.
+
+### Drempels (conservatief, MVP-fase)
+
+| Niveau | Bedrag | Actie |
+|---|---|---|
+| ⚠️ Warn  | **€10**  | E-mail alert — usage checken in dashboard |
+| 🟠 Alert | **€25**  | Onderzoek: welke endpoint/feature trekt het? |
+| 🔴 Stop  | **€50**  | Hard cap: services worden gepauzeerd door provider |
+
+> Pas deze later aan zodra je weet wat normaal verbruik is. De volledige stappen om ze te zetten staan in [`BUDGETS.md`](BUDGETS.md).
+
+### Waar staan de caps
+
+| Service | Dashboard | Wat te configureren |
+|---|---|---|
+| **Lovable Cloud + AI** | Lovable → Workspace settings → Cloud & AI balance | Hard spending cap + alert e-mail |
+| **Resend** (e-mail) | [resend.com/settings/billing](https://resend.com/settings/billing) | Monthly sending limit + billing alerts |
+
+### Wat te doen bij een budget-alert
+
+1. **Identificeer de bron** (max 5 min)
+   - Lovable Cloud → Edge Functions → Logs (welke function spikes?)
+   - Resend dashboard → Emails (onverwacht hoog volume? Naar welk domein?)
+   - Supabase → Database → Logs (query-spike? bot?)
+
+2. **Stop de bloeding** (1 min, geen redeploy nodig)
+   - Verdacht endpoint? → tijdelijk de Resend connector **disconnecten** in Lovable → Connectors. Edge functions die `RESEND_API_KEY` lezen falen dan netjes.
+   - Verdachte user/IP? → blokkeer in `merchants` of `profiles` (zet `blocked = true`).
+   - Bot-aanval op signup? → schakel tijdelijk e-mailbevestiging strikter in via Lovable Cloud → Auth.
+
+3. **Check of er een leak is** (zie sectie hierboven)
+   - Gitleaks lokaal draaien
+   - Indien lek → keys roteren (zie "Wat te doen als er TOCH een secret is gelekt")
+
+4. **Verhoog of verlaag de cap pas ná onderzoek** — niet uit reflex.
+
+### Wat we NIET doen (en waarom)
+
+- ❌ **Server-side rate limiting in edge functions** — Lovable Cloud heeft hier nog geen primitives voor; ad-hoc implementaties geven schijnveiligheid. Wachten tot er proper infra is.
+- ❌ **Per-user token-quota's** — niet zinvol zolang we Lovable AI Gateway niet gebruiken voor user-facing AI features.
+- ❌ **Aparte dev/prod Resend keys** — overkill voor MVP; de $0 free tier (3000/maand) is je natural cap.
+
 ## Vragen / vondsten
 
 Open een private GitHub Security Advisory of mail de project owner. Maak géén public issue voor security-meldingen.
