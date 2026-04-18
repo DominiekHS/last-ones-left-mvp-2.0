@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { friendlyAuthError } from "@/lib/friendly-errors";
 
 export default function Register() {
   const [fullName, setFullName] = useState("");
@@ -30,7 +31,7 @@ export default function Register() {
     });
 
     if (error) {
-      toast({ title: "Registratie mislukt", description: error.message, variant: "destructive" });
+      toast({ title: "Registratie mislukt", description: friendlyAuthError(error), variant: "destructive" });
       setLoading(false);
       return;
     }

@@ -44,8 +44,7 @@ export default function Contact() {
       setName("");
       setEmail("");
       setMessage("");
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast({
         title: "Verzenden mislukt",
         description: "Er ging iets mis. Probeer het later opnieuw.",

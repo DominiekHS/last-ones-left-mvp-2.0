@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { friendlyAuthError } from "@/lib/friendly-errors";
 import { useMerchantSignupEnabled } from "@/hooks/useAppSettings";
 
 export default function Login() {
@@ -22,7 +23,7 @@ export default function Login() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      toast({ title: "Inloggen mislukt", description: error.message, variant: "destructive" });
+      toast({ title: "Inloggen mislukt", description: friendlyAuthError(error), variant: "destructive" });
     } else {
       // Use safe internal path only
       const safe = redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/";

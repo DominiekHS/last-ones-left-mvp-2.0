@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { friendlyAuthError } from "@/lib/friendly-errors";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -21,7 +22,7 @@ export default function ForgotPassword() {
     });
 
     if (error) {
-      toast({ title: "Fout", description: error.message, variant: "destructive" });
+      toast({ title: "Fout", description: friendlyAuthError(error), variant: "destructive" });
     } else {
       setSent(true);
     }
