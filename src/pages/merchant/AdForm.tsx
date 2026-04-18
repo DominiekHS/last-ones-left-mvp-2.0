@@ -23,6 +23,7 @@ import { friendlyDbError } from "@/lib/friendly-errors";
 import { AlertTriangle, Plus, Upload, ArrowLeft } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 import PaymentStepsEditor, { type PaymentStep } from "@/components/merchant/PaymentStepsEditor";
+import { recordAuditEvent } from "@/lib/audit";
 
 type VenueCategory = Database["public"]["Enums"]["venue_category"];
 
@@ -419,6 +420,19 @@ export default function AdForm() {
     }
 
     toast({ title: isEdit ? "Advertentie bijgewerkt!" : "Advertentie geplaatst!" });
+    // Audit-event voor spike-detectie per merchant. Faalt silent.
+    if (dealId && merchant) {
+      void recordAuditEvent({
+        event_name: isEdit ? "DEAL_UPDATED" : "DEAL_PUBLISHED",
+        severity: "info",
+        metadata: {
+          deal_id: dealId,
+          merchant_id: merchant.id,
+          category: category || null,
+          city: city || null,
+        },
+      });
+    }
     if (!isEdit && dealId) {
       supabase.functions
         .invoke("send-deal-notifications", { body: { dealId } })
