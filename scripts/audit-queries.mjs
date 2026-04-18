@@ -82,8 +82,9 @@ function isAllowlisted(relPath) {
  *       user_id/merchant_id payload of een .eq filter.
  */
 function chainHasOwnershipFilter(snippet) {
-  // Vind chain-einde: eerste `;`, `}` of newline+newline
-  const end = snippet.search(/(;|\n\s*\n|\}\s*[,);])/);
+  // Vind chain-einde: alleen statement-terminator (; of dubbele newline).
+  // We willen NIET stoppen op `})` omdat dat midden in `.update({...}).eq(...)` valt.
+  const end = snippet.search(/(;|\n\s*\n)/);
   const chain = end >= 0 ? snippet.slice(0, end) : snippet;
 
   // (a) SELECT-style filter
