@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
-import { Search, MapPin, Tag, CalendarDays, Mail, Inbox, Trash2 } from "lucide-react";
+import { Search, MapPin, Tag, CalendarDays, Mail, Inbox, Trash2, UserCheck, UserX } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -147,6 +147,17 @@ export function ActivityRequestsTab() {
                 </div>
 
                 <div className="flex flex-wrap gap-2 text-xs">
+                  {r.user_id ? (
+                    <Badge variant="secondary" className="gap-1">
+                      <UserCheck className="h-3 w-3" />
+                      Met account
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="gap-1">
+                      <UserX className="h-3 w-3" />
+                      Anoniem
+                    </Badge>
+                  )}
                   {r.context_city && (
                     <Badge variant="outline" className="gap-1">
                       <MapPin className="h-3 w-3" />
@@ -157,12 +168,6 @@ export function ActivityRequestsTab() {
                     <Badge variant="outline" className="gap-1">
                       <Tag className="h-3 w-3" />
                       {r.context_category}
-                    </Badge>
-                  )}
-                  {r.context_day_filter && (
-                    <Badge variant="outline" className="gap-1">
-                      <CalendarDays className="h-3 w-3" />
-                      {r.context_day_filter}
                     </Badge>
                   )}
                   {r.user_email && (
