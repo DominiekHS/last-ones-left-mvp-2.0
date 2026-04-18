@@ -165,8 +165,9 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error("send-deal-notifications error", e);
+    // Geen interne details lekken naar de client.
     return new Response(
-      JSON.stringify({ error: (e as Error).message }),
+      JSON.stringify({ error: "Notificatie mislukt" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
