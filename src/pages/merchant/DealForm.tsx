@@ -9,6 +9,7 @@ function toLocalDatetimeString(isoString: string): string {
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadImage } from "@/lib/storage-uploads";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,7 +104,7 @@ export default function DealForm() {
     if (!merchant) return;
     setSaving(true);
 
-    const imageUrl = await uploadImage();
+    const imageUrl = await handleImageUpload();
 
     const dealData = {
       merchant_id: merchant.id,

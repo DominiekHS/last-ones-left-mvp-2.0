@@ -25,17 +25,12 @@ const MIME_TO_EXT: Record<string, string> = {
 
 export type UploadBucket = "deal-images" | "merchant-logos";
 
-export interface ValidationError {
-  ok: false;
-  message: string;
-}
-export interface ValidationOk {
-  ok: true;
-  ext: string;
-}
+export type ValidationResult =
+  | { ok: true; ext: string }
+  | { ok: false; message: string };
 
 /** Valideert mime en size. Geeft een veilige extensie terug op basis van de mime-type — niet de bestandsnaam (anti-spoof). */
-export function validateImageFile(file: File): ValidationError | ValidationOk {
+export function validateImageFile(file: File): ValidationResult {
   if (file.size > MAX_UPLOAD_BYTES) {
     return { ok: false, message: "Bestand te groot (max 5MB)" };
   }
