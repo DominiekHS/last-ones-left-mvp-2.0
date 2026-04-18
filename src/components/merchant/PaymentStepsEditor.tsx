@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Trash2, ArrowUp, ArrowDown, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadImage } from "@/lib/storage-uploads";
 import { toast } from "@/hooks/use-toast";
 
 export interface PaymentStep {
@@ -58,29 +59,26 @@ export default function PaymentStepsEditor({ steps, onChange, dealId, userId }: 
 
   const handleImageUpload = async (index: number, file: File) => {
     if (!userId) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "Afbeelding te groot", description: "Max 5MB", variant: "destructive" });
-      return;
-    }
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      toast({ title: "Ongeldig formaat", description: "Alleen JPG, PNG of WEBP", variant: "destructive" });
-      return;
-    }
-
     setUploading(index);
-    const ext = file.name.split(".").pop();
-    const path = `${userId}/payment-steps/${Date.now()}-${index}.${ext}`;
-    const { error } = await supabase.storage.from("deal-images").upload(path, file);
-    if (error) {
-      toast({ title: "Upload mislukt", description: "Probeer opnieuw", variant: "destructive" });
+    try {
+      const { url } = await uploadImage({
+        bucket: "deal-images",
+        userId,
+        file,
+        subfolder: "payment-steps",
+      });
+      const updated = [...steps];
+      updated[index] = { ...updated[index], image_url: url };
+      onChange(updated);
+    } catch (err) {
+      toast({
+        title: "Upload mislukt",
+        description: err instanceof Error ? err.message : "Probeer opnieuw",
+        variant: "destructive",
+      });
+    } finally {
       setUploading(null);
-      return;
     }
-    const { data } = supabase.storage.from("deal-images").getPublicUrl(path);
-    const updated = [...steps];
-    updated[index] = { ...updated[index], image_url: data.publicUrl };
-    onChange(updated);
-    setUploading(null);
   };
 
   const removeImage = (index: number) => {

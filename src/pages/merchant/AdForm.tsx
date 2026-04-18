@@ -9,6 +9,7 @@ function toLocalDatetimeString(isoString: string): string {
 import { useNavigate, useParams, Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadImage } from "@/lib/storage-uploads";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -311,17 +312,23 @@ export default function AdForm() {
 
   const touch = (field: string) => setTouched((t) => ({ ...t, [field]: true }));
 
-  const uploadImage = async (): Promise<string | null> => {
+  const handleImageUpload = async (): Promise<string | null> => {
     if (!imageFile || !user) return existingImageUrl;
-    const ext = imageFile.name.split(".").pop();
-    const path = `${user.id}/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("deal-images").upload(path, imageFile);
-    if (error) {
-      toast({ title: "Upload mislukt", description: "Probeer opnieuw", variant: "destructive" });
+    try {
+      const { url } = await uploadImage({
+        bucket: "deal-images",
+        userId: user.id,
+        file: imageFile,
+      });
+      return url;
+    } catch (err) {
+      toast({
+        title: "Upload mislukt",
+        description: err instanceof Error ? err.message : "Probeer opnieuw",
+        variant: "destructive",
+      });
       return null;
     }
-    const { data } = supabase.storage.from("deal-images").getPublicUrl(path);
-    return data.publicUrl;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -337,7 +344,7 @@ export default function AdForm() {
     if (!merchant) return;
 
     setSaving(true);
-    const imageUrl = await uploadImage();
+    const imageUrl = await handleImageUpload();
     if (imageFile && !imageUrl) {
       setSaving(false);
       return;
