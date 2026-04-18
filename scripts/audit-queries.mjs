@@ -76,19 +76,31 @@ function isAllowlisted(relPath) {
 
 /**
  * Inspecteert een chain rondom een `.from("...")` call:
- * pakt ~600 chars context na de match, controleert of er een filter
- * (.eq / .in / .match / .filter / .contains met user_id/merchant_id/id/key)
- * volgt vóór de chain afloopt.
+ * pakt ~800 chars context na de match en controleert of er
+ * óf (a) een expliciete filter (.eq/.in/...) op een ownership-kolom is,
+ * óf (b) een mutatie (insert/update/upsert/delete) is met een
+ *       user_id/merchant_id payload of een .eq filter.
  */
 function chainHasOwnershipFilter(snippet) {
   // Vind chain-einde: eerste `;`, `}` of newline+newline
   const end = snippet.search(/(;|\n\s*\n|\}\s*[,);])/);
   const chain = end >= 0 ? snippet.slice(0, end) : snippet;
 
-  // Zoek expliciete filter-aanroepen
-  return /\.(eq|in|match|filter|contains)\(\s*["'](user_id|merchant_id|id|key|category_id|deal_id|assigned_to_user_id)["']/.test(
-    chain
-  );
+  // (a) SELECT-style filter
+  const hasFilter =
+    /\.(eq|in|match|filter|contains)\(\s*["'](user_id|merchant_id|id|key|category_id|deal_id|assigned_to_user_id)["']/.test(
+      chain
+    );
+  if (hasFilter) return true;
+
+  // (b) Mutatie: insert/update/upsert/delete — vereist payload met user_id/merchant_id
+  // óf een latere .eq op een ownership-kolom.
+  const isMutation = /\.(insert|update|upsert|delete)\s*\(/.test(chain);
+  if (isMutation) {
+    return /(user_id|merchant_id)\s*:/.test(chain) || /\.eq\(\s*["'](id|user_id|merchant_id)["']/.test(chain);
+  }
+
+  return false;
 }
 
 const files = walk(SRC);

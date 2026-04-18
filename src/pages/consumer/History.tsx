@@ -15,9 +15,11 @@ export default function History() {
   const { data: activities, isLoading } = useQuery({
     queryKey: ["consumer-history", user?.id],
     queryFn: async () => {
+      // Belt & suspenders: RLS filtert al op auth.uid(), maar we maken het expliciet.
       const { data, error } = await supabase
         .from("claim_history")
         .select("deal_id, title, merchant_name, city, start_time, claimed_at")
+        .eq("user_id", user!.id)
         .order("claimed_at", { ascending: false });
       if (error) throw error;
       return data;
