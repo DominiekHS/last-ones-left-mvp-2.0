@@ -151,6 +151,15 @@ export default function MerchantDashboard() {
           </CardContent>
         </Card>
       )}
+
+      <DangerConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        title="Advertentie verwijderen?"
+        description={`"${deleteTarget?.title ?? ""}" wordt verwijderd. Een admin kan dit binnen korte tijd terugdraaien.`}
+        loading={deleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
