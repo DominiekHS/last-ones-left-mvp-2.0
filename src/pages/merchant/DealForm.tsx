@@ -79,17 +79,23 @@ export default function DealForm() {
     return <Navigate to="/login" />;
   }
 
-  const uploadImage = async (): Promise<string | null> => {
+  const handleImageUpload = async (): Promise<string | null> => {
     if (!imageFile || !user) return existingImageUrl;
-    const ext = imageFile.name.split(".").pop();
-    const path = `${user.id}/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("deal-images").upload(path, imageFile);
-    if (error) {
-      toast({ title: "Upload mislukt", description: error.message, variant: "destructive" });
+    try {
+      const { url } = await uploadImage({
+        bucket: "deal-images",
+        userId: user.id,
+        file: imageFile,
+      });
+      return url;
+    } catch (err) {
+      toast({
+        title: "Upload mislukt",
+        description: err instanceof Error ? err.message : "Probeer opnieuw",
+        variant: "destructive",
+      });
       return existingImageUrl;
     }
-    const { data } = supabase.storage.from("deal-images").getPublicUrl(path);
-    return data.publicUrl;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -59,22 +59,26 @@ export default function MerchantProfile() {
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "Bestand te groot", description: "Max 5MB", variant: "destructive" });
-      return;
-    }
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/logo.${ext}`;
-    const { error } = await supabase.storage.from("merchant-logos").upload(path, file, { upsert: true });
-    if (error) {
-      toast({ title: "Upload mislukt", description: error.message, variant: "destructive" });
-    } else {
-      const { data: { publicUrl } } = supabase.storage.from("merchant-logos").getPublicUrl(path);
-      setLogoUrl(publicUrl);
+    try {
+      const { url } = await uploadImage({
+        bucket: "merchant-logos",
+        userId: user.id,
+        file,
+        fixedName: "logo",
+        upsert: true,
+      });
+      setLogoUrl(url);
       toast({ title: "Logo geüpload!" });
+    } catch (err) {
+      toast({
+        title: "Upload mislukt",
+        description: err instanceof Error ? err.message : "Probeer opnieuw",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
   };
 
   const normalizePostcode = (value: string): string => {
