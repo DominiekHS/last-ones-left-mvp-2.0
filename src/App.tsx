@@ -24,7 +24,6 @@ import Terms from "./pages/Terms";
 import HelpCenter from "./pages/help/HelpCenter";
 import HelpCategory from "./pages/help/HelpCategory";
 import MerchantDashboard from "./pages/merchant/MerchantDashboard";
-import DealForm from "./pages/merchant/DealForm";
 import AdForm from "./pages/merchant/AdForm";
 import MerchantProfile from "./pages/merchant/MerchantProfile";
 import MerchantDealDetail from "./pages/merchant/MerchantDealDetail";
@@ -69,7 +68,6 @@ const App = () => (
               <Route path="/help" element={<HelpCenter />} />
               <Route path="/help/:categorySlug" element={<HelpCategory />} />
               <Route path="/merchant" element={<MerchantDashboard />} />
-              <Route path="/merchant/deal/:id" element={<DealForm />} />
               <Route path="/merchant/ads/new" element={<AdForm />} />
               <Route path="/merchant/deals/:dealId" element={<MerchantDealDetail />} />
               <Route path="/merchant/deals/:dealId/analytics" element={<DealAnalytics />} />
