@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2.49.4";
+import { z, parseJsonBody } from "../_shared/validation.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,16 +7,25 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-interface SignupBody {
-  email: string;
-  password: string;
-  company_name: string;
-  venue_type: string;
-  address: string;
-  postcode: string;
-  city: string;
-  contact_phone?: string | null;
-}
+// Vaste lijst venue_types — moet matchen met enum public.venue_category.
+const VENUE_TYPES = [
+  "bioscoop", "theater", "sport", "museum", "bowling", "klimbos",
+  "escaperoom", "arcade", "verhuur", "paintball", "concert", "voetbal",
+  "basketbal", "overig", "jeu_de_boules", "shuffleboard", "boulderen",
+  "pitch_putt", "voet_darts", "voetgolf", "minigolf", "padel",
+  "pickleball", "tennis", "karten", "pool", "airhockey", "darts", "rondvaart",
+] as const;
+
+const SignupSchema = z.object({
+  email: z.string().trim().email("Ongeldig e-mailadres").max(254),
+  password: z.string().min(6, "Wachtwoord minimaal 6 tekens").max(200),
+  company_name: z.string().trim().min(1, "Bedrijfsnaam verplicht").max(200),
+  venue_type: z.enum(VENUE_TYPES, { errorMap: () => ({ message: "Ongeldig venue type" }) }),
+  address: z.string().trim().min(1, "Adres verplicht").max(300),
+  postcode: z.string().trim().min(1, "Postcode verplicht").max(20),
+  city: z.string().trim().min(1, "Plaats verplicht").max(100),
+  contact_phone: z.string().trim().max(40).optional().nullable(),
+}).strict();
 
 function bad(status: number, message: string) {
   return new Response(JSON.stringify({ error: message }), {
@@ -30,18 +40,9 @@ Deno.serve(async (req) => {
   }
   if (req.method !== "POST") return bad(405, "Method not allowed");
 
-  let body: SignupBody;
-  try {
-    body = await req.json();
-  } catch {
-    return bad(400, "Invalid JSON");
-  }
-
-  const required = ["email", "password", "company_name", "venue_type", "address", "postcode", "city"] as const;
-  for (const k of required) {
-    if (!body[k] || typeof body[k] !== "string") return bad(400, `Missing field: ${k}`);
-  }
-  if (body.password.length < 6) return bad(400, "Password too short");
+  const parsed = await parseJsonBody(req, SignupSchema);
+  if (parsed instanceof Response) return parsed;
+  const body = parsed;
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -96,9 +97,7 @@ Deno.serve(async (req) => {
     return bad(500, merchantErr.message);
   }
 
-  // Trigger email verification by generating a signup link via inviting?
-  // Simpler: rely on standard signUp follow-up — send magic verification.
-  // Use generateLink to send the confirmation email.
+  // Trigger email verification by generating a signup link.
   await admin.auth.admin.generateLink({
     type: "signup",
     email: body.email,
