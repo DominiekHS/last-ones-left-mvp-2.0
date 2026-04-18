@@ -15,6 +15,7 @@ import { ArrowLeft, Trash2, ExternalLink, Eye, MousePointerClick, Store } from "
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { CATEGORY_LABELS } from "@/lib/constants";
+import { recordAdminAction } from "@/lib/audit";
 
 export default function AdminDealDetail() {
   const { dealId } = useParams<{ dealId: string }>();
@@ -83,6 +84,13 @@ export default function AdminDealDetail() {
     if (error) {
       toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
     } else {
+      void recordAdminAction({
+        action_type: "deal_delete",
+        target_type: "deal",
+        target_id: dealId!,
+        reason: "Soft-delete via deal-detail",
+        metadata: { merchant_id: deal?.merchants?.id ?? null },
+      });
       queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
       toast({ title: "Deal verwijderd" });
       navigate("/admin");

@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { recordAdminAction } from "@/lib/audit";
 
 interface MerchantStatusModalProps {
   open: boolean;
@@ -77,9 +78,8 @@ export function MerchantStatusModal({ open, onOpenChange, merchantId, merchantNa
       return;
     }
 
-    // Log admin action
-    await supabase.from("admin_actions").insert({
-      admin_id: user?.id || "",
+    // Log admin action via shared helper (consistent met overige flows).
+    await recordAdminAction({
       action_type: `merchant_${action}`,
       target_type: "merchant",
       target_id: merchantId,
