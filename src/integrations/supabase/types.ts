@@ -356,6 +356,13 @@ export type Database = {
             referencedRelation: "merchants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "deals_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       help_articles: {
@@ -475,6 +482,13 @@ export type Database = {
             columns: ["merchant_id"]
             isOneToOne: false
             referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merchant_communications_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants_public"
             referencedColumns: ["id"]
           },
         ]
@@ -747,6 +761,54 @@ export type Database = {
           title: string | null
           user_id: string | null
           voucher_id: string | null
+        }
+        Relationships: []
+      }
+      merchants_public: {
+        Row: {
+          address: string | null
+          blocked: boolean | null
+          city: string | null
+          company_name: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          logo_url: string | null
+          opening_hours: Json | null
+          postcode: string | null
+          status: string | null
+          venue_type: Database["public"]["Enums"]["venue_category"] | null
+          website_url: string | null
+        }
+        Insert: {
+          address?: string | null
+          blocked?: boolean | null
+          city?: string | null
+          company_name?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          logo_url?: string | null
+          opening_hours?: Json | null
+          postcode?: string | null
+          status?: string | null
+          venue_type?: Database["public"]["Enums"]["venue_category"] | null
+          website_url?: string | null
+        }
+        Update: {
+          address?: string | null
+          blocked?: boolean | null
+          city?: string | null
+          company_name?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          logo_url?: string | null
+          opening_hours?: Json | null
+          postcode?: string | null
+          status?: string | null
+          venue_type?: Database["public"]["Enums"]["venue_category"] | null
+          website_url?: string | null
         }
         Relationships: []
       }
