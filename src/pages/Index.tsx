@@ -4,6 +4,7 @@ import lolLogo from "@/assets/lol-logo.png";
 import { useActiveDeals } from "@/hooks/useDeals";
 import { DealCard } from "@/components/deals/DealCard";
 import { DealFilters } from "@/components/deals/DealFilters";
+import { ActivityRequestDialog } from "@/components/deals/ActivityRequestDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Ticket } from "lucide-react";
 
@@ -115,12 +116,22 @@ const Index = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 space-y-3">
+          <div className="text-center py-16 space-y-4 max-w-md mx-auto">
             <Ticket className="h-12 w-12 mx-auto text-muted-foreground" />
             <h2 className="font-display text-xl font-semibold">Geen deals gevonden</h2>
             <p className="text-muted-foreground">
-              Probeer een andere categorie of stad.
+              Probeer een andere categorie of plaats.
             </p>
+            <div className="pt-2 space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Mis je een activiteit? Laat het ons weten — dan proberen we meer deals zoals dit te regelen.
+              </p>
+              <ActivityRequestDialog
+                contextCity={city}
+                contextCategory={category}
+                contextDayFilter={dayFilter}
+              />
+            </div>
           </div>
         )}
       </section>

@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_requests: {
+        Row: {
+          admin_notes: string | null
+          context_category: string | null
+          context_city: string | null
+          context_day_filter: string | null
+          created_at: string
+          id: string
+          message: string
+          status: string
+          updated_at: string
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          context_category?: string | null
+          context_city?: string | null
+          context_day_filter?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          status?: string
+          updated_at?: string
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          context_category?: string | null
+          context_city?: string | null
+          context_day_filter?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          status?: string
+          updated_at?: string
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       admin_actions: {
         Row: {
           action_type: string

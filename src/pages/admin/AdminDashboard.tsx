@@ -21,7 +21,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket, CalendarDays, MapPin } from "lucide-react";
+import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket, CalendarDays, MapPin, Inbox } from "lucide-react";
+import { ActivityRequestsTab } from "@/components/admin/ActivityRequestsTab";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { nl } from "date-fns/locale";
 import { CATEGORY_LABELS } from "@/lib/constants";
@@ -273,6 +274,7 @@ export default function AdminDashboard() {
           <TabsTrigger value="consumers">Consumenten ({consumers?.length || 0})</TabsTrigger>
           <TabsTrigger value="deals">Deals ({deals?.length || 0})</TabsTrigger>
           <TabsTrigger value="vouchers" onClick={() => navigate("/admin/kortingscodes")}>Kortingscodes</TabsTrigger>
+          <TabsTrigger value="requests" className="gap-1"><Inbox className="h-3 w-3" />Voorkeuren</TabsTrigger>
         </TabsList>
 
         <TabsContent value="merchants" className="space-y-3 mt-4">
@@ -551,6 +553,10 @@ export default function AdminDashboard() {
               </Card>
             );
           })}
+        </TabsContent>
+
+        <TabsContent value="requests" className="space-y-3 mt-4">
+          <ActivityRequestsTab />
         </TabsContent>
       </Tabs>
     </div>
