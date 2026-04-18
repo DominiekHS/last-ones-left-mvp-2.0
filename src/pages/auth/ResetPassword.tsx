@@ -15,14 +15,26 @@ export default function ResetPassword() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Supabase automatically handles the token from the URL hash
-    // and establishes a session via onAuthStateChange
+    // Listen for PASSWORD_RECOVERY event (fired when arriving via reset link)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
         setReady(true);
       }
     });
-    return () => subscription.unsubscribe();
+
+    // Fallback: if a session already exists (e.g. event fired before listener
+    // attached, or user already authenticated via the recovery link), proceed.
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true);
+    });
+
+    // Final fallback: after 3s, allow the form anyway so the user can try.
+    const timeout = setTimeout(() => setReady(true), 3000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
