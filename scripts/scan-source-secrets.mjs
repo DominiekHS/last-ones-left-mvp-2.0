@@ -53,6 +53,7 @@ const ALLOWLIST = new Set([
   "scripts/scan-bundle-secrets.mjs",   // idem
   "scripts/README.md",                 // legt patterns uit
   "docs/env.md",                       // documenteert var-namen
+  "src/lib/assert-no-service-role.ts", // runtime-guard, bevat detectie-patronen
 ]);
 
 function* walk(dir) {
