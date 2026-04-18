@@ -21,6 +21,7 @@ import { toast } from "@/hooks/use-toast";
 import { friendlyDbError } from "@/lib/friendly-errors";
 import { Navigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
+import { recordAuditEvent } from "@/lib/audit";
 
 type VenueCategory = Database["public"]["Enums"]["venue_category"];
 
