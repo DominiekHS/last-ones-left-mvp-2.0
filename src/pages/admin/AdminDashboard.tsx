@@ -221,6 +221,12 @@ export default function AdminDashboard() {
     if (error) {
       toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
     } else {
+      void recordAdminAction({
+        action_type: currentlyBlocked ? "merchant_unblock" : "merchant_block",
+        target_type: "merchant",
+        target_id: merchantId,
+        reason: currentlyBlocked ? "Gedeblokkeerd via dashboard" : "Geblokkeerd via dashboard",
+      });
       queryClient.invalidateQueries({ queryKey: ["admin-merchants"] });
       queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
       toast({ title: currentlyBlocked ? "Merchant gedeblokkeerd" : "Merchant geblokkeerd" });
@@ -236,6 +242,12 @@ export default function AdminDashboard() {
     if (error) {
       toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
     } else {
+      void recordAdminAction({
+        action_type: "deal_delete",
+        target_type: "deal",
+        target_id: dealId,
+        reason: "Soft-delete via dashboard",
+      });
       queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
       toast({ title: "Deal verwijderd" });
     }
