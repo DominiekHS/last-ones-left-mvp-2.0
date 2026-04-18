@@ -50,8 +50,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Step 2: Archive vouchers that have been inactive for 24+ hours
-    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    // Step 2: Archive vouchers that have been inactive for 48+ hours
+    const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
     const { data: archived } = await supabase
       .from("vouchers")
       .update({
