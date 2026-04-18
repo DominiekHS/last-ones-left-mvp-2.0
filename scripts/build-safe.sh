@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Veilige build: bouwt de frontend en scant daarna de bundle op uitgelekte secrets.
-# Faalt als er ook maar één verdachte string in dist/ staat.
+# Veilige build-gate: draait de verplichte security-tests, bouwt de frontend en
+# scant daarna de bundle op uitgelekte secrets. Faalt zodra één stap rood is.
 #
 # Gebruik:
 #   bash scripts/build-safe.sh
@@ -9,9 +9,13 @@
 # in dit project automatisch beheerd en kan niet handmatig aangepast worden.)
 set -euo pipefail
 
-echo "▶ Stap 1/2 — Frontend bouwen…"
+echo "▶ Stap 1/3 — Verplichte security-tests (error-mapping mag niet lekken)…"
+npx vitest run src/lib/friendly-errors.test.ts
+
+echo ""
+echo "▶ Stap 2/3 — Frontend bouwen…"
 npm run build
 
 echo ""
-echo "▶ Stap 2/2 — Bundle scannen op secrets…"
+echo "▶ Stap 3/3 — Bundle scannen op secrets…"
 node scripts/scan-bundle-secrets.mjs
