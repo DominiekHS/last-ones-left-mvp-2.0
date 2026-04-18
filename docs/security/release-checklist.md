@@ -63,6 +63,7 @@
 ## User-facing safety
 
 - [ ] **12. Error-messages zijn gesanitiseerd**
+  → `bash scripts/build-safe.sh` → exit 0 (verplicht — draait `friendly-errors.test.ts` met 25 mapping-asserties incl. lek-checks op kolom-/constraint-namen)
   → Geen stack traces of DB-fouten zichtbaar voor users (gebruik `friendlyAuthError` / `friendlyDbError` helpers in `src/lib/friendly-errors.ts`).
   → ErrorBoundary actief op app-niveau (zie `src/components/ErrorBoundary.tsx`).
 
