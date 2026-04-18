@@ -5,9 +5,12 @@ export function useActiveDeals(category?: string, city?: string) {
   return useQuery({
     queryKey: ["deals", "active", category, city],
     queryFn: async () => {
+      // NB: join op `merchants_public` view (geen contact-data), zodat ook anon
+      // de bedrijfsnaam onder de deal-titel ziet. Base table `merchants` is
+      // afgeschermd voor anon — die join zou null teruggeven.
       let query = supabase
         .from("deals")
-        .select("*, merchants(company_name)")
+        .select("*, merchants:merchants_public(company_name)")
         .gt("expiry_time", new Date().toISOString())
         .order("start_time", { ascending: true });
 
@@ -31,7 +34,7 @@ export function useDeal(id: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("deals")
-        .select("*, merchants(company_name, city, address, description)")
+        .select("*, merchants:merchants_public(company_name, city, address, description)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
