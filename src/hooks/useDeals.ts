@@ -5,6 +5,8 @@ export function useActiveDeals(category?: string, city?: string) {
   return useQuery({
     queryKey: ["deals", "active", category, city],
     queryFn: async () => {
+      // NB: anon heeft column-level SELECT op `merchants` voor publieke velden
+      // (geen contact_email/phone). Zie docs/rls.md.
       let query = supabase
         .from("deals")
         .select("*, merchants(company_name)")
