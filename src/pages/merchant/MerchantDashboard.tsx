@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link, Navigate } from "react-router-dom";
 import { Plus, Trash2, Pencil, Eye, MousePointerClick, ChevronRight, AlertTriangle, Ban, AlertCircle, Copy } from "lucide-react";
 import { useState } from "react";
+import { DangerConfirmDialog } from "@/components/admin/DangerConfirmDialog";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
@@ -21,6 +22,8 @@ export default function MerchantDashboard() {
   const { data: deals, isLoading } = useMerchantDeals(merchant?.id);
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<DealFilter>("all");
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   if (!loading && (!user || !roles.includes("merchant"))) {
     return <Navigate to="/login" />;
@@ -47,14 +50,25 @@ export default function MerchantDashboard() {
       </div>
     );
   }
-  const handleDelete = async (dealId: string) => {
-    if (!confirm("Weet je zeker dat je deze deal wilt verwijderen?")) return;
-    const { error } = await supabase.from("deals").delete().eq("id", dealId);
+  const handleDelete = (dealId: string, title: string) => {
+    setDeleteTarget({ id: dealId, title });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    // Soft-delete: zet deleted_at i.p.v. fysiek verwijderen (herstelbaar door admin)
+    const { error } = await supabase
+      .from("deals")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", deleteTarget.id);
+    setDeleting(false);
     if (error) {
       toast({ title: "Fout", description: error.message, variant: "destructive" });
     } else {
       queryClient.invalidateQueries({ queryKey: ["deals", "merchant"] });
       toast({ title: "Deal verwijderd" });
+      setDeleteTarget(null);
     }
   };
 
@@ -122,7 +136,7 @@ export default function MerchantDashboard() {
                   deal={deal}
                   isExpired={isExpired}
                   merchantId={merchant.id}
-                  onDelete={() => handleDelete(deal.id)}
+                  onDelete={() => handleDelete(deal.id, deal.title)}
                 />
               );
             })}
@@ -137,6 +151,15 @@ export default function MerchantDashboard() {
           </CardContent>
         </Card>
       )}
+
+      <DangerConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        title="Advertentie verwijderen?"
+        description={`"${deleteTarget?.title ?? ""}" wordt verwijderd. Een admin kan dit binnen korte tijd terugdraaien.`}
+        loading={deleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

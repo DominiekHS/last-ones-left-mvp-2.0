@@ -51,6 +51,7 @@ export function useMerchantDeals(merchantId?: string) {
         .from("deals")
         .select("*")
         .eq("merchant_id", merchantId!)
+        .is("deleted_at", null)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;

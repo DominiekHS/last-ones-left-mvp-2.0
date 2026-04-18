@@ -13,6 +13,8 @@ import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { ArrowLeft, Pencil, Trash2, ExternalLink, Eye, MousePointerClick, BarChart3, AlertTriangle, Copy } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { DangerConfirmDialog } from "@/components/admin/DangerConfirmDialog";
+import { useState } from "react";
 
 export default function MerchantDealDetail() {
   const { dealId } = useParams<{ dealId: string }>();
@@ -20,6 +22,8 @@ export default function MerchantDealDetail() {
   const { data: deal, isLoading } = useDeal(dealId!);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const { data: stats } = useQuery({
     queryKey: ["deal-stats", dealId],
@@ -102,9 +106,16 @@ export default function MerchantDealDetail() {
       ? "Online betalen, korting aan kassa"
       : "Aan de kassa";
 
-  const handleDelete = async () => {
-    if (!confirm("Weet je zeker dat je deze advertentie wilt verwijderen?")) return;
-    const { error } = await supabase.from("deals").delete().eq("id", deal.id);
+  const handleDelete = () => setConfirmOpen(true);
+
+  const confirmDelete = async () => {
+    setDeleting(true);
+    // Soft-delete: rij blijft fysiek bestaan en kan door admin teruggezet worden.
+    const { error } = await supabase
+      .from("deals")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", deal.id);
+    setDeleting(false);
     if (error) {
       toast({ title: "Fout", description: error.message, variant: "destructive" });
     } else {
@@ -265,6 +276,15 @@ export default function MerchantDealDetail() {
         </Card>
         </div>
       </div>
+
+      <DangerConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Advertentie verwijderen?"
+        description={`"${deal.title}" wordt verwijderd. Een admin kan dit binnen korte tijd terugdraaien.`}
+        loading={deleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

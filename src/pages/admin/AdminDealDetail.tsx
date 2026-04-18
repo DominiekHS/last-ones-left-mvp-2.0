@@ -74,7 +74,11 @@ export default function AdminDealDetail() {
   }
 
   const deleteDeal = async () => {
-    const { error } = await supabase.from("deals").delete().eq("id", dealId!);
+    // Soft-delete: rij blijft fysiek bestaan, herstel mogelijk via DB.
+    const { error } = await supabase
+      .from("deals")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", dealId!);
     if (error) {
       toast({ title: "Fout", description: error.message, variant: "destructive" });
     } else {
