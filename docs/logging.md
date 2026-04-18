@@ -20,7 +20,8 @@ Houd de naamgeving stabiel — alerts en queries hangen ervan af.
 | `AUTH_LOGIN_FAILED` | `Login.tsx` → `log-auth-event` | warn |
 | `AUTH_PASSWORD_RESET_REQUESTED` | `ForgotPassword.tsx` → `log-auth-event` | warn |
 | `AUTH_SIGNUP_FAILED` | (toekomst) | warn |
-| `DEAL_PUBLISHED` | merchant deal create/edit (TODO) | info |
+| `DEAL_PUBLISHED` | `DealForm.tsx` (insert) | info |
+| `DEAL_UPDATED` | `DealForm.tsx` (edit) | info |
 | `VOUCHER_CLAIMED` | reeds gedekt door `claim_history` snapshot | info |
 | `ADMIN_ACTION` | `admin_actions` tabel | info/warn |
 

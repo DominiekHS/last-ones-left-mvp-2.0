@@ -21,6 +21,7 @@ import { toast } from "@/hooks/use-toast";
 import { friendlyDbError } from "@/lib/friendly-errors";
 import { Navigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
+import { recordAuditEvent } from "@/lib/audit";
 
 type VenueCategory = Database["public"]["Enums"]["venue_category"];
 
@@ -141,6 +142,20 @@ export default function DealForm() {
       toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
     } else {
       toast({ title: isEdit ? "Deal bijgewerkt!" : "Deal geplaatst!" });
+      // Audit-event voor spike-detectie per merchant. Faalt silent.
+      const auditDealId = isEdit ? id : newDealId;
+      if (auditDealId) {
+        void recordAuditEvent({
+          event_name: isEdit ? "DEAL_UPDATED" : "DEAL_PUBLISHED",
+          severity: "info",
+          metadata: {
+            deal_id: auditDealId,
+            merchant_id: merchant.id,
+            category,
+            city,
+          },
+        });
+      }
       // Fire-and-forget notification email for newly created deals
       if (!isEdit && newDealId) {
         supabase.functions
