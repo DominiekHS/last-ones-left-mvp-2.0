@@ -21,6 +21,29 @@ Lovable beheert `.env` automatisch in de preview-omgeving. Dat bestand staat **n
 
 Volledige lijst: zie [`docs/env.md`](docs/env.md).
 
+## Supabase service_role key — strikte regels
+
+De **service_role** key omzeilt **alle** RLS policies (god mode). Eén lek = volledige database compromised. Daarom:
+
+| Regel | Gehandhaafd door |
+|---|---|
+| 1. Komt **nooit** voor in `src/`, `public/`, `scripts/` of `docs/` | `scripts/scan-source-secrets.mjs` (vlagt zowel JWT-payload als de letterlijke string `SUPABASE_SERVICE_ROLE_KEY` buiten `supabase/functions/`) |
+| 2. Komt **nooit** voor met een `VITE_*`-prefix (zou hem in de browser bundle exposen) | `src/lib/assert-no-service-role.ts` faalt bij app-startup als hij toch in `import.meta.env` zit |
+| 3. Wordt **uitsluitend** gelezen via `Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")` in `supabase/functions/**` | Code review + bundle-scan (`scripts/scan-bundle-secrets.mjs`) |
+| 4. Komt **nooit** voor in een gebouwde `dist/`-bundle | `scripts/scan-bundle-secrets.mjs` (run via `bash scripts/build-safe.sh` vóór deploy) |
+
+Drie verdedigingslagen — als je er ooit één omzeilt, vangt de volgende laag het op:
+
+```
+[code]  scan-source-secrets   →  faalt vóór commit
+[build] scan-bundle-secrets   →  faalt vóór deploy
+[run]   assertNoServiceRoleInClient  →  faalt bij app-startup in browser
+```
+
+Bij een vermoeden van een lek: zie sectie "Wat te doen als er TOCH een secret is gelekt" hieronder — service_role key onmiddellijk roteren in Lovable Cloud → Database → API keys.
+
+
+
 ## Geautomatiseerde checks
 
 Drie scanners draaien — twee voor je commit, één bij elke build/deploy:
