@@ -9,6 +9,7 @@ import { CATEGORY_LABELS } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
+import { friendlyDbError } from "@/lib/friendly-errors";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { ArrowLeft, Pencil, Trash2, ExternalLink, Eye, MousePointerClick, BarChart3, AlertTriangle, Copy } from "lucide-react";
@@ -117,7 +118,7 @@ export default function MerchantDealDetail() {
       .eq("id", deal.id);
     setDeleting(false);
     if (error) {
-      toast({ title: "Fout", description: error.message, variant: "destructive" });
+      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
     } else {
       queryClient.invalidateQueries({ queryKey: ["deals", "merchant"] });
       toast({ title: "Advertentie verwijderd" });

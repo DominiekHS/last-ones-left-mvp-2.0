@@ -10,6 +10,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
+import { friendlyDbError } from "@/lib/friendly-errors";
 import { ArrowLeft, Trash2, ExternalLink, Eye, MousePointerClick, Store } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
@@ -80,7 +81,7 @@ export default function AdminDealDetail() {
       .update({ deleted_at: new Date().toISOString() })
       .eq("id", dealId!);
     if (error) {
-      toast({ title: "Fout", description: error.message, variant: "destructive" });
+      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
     } else {
       queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
       toast({ title: "Deal verwijderd" });

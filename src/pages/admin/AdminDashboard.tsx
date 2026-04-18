@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { friendlyDbError } from "@/lib/friendly-errors";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -217,7 +218,7 @@ export default function AdminDashboard() {
       .update({ blocked: !currentlyBlocked })
       .eq("id", merchantId);
     if (error) {
-      toast({ title: "Fout", description: error.message, variant: "destructive" });
+      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
     } else {
       queryClient.invalidateQueries({ queryKey: ["admin-merchants"] });
       queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
@@ -232,7 +233,7 @@ export default function AdminDashboard() {
       .update({ deleted_at: new Date().toISOString() })
       .eq("id", dealId);
     if (error) {
-      toast({ title: "Fout", description: error.message, variant: "destructive" });
+      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
     } else {
       queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
       toast({ title: "Deal verwijderd" });

@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { CATEGORIES } from "@/lib/constants";
 import { toast } from "@/hooks/use-toast";
+import { friendlyDbError } from "@/lib/friendly-errors";
 import { AlertTriangle, Plus, Upload, ArrowLeft } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 import PaymentStepsEditor, { type PaymentStep } from "@/components/merchant/PaymentStepsEditor";
@@ -413,7 +414,7 @@ export default function AdForm() {
       }));
       const { error: codesError } = await (supabase.from("unique_codes" as any) as any).insert(codes);
       if (codesError) {
-        toast({ title: "Codes opslaan mislukt", description: codesError.message, variant: "destructive" });
+        toast({ title: "Codes opslaan mislukt", description: friendlyDbError(codesError), variant: "destructive" });
       }
     }
 

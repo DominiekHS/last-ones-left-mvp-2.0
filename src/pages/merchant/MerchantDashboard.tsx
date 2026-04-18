@@ -13,6 +13,7 @@ import { nl } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
+import { friendlyDbError } from "@/lib/friendly-errors";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { getMerchantEffectiveStatus } from "@/lib/merchant-status";
 type DealFilter = "all" | "active" | "expired";
@@ -64,7 +65,7 @@ export default function MerchantDashboard() {
       .eq("id", deleteTarget.id);
     setDeleting(false);
     if (error) {
-      toast({ title: "Fout", description: error.message, variant: "destructive" });
+      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
     } else {
       queryClient.invalidateQueries({ queryKey: ["deals", "merchant"] });
       toast({ title: "Deal verwijderd" });
