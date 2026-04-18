@@ -23,6 +23,7 @@ import { friendlyDbError } from "@/lib/friendly-errors";
 import { AlertTriangle, Plus, Upload, ArrowLeft } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 import PaymentStepsEditor, { type PaymentStep } from "@/components/merchant/PaymentStepsEditor";
+import { recordAuditEvent } from "@/lib/audit";
 
 type VenueCategory = Database["public"]["Enums"]["venue_category"];
 
