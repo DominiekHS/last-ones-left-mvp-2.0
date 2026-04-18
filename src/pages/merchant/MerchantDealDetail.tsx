@@ -220,19 +220,19 @@ export default function MerchantDealDetail() {
           <CardContent className="space-y-3">
             <InfoRow
               label="Methode"
-              value={isOnline ? "Online (checkout link)" : "Aan de kassa"}
+              value={methodLabel}
             />
             <div>
               <p className="text-sm font-medium text-muted-foreground mb-1">Checkout link</p>
-              {isOnline ? (
+              {hasCheckoutLink ? (
                 deal.checkout_link ? (
                   <a
                     href={deal.checkout_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline inline-flex items-center gap-1"
+                    className="text-sm text-primary hover:underline inline-flex items-center gap-1 break-all"
                   >
-                    Openen <ExternalLink className="h-3 w-3" />
+                    {deal.checkout_link} <ExternalLink className="h-3 w-3 shrink-0" />
                   </a>
                 ) : (
                   <p className="text-sm text-destructive">Ontbrekende checkout link</p>
