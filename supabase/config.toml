@@ -20,3 +20,8 @@ verify_jwt = false
 # Vereist ingelogde admin OF deal-eigenaar; in-code gecheckt via requireUser().
 [functions.send-deal-notifications]
 verify_jwt = false
+
+# Publiek endpoint voor auth-failure logging vanaf de browser (vóór login).
+# Geen JWT mogelijk; in-code event-whitelist + body-size cap + IP-hashing.
+[functions.log-auth-event]
+verify_jwt = false

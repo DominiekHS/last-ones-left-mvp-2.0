@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { friendlyAuthError } from "@/lib/friendly-errors";
+import { logAuthEvent } from "@/lib/audit";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -19,6 +20,13 @@ export default function ForgotPassword() {
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    // Altijd loggen: rate-limit / spike detectie. Zelfs bij success.
+    void logAuthEvent({
+      event_name: "AUTH_PASSWORD_RESET_REQUESTED",
+      reason: error ? error.message?.slice(0, 100) : "ok",
+      email_length: email.length,
     });
 
     if (error) {
