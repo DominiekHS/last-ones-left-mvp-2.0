@@ -23,3 +23,19 @@ Dit doet:
 Als de scanner ook maar één treffer vindt, faalt het script met exit code 1 en wordt vermeld welk bestand en welk patroon het probleem is.
 
 > Het script is bewust strict afgesteld om false positives op de Supabase **anon JWT** te vermijden. Pas patronen aan in `scripts/scan-bundle-secrets.mjs` als je een nieuwe provider toevoegt.
+
+## RLS audit (release gate)
+
+Controleert dat alle public-tabellen Row Level Security aan hebben staan. Faalt met exit 1 als er ook maar één tabel zonder RLS is — voorkomt dat een per ongeluk aangemaakte tabel onbeschermd live gaat.
+
+```bash
+export SUPABASE_DB_URL='postgres://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres'
+npm run audit:rls
+```
+
+De connection string haal je op uit Lovable → Cloud → Database → **Connection string** (Direct connection, niet pooler).
+
+**Output bij succes**: lijst van tabellen met `✅` voor RLS en `🔒 FORCE` voor force-RLS.
+**Output bij falen**: lijst van tabellen die nog RLS missen + fix-suggestie.
+
+> Run dit éénmaal lokaal voor elke deploy, of voeg toe aan een GitHub Actions workflow met `SUPABASE_DB_URL` als repo secret.

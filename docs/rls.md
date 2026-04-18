@@ -1,8 +1,12 @@
 # Row Level Security — access matrix
 
-Status: bijgewerkt 2026-04-18 na security hardening #3.
+Status: bijgewerkt 2026-04-18 na security hardening #5 (FORCE RLS + audit-script).
 
 > **Regel:** elke tabel in `public` heeft RLS aanstaan. Geen enkele policy gebruikt `USING (true)` op gebruikersdata. Roltoekenning wordt **alleen** server-side gedaan voor `merchant` en `admin`.
+>
+> **FORCE RLS** staat aan op 12 user-data tabellen. Bewust **niet** op `claim_history`, `vouchers`, `unique_codes`, `notification_log` — die worden geschreven via SECURITY DEFINER functies / service-role edge functions.
+>
+> **Release-gate:** `npm run audit:rls` (zie `scripts/README.md`) faalt als een tabel zonder RLS bestaat.
 
 ## Legenda
 
