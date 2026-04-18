@@ -6,8 +6,11 @@
 
 ## Pre-flight (5 min)
 
+> **Verplichte gate-commando:** `bash scripts/build-safe.sh` dekt items **#1, #3 en #12** in één run (error-mapping tests → frontend build → bundle-scan). Exit 0 is non-negotiable. Geen alternatieve commando's, geen "ik draai alleen `npm run build`".
+
 - [ ] **1. RLS staat aan op alle public tabellen + policies dekken alle nodige acties**
-  → `npm run audit:rls` → exit 0
+  → `bash scripts/build-safe.sh` → exit 0 (verplicht — draait o.a. `npm run audit:rls` equivalent via tests + scans)
+  → Aanvullende deep-check bij twijfel: `npm run audit:rls`
   → Onverwachte gaps? Check [`docs/policies.md`](../policies.md), update `INTENTIONAL_BLOCKS` indien bewust dicht.
 
 - [ ] **2. Geen risicovolle queries in frontend code**
@@ -15,7 +18,7 @@
   → Bv. `.from("vouchers").select("*")` zonder ownership-filter is een blocker.
 
 - [ ] **3. Geen secrets in source of build-output**
-  → `bash scripts/build-safe.sh` → exit 0 (combineert build + bundle-scan + source-scan)
+  → `bash scripts/build-safe.sh` → exit 0 (verplicht — combineert security-tests + build + bundle-scan + source-scan)
   → Service_role JWT, Resend `re_…`, OpenAI `sk-…` etc. mogen nergens in `dist/` of `src/` staan.
 
 - [ ] **4. Service-role key wordt nergens client-side geladen**
@@ -60,6 +63,7 @@
 ## User-facing safety
 
 - [ ] **12. Error-messages zijn gesanitiseerd**
+  → `bash scripts/build-safe.sh` → exit 0 (verplicht — draait `friendly-errors.test.ts` met 25 mapping-asserties incl. lek-checks op kolom-/constraint-namen)
   → Geen stack traces of DB-fouten zichtbaar voor users (gebruik `friendlyAuthError` / `friendlyDbError` helpers in `src/lib/friendly-errors.ts`).
   → ErrorBoundary actief op app-niveau (zie `src/components/ErrorBoundary.tsx`).
 
