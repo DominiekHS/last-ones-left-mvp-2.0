@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useMerchantPublicProfile, useMerchantActiveDeals } from "@/hooks/useMerchantProfile";
+import { useAuth } from "@/hooks/useAuth";
 import { DealCard } from "@/components/deals/DealCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { ArrowLeft, MapPin, Mail, Phone, Globe, Store, Ticket } from "lucide-rea
 export default function MerchantPublicProfile() {
   const { merchantId } = useParams<{ merchantId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data: merchant, isLoading } = useMerchantPublicProfile(merchantId);
   const { data: deals, isLoading: dealsLoading } = useMerchantActiveDeals(merchantId);
 
@@ -126,7 +128,16 @@ export default function MerchantPublicProfile() {
                   <Globe className="h-3.5 w-3.5" />{websiteUrl}
                 </a>
               )}
+              {!user && (contactEmail || contactPhone) === undefined && websiteUrl && (
+                <p className="text-xs text-muted-foreground pt-1">
+                  <Link to="/login" className="text-primary hover:underline">Log in</Link> om e-mail en telefoonnummer te zien.
+                </p>
+              )}
             </div>
+          ) : !user ? (
+            <p className="text-sm text-muted-foreground">
+              <Link to="/login" className="text-primary hover:underline">Log in</Link> om contactgegevens van dit bedrijf te zien.
+            </p>
           ) : (
             <p className="text-sm text-muted-foreground">Geen contactgegevens ingevuld.</p>
           )}
