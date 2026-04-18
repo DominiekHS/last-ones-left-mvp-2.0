@@ -41,12 +41,12 @@ export async function recordAuditEvent(payload: AuditEventPayload): Promise<void
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    await supabase.from("audit_log").insert({
+    await supabase.from("audit_log").insert([{
       event_name: payload.event_name,
       severity: payload.severity ?? "info",
       user_id: user.id,
       metadata: payload.metadata ?? {},
-    });
+    }]);
   } catch (e) {
     if (import.meta.env.DEV) console.warn("[audit] recordAuditEvent failed", e);
   }
@@ -66,7 +66,7 @@ export async function recordAdminAction(payload: AdminActionPayload): Promise<vo
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    await supabase.from("admin_actions").insert({
+    await supabase.from("admin_actions").insert([{
       admin_id: user.id,
       action_type: payload.action_type,
       target_type: payload.target_type,
@@ -74,7 +74,7 @@ export async function recordAdminAction(payload: AdminActionPayload): Promise<vo
       reason: payload.reason ?? null,
       notes: payload.notes ?? null,
       metadata: payload.metadata ?? {},
-    });
+    }]);
   } catch (e) {
     if (import.meta.env.DEV) console.warn("[audit] recordAdminAction failed", e);
   }
