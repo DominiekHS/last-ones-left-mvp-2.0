@@ -94,7 +94,13 @@ export default function MerchantDealDetail() {
   const isExpired = new Date(deal.expiry_time) < new Date();
   const isVariableAmount = (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter";
   const discountedPrice = deal.original_price * (1 - deal.discount_percentage / 100);
-  const isOnline = deal.redemption_method === "online_checkout";
+  const hasCheckoutLink = deal.redemption_method === "online_checkout" || deal.redemption_method === "online_pay_pos_refund";
+  const methodLabel =
+    deal.redemption_method === "online_checkout"
+      ? "Online (checkout link)"
+      : deal.redemption_method === "online_pay_pos_refund"
+      ? "Online betalen, korting aan kassa"
+      : "Aan de kassa";
 
   const handleDelete = async () => {
     if (!confirm("Weet je zeker dat je deze advertentie wilt verwijderen?")) return;
@@ -214,19 +220,19 @@ export default function MerchantDealDetail() {
           <CardContent className="space-y-3">
             <InfoRow
               label="Methode"
-              value={isOnline ? "Online (checkout link)" : "Aan de kassa"}
+              value={methodLabel}
             />
             <div>
               <p className="text-sm font-medium text-muted-foreground mb-1">Checkout link</p>
-              {isOnline ? (
+              {hasCheckoutLink ? (
                 deal.checkout_link ? (
                   <a
                     href={deal.checkout_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline inline-flex items-center gap-1"
+                    className="text-sm text-primary hover:underline inline-flex items-center gap-1 break-all"
                   >
-                    Openen <ExternalLink className="h-3 w-3" />
+                    {deal.checkout_link} <ExternalLink className="h-3 w-3 shrink-0" />
                   </a>
                 ) : (
                   <p className="text-sm text-destructive">Ontbrekende checkout link</p>
