@@ -46,3 +46,25 @@ De connection string haal je op uit Lovable → Cloud → Database → **Connect
 > Voeg een nieuwe tabel toe → werk `INTENTIONAL_BLOCKS` bij als je bewust een actie dichthoudt, en documenteer het in [`docs/policies.md`](../docs/policies.md).
 >
 > Run lokaal voor elke deploy, of voeg toe aan een GitHub Actions workflow met `SUPABASE_DB_URL` als repo secret.
+
+## Query audit (release gate)
+
+Scant `src/` op risicovolle Supabase queries: `.from("<gevoelig>")` zonder ownership-filter (`.eq("user_id"|...)`), of mutaties zonder ownership-payload. Voorkomt dat AI-generated code per ongeluk een open `SELECT *` op `vouchers`/`profiles`/etc. introduceert.
+
+```bash
+npm run audit:queries
+```
+
+- Vereist géén DB-toegang — werkt puur op de codebase.
+- Allowlist voor admin-paden en publieke tabellen — zie `scripts/audit-queries.mjs`.
+- Faalt met exit 1 bij elke verdachte query.
+- Volledige docs: [`docs/query-guards.md`](../docs/query-guards.md).
+
+## Beide audits in één commando
+
+```bash
+npm run audit:all
+```
+
+Draait `audit:queries` (codebase) → `audit:rls` (database). Beide moeten ✅ zijn voor deploy.
+
