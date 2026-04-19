@@ -35,6 +35,7 @@ import AdminDealPreview from "./pages/admin/AdminDealPreview";
 import AdminMerchantDetail from "./pages/admin/AdminMerchantDetail";
 import AdminConsumerDetail from "./pages/admin/AdminConsumerDetail";
 import AdminVoucherUsage from "./pages/admin/AdminVoucherUsage";
+import AdminAuditLog from "./pages/admin/AdminAuditLog";
 import TestInfo from "./pages/TestInfo";
 import NotFound from "./pages/NotFound";
 
@@ -85,6 +86,7 @@ const App = () => (
               <Route path="/admin/ondernemers/:merchantId" element={<AdminMerchantDetail />} />
               <Route path="/admin/consumenten/:userId" element={<AdminConsumerDetail />} />
               <Route path="/admin/kortingscodes" element={<AdminVoucherUsage />} />
+              <Route path="/admin/audit-log" element={<AdminAuditLog />} />
               <Route path="*" element={<NotFound />} />
             </Route>
             </Routes>
