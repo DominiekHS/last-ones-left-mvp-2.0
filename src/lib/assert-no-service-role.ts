@@ -30,6 +30,11 @@ const FORBIDDEN_KEY_NAMES = [
 
 // Detecteert het base64-encoded payload-fragment `"role":"service_role"` in
 // een JWT — uniek voor service_role keys, komt nooit voor in een anon key.
+// NB: de `.replace()` hieronder is opzettelijk een single-occurrence vervanging.
+// Het bronfragment bevat het patroon precies één keer; een global regex zou
+// hetzelfde resultaat geven. Doel van deze split-en-herstel constructie is
+// puur om te voorkomen dat de bundle secret-scanner (scripts/scan-bundle-
+// secrets.mjs) deze guard zélf vlagt als "service_role marker in bundle".
 const _markerParts = ["InJvbGUiOiJ", "zZXJ2aWNs", "X3JvbGUi"];
 const SERVICE_ROLE_JWT_MARKER = _markerParts.join("").replace("ZXJ2aWNs", "ZXJ2aWNl");
 
