@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -134,7 +134,7 @@ export default function AdminVoucherUsage() {
   };
 
   // Excel Export
-  const exportExcel = () => {
+  const exportExcel = async () => {
     if (!claims?.length) return;
     const headers = [
       "Datum geclaimd",
@@ -156,11 +156,26 @@ export default function AdminVoucherUsage() {
         ? format(new Date(c.start_time), "dd-MM-yyyy HH:mm", { locale: nl })
         : "",
     ]);
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-    ws["!cols"] = headers.map(() => ({ wch: 22 }));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Kortingscodes");
-    XLSX.writeFile(wb, `kortingscodes_${startDate}_${endDate}.xlsx`);
+
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet("Kortingscodes");
+    ws.addRow(headers);
+    rows.forEach((r) => ws.addRow(r));
+    ws.columns = headers.map(() => ({ width: 22 }));
+    ws.getRow(1).font = { bold: true };
+
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `kortingscodes_${startDate}_${endDate}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   if (!loading && (!user || !roles.includes("admin"))) {
