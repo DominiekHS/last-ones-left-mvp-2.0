@@ -22,7 +22,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket, CalendarDays, MapPin, Inbox, Settings } from "lucide-react";
+import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket, CalendarDays, MapPin, Inbox, Settings, FileText } from "lucide-react";
 import { ActivityRequestsTab } from "@/components/admin/ActivityRequestsTab";
 import { PlatformSettingsTab } from "@/components/admin/PlatformSettingsTab";
 import { EnvironmentStatusTab } from "@/components/admin/EnvironmentStatusTab";
@@ -298,6 +298,7 @@ export default function AdminDashboard() {
           <TabsTrigger value="requests" className="gap-1"><Inbox className="h-3 w-3" />Voorkeuren</TabsTrigger>
           <TabsTrigger value="settings" className="gap-1"><Settings className="h-3 w-3" />Instellingen</TabsTrigger>
           <TabsTrigger value="system" className="gap-1"><ShieldAlert className="h-3 w-3" />Systeem</TabsTrigger>
+          <TabsTrigger value="audit" className="gap-1" onClick={() => navigate("/admin/audit-log")}><FileText className="h-3 w-3" />Audit log</TabsTrigger>
         </TabsList>
 
         <TabsContent value="merchants" className="space-y-3 mt-4">
