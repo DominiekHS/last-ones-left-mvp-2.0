@@ -36,6 +36,10 @@
   → Admin actions checken `has_role(auth.uid(), 'admin')` zowel in RLS als in edge functions (`requireAdminUser` helper).
   → Geen admin-functionaliteit blootgesteld via consumer/merchant rollen.
 
+- [ ] **7b. Manual cross-user isolation test (IDOR)**
+  → Volg [`docs/security/idor-test-checklist.md`](./idor-test-checklist.md) — 8 testen met twee accounts per rol.
+  → Verplicht bij wijzigingen aan RLS, RPC's (`claim_deal`), views, of nieuwe tabellen met user-data.
+
 ## Operationele gates
 
 - [ ] **8. Spending caps + alerts staan ingesteld**
