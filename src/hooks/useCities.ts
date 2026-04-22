@@ -43,7 +43,7 @@ export function useCities() {
 
       // Normalize, deduplicate & count
       const counts = new Map<string, number>();
-      for (const row of data || []) {
+      for (const row of (data as any[]) || []) {
         if (!row.city?.trim()) continue;
         const normalized = normalizeCity(row.city);
         counts.set(normalized, (counts.get(normalized) || 0) + 1);
