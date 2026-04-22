@@ -11,7 +11,8 @@ import { toast } from "@/hooks/use-toast";
 import { friendlyDbError } from "@/lib/friendly-errors";
 import { Navigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Camera, Pencil, X, Save, Mail, Building2, MapPin, Phone, Globe, FileText } from "lucide-react";
+import { Camera, Pencil, X, Save, Mail, Building2, MapPin, Phone, Globe, FileText, Tag } from "lucide-react";
+import { CATEGORY_LABELS } from "@/lib/constants";
 
 export default function MerchantProfile() {
   const { user, merchant, roles, loading, refreshProfile } = useAuth();
