@@ -22,6 +22,7 @@ export default function MerchantProfile() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [companyName, setCompanyName] = useState("");
+  const [venueType, setVenueType] = useState<VenueCategory | "">("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [postcode, setPostcode] = useState("");
