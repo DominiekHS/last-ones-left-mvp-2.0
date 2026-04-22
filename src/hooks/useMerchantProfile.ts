@@ -38,14 +38,16 @@ export function useMerchantActiveDeals(merchantId?: string) {
   return useQuery({
     queryKey: ["deals", "merchant-active", merchantId],
     queryFn: async () => {
+      // Publieke pagina — gebruik de view `deals_public` (zonder discount_code)
+      // en `merchants_public` (zonder contactgegevens) zodat anon dit ook kan zien.
       const { data, error } = await supabase
-        .from("deals")
-        .select("*, merchants(company_name)")
+        .from("deals_public" as any)
+        .select("*, merchants_public!inner(company_name)")
         .eq("merchant_id", merchantId!)
         .gt("expiry_time", new Date().toISOString())
         .order("start_time", { ascending: true });
       if (error) throw error;
-      return data;
+      return (data ?? []).map((d: any) => ({ ...d, merchants: d.merchants_public }));
     },
     enabled: !!merchantId,
   });
