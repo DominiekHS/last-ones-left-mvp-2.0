@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Security headers (meta-equivalents; ook bevestigd door host als HTTP-header waar mogelijk) -->
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+
     <!-- TODO: Set the document title to the name of your application -->
     <title>Lovable App</title>
     <meta name="description" content="Lovable Generated Project" />
