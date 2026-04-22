@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "audit:rls": "node scripts/audit-rls.mjs",
     "audit:queries": "node scripts/audit-queries.mjs",
-    "audit:all": "npm run audit:queries && npm run audit:rls"
+    "audit:public-views": "node scripts/audit-public-views.mjs",
+    "audit:all": "npm run audit:queries && npm run audit:public-views && npm run audit:rls"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
