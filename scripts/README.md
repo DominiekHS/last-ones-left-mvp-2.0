@@ -60,11 +60,24 @@ npm run audit:queries
 - Faalt met exit 1 bij elke verdachte query.
 - Volledige docs: [`docs/query-guards.md`](../docs/query-guards.md).
 
-## Beide audits in één commando
+## Public-views audit (release gate)
+
+Verifieert dat publieke hooks/componenten **nooit** direct `.from("deals")` of `.from("merchants")` aanroepen — alleen de filtered views `deals_public` en `merchants_public`. Voorkomt lekken van `discount_code`, `contact_email` en `contact_phone` naar anonieme bezoekers.
+
+```bash
+npm run audit:public-views
+```
+
+- Geen DB-toegang nodig.
+- Allowlist voor admin/merchant/consumer routes — zie `scripts/audit-public-views.mjs`.
+- Aanvullend gedekt door `src/test/public-hooks.test.ts` (vitest unit-test).
+- Faalt met exit 1 bij elke directe base-table query in publieke code.
+
+## Alle audits in één commando
 
 ```bash
 npm run audit:all
 ```
 
-Draait `audit:queries` (codebase) → `audit:rls` (database). Beide moeten ✅ zijn voor deploy.
+Draait `audit:queries` (codebase) → `audit:public-views` (codebase) → `audit:rls` (database). Alle drie moeten ✅ zijn voor deploy.
 
