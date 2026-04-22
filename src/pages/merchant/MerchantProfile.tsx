@@ -195,10 +195,19 @@ export default function MerchantProfile() {
                 <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
               </div>
               <div className="space-y-1">
-                <Label>Categorie</Label>
-                <Input value={CATEGORY_LABELS[merchant.venue_type] || merchant.venue_type} disabled />
+                <Label htmlFor="venueType">Categorie *</Label>
+                <Select value={venueType} onValueChange={(v) => setVenueType(v as VenueCategory)}>
+                  <SelectTrigger id="venueType">
+                    <SelectValue placeholder="Kies een categorie" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((c) => (
+                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <p className="text-xs text-muted-foreground">
-                  Categorie kan niet zelf gewijzigd worden. Neem contact op met support voor een aanpassing.
+                  De categorie bepaalt waar je bedrijf wordt getoond bij consumenten.
                 </p>
               </div>
             </CardContent>
