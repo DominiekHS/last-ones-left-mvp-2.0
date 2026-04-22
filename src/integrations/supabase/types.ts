@@ -246,6 +246,13 @@ export type Database = {
             referencedRelation: "deals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "deal_events_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       deal_sales_daily: {
@@ -292,6 +299,13 @@ export type Database = {
             columns: ["deal_id"]
             isOneToOne: false
             referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_sales_daily_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -722,6 +736,13 @@ export type Database = {
             referencedRelation: "deals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "unique_codes_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_roles: {
@@ -794,6 +815,13 @@ export type Database = {
             referencedRelation: "deals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "vouchers_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
@@ -811,6 +839,111 @@ export type Database = {
           voucher_id: string | null
         }
         Relationships: []
+      }
+      deals_public: {
+        Row: {
+          address: string | null
+          cancellation_policy: string | null
+          category: Database["public"]["Enums"]["venue_category"] | null
+          checkout_link: string | null
+          city: string | null
+          counter_discount_mode: string | null
+          created_at: string | null
+          description: string | null
+          discount_percentage: number | null
+          discount_type: string | null
+          expiry_time: string | null
+          id: string | null
+          image_url: string | null
+          indicative_price_from: number | null
+          merchant_id: string | null
+          original_price: number | null
+          payment_steps: Json | null
+          postal_code: string | null
+          price_per_person: number | null
+          pricing_model: string | null
+          redemption_instructions: string | null
+          redemption_method: string | null
+          start_time: string | null
+          start_time_mode: string | null
+          terms_summary: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          cancellation_policy?: string | null
+          category?: Database["public"]["Enums"]["venue_category"] | null
+          checkout_link?: string | null
+          city?: string | null
+          counter_discount_mode?: string | null
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          discount_type?: string | null
+          expiry_time?: string | null
+          id?: string | null
+          image_url?: string | null
+          indicative_price_from?: number | null
+          merchant_id?: string | null
+          original_price?: number | null
+          payment_steps?: Json | null
+          postal_code?: string | null
+          price_per_person?: number | null
+          pricing_model?: string | null
+          redemption_instructions?: string | null
+          redemption_method?: string | null
+          start_time?: string | null
+          start_time_mode?: string | null
+          terms_summary?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          cancellation_policy?: string | null
+          category?: Database["public"]["Enums"]["venue_category"] | null
+          checkout_link?: string | null
+          city?: string | null
+          counter_discount_mode?: string | null
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          discount_type?: string | null
+          expiry_time?: string | null
+          id?: string | null
+          image_url?: string | null
+          indicative_price_from?: number | null
+          merchant_id?: string | null
+          original_price?: number | null
+          payment_steps?: Json | null
+          postal_code?: string | null
+          price_per_person?: number | null
+          pricing_model?: string | null
+          redemption_instructions?: string | null
+          redemption_method?: string | null
+          start_time?: string | null
+          start_time_mode?: string | null
+          terms_summary?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       merchants_public: {
         Row: {
