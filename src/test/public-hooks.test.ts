@@ -53,4 +53,36 @@ describe("Public hooks query only public views", () => {
       ).toBe(true);
     });
   }
+
+  /**
+   * Specifieke checks voor `useDeals.ts`: de twee publieke hooks
+   * (useActiveDeals, useDeal) moeten via `deals_public` praten. De merchant-only
+   * hook (useMerchantDeals) mag direct `deals` gebruiken — die wordt hier
+   * NIET getest, om scope-creep te voorkomen.
+   */
+  it("useDeals.ts: useActiveDeals gebruikt deals_public", () => {
+    const src = readSrc("src/hooks/useDeals.ts");
+    const fnBody = src.split("export function useActiveDeals")[1]?.split("export function ")[0] ?? "";
+    expect(fnBody).toMatch(/\.from\(\s*["']deals_public["']/);
+    expect(fnBody).not.toMatch(/\.from\(\s*["']deals["']\s*\)/);
+  });
+
+  it("useDeals.ts: useDeal gebruikt deals_public", () => {
+    const src = readSrc("src/hooks/useDeals.ts");
+    const fnBody = src.split("export function useDeal(")[1]?.split("export function ")[0] ?? "";
+    expect(fnBody).toMatch(/\.from\(\s*["']deals_public["']/);
+    expect(fnBody).not.toMatch(/\.from\(\s*["']deals["']\s*\)/);
+  });
+
+  it("useMerchantProfile.ts: useMerchantActiveDeals gebruikt deals_public", () => {
+    const src = readSrc("src/hooks/useMerchantProfile.ts");
+    const fnBody = src.split("export function useMerchantActiveDeals")[1] ?? "";
+    expect(fnBody).toMatch(/\.from\(\s*["']deals_public["']/);
+  });
+
+  it("useMerchantProfile.ts: useMerchantPublicProfile basis-query gebruikt merchants_public", () => {
+    const src = readSrc("src/hooks/useMerchantProfile.ts");
+    const fnBody = src.split("export function useMerchantPublicProfile")[1]?.split("export function ")[0] ?? "";
+    expect(fnBody).toMatch(/\.from\(\s*["']merchants_public["']/);
+  });
 });
