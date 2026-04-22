@@ -11,7 +11,8 @@ import { toast } from "@/hooks/use-toast";
 import { friendlyDbError } from "@/lib/friendly-errors";
 import { Navigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Camera, Pencil, X, Save, Mail, Building2, MapPin, Phone, Globe, FileText } from "lucide-react";
+import { Camera, Pencil, X, Save, Mail, Building2, MapPin, Phone, Globe, FileText, Tag } from "lucide-react";
+import { CATEGORY_LABELS } from "@/lib/constants";
 
 export default function MerchantProfile() {
   const { user, merchant, roles, loading, refreshProfile } = useAuth();
@@ -184,6 +185,13 @@ export default function MerchantProfile() {
                 <Label htmlFor="companyName">Bedrijfsnaam *</Label>
                 <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
               </div>
+              <div className="space-y-1">
+                <Label>Categorie</Label>
+                <Input value={CATEGORY_LABELS[merchant.venue_type] || merchant.venue_type} disabled />
+                <p className="text-xs text-muted-foreground">
+                  Categorie kan niet zelf gewijzigd worden. Neem contact op met support voor een aanpassing.
+                </p>
+              </div>
             </CardContent>
           </Card>
 
@@ -289,6 +297,7 @@ export default function MerchantProfile() {
             <CardContent>
               <InfoRow icon={Mail} label="E-mailadres" value={user?.email} />
               <InfoRow icon={Building2} label="Bedrijfsnaam" value={companyName} />
+              <InfoRow icon={Tag} label="Categorie" value={CATEGORY_LABELS[merchant.venue_type] || merchant.venue_type} />
             </CardContent>
           </Card>
 
