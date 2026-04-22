@@ -101,18 +101,36 @@ Deno.serve(async (req) => {
     let errors = 0;
     const errorDetails: string[] = [];
 
+    // HTML-escape om injection via merchant/user/deal velden te voorkomen.
+    // Voorkomt dat een merchant met company_name "<script>..." of een user met
+    // full_name "<img onerror=...>" de e-mail kan kapen voor phishing.
+    const escapeHtml = (input: unknown): string =>
+      String(input ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
+    const safeMerchantName = escapeHtml(merchantRow?.company_name ?? "een aanbieder");
+    const safeDealTitle = escapeHtml(deal.title);
+    const safeDealCity = escapeHtml(deal.city);
+    const safeExpiry = escapeHtml(expiry);
+    const safeDiscountPct = escapeHtml(deal.discount_percentage);
+
     for (const r of recipients) {
-      const dealLink = `${dealLinkBase}?as=${r.user_id}`;
+      const dealLink = `${dealLinkBase}?as=${encodeURIComponent(r.user_id)}`;
+      const safeFullName = escapeHtml(r.full_name || "daar");
       const html = `
         <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto;">
           <h2 style="color:#111;">Nieuwe deal op Last Ones Left</h2>
-          <p>Hoi ${r.full_name || "daar"},</p>
-          <p>Er is een nieuwe last-minute deal geplaatst door <strong>${merchantRow?.company_name ?? "een aanbieder"}</strong>.</p>
+          <p>Hoi ${safeFullName},</p>
+          <p>Er is een nieuwe last-minute deal geplaatst door <strong>${safeMerchantName}</strong>.</p>
           <ul>
-            <li><strong>Deal:</strong> ${deal.title}</li>
-            <li><strong>Plaats:</strong> ${deal.city}</li>
-            <li><strong>Korting:</strong> ${deal.discount_percentage}%</li>
-            <li><strong>Verloopt:</strong> ${expiry}</li>
+            <li><strong>Deal:</strong> ${safeDealTitle}</li>
+            <li><strong>Plaats:</strong> ${safeDealCity}</li>
+            <li><strong>Korting:</strong> ${safeDiscountPct}%</li>
+            <li><strong>Verloopt:</strong> ${safeExpiry}</li>
           </ul>
           <p style="margin: 24px 0;">
             <a href="${dealLink}" style="background:#111;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;">Bekijk deal</a>
