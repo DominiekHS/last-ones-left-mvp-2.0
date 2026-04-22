@@ -43,10 +43,8 @@ const Index = () => {
       <DealFilters
         category={category}
         city={city}
-        dayFilter={dayFilter}
         onCategoryChange={setCategory}
         onCityChange={setCity}
-        onDayFilterChange={setDayFilter}
         categoryCounts={categoryCounts}
       />
 
@@ -77,7 +75,6 @@ const Index = () => {
               <ActivityRequestDialog
                 contextCity={city}
                 contextCategory={category}
-                contextDayFilter={dayFilter}
               />
             </div>
           </div>
