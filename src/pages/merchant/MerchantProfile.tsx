@@ -37,6 +37,7 @@ export default function MerchantProfile() {
   const syncFromMerchant = () => {
     if (merchant) {
       setCompanyName(merchant.company_name);
+      setVenueType(merchant.venue_type as VenueCategory);
       setCity(merchant.city);
       setAddress(merchant.address);
       setPostcode((merchant as any).postcode || "");
