@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { friendlyDbError } from "@/lib/friendly-errors";
 import { Navigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Camera, Pencil, X, Save, Mail, Building2, MapPin, Phone, Globe, FileText, Tag } from "lucide-react";
-import { CATEGORY_LABELS } from "@/lib/constants";
+import { CATEGORIES, CATEGORY_LABELS, type VenueCategory } from "@/lib/constants";
 
 export default function MerchantProfile() {
   const { user, merchant, roles, loading, refreshProfile } = useAuth();
@@ -21,6 +22,7 @@ export default function MerchantProfile() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [companyName, setCompanyName] = useState("");
+  const [venueType, setVenueType] = useState<VenueCategory | "">("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [postcode, setPostcode] = useState("");
@@ -35,6 +37,7 @@ export default function MerchantProfile() {
   const syncFromMerchant = () => {
     if (merchant) {
       setCompanyName(merchant.company_name);
+      setVenueType(merchant.venue_type as VenueCategory);
       setCity(merchant.city);
       setAddress(merchant.address);
       setPostcode((merchant as any).postcode || "");
@@ -109,11 +112,17 @@ export default function MerchantProfile() {
       return;
     }
 
+    if (!venueType) {
+      toast({ title: "Categorie verplicht", variant: "destructive" });
+      return;
+    }
+
     setSaving(true);
     const { error } = await supabase
       .from("merchants")
       .update({
         company_name: companyName,
+        venue_type: venueType,
         city,
         address,
         postcode: normalizePostcode(postcode),
@@ -186,10 +195,19 @@ export default function MerchantProfile() {
                 <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
               </div>
               <div className="space-y-1">
-                <Label>Categorie</Label>
-                <Input value={CATEGORY_LABELS[merchant.venue_type] || merchant.venue_type} disabled />
+                <Label htmlFor="venueType">Categorie *</Label>
+                <Select value={venueType} onValueChange={(v) => setVenueType(v as VenueCategory)}>
+                  <SelectTrigger id="venueType">
+                    <SelectValue placeholder="Kies een categorie" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((c) => (
+                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <p className="text-xs text-muted-foreground">
-                  Categorie kan niet zelf gewijzigd worden. Neem contact op met support voor een aanpassing.
+                  De categorie bepaalt waar je bedrijf wordt getoond bij consumenten.
                 </p>
               </div>
             </CardContent>
