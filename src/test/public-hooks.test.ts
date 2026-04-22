@@ -11,8 +11,13 @@ import { join } from "node:path";
  * Aanvullend op het globale script `scripts/audit-public-views.mjs`:
  * dit lockt expliciet de hooks die we kennen als publiek vast in CI.
  */
+/**
+ * `useDeals.ts` bevat zowel publieke (useActiveDeals/useDeal) als merchant-eigen
+ * (useMerchantDeals) queries — die laatste mag bewust direct op `deals` praten.
+ * Daarom checken we hier alleen de pure publieke hooks; de gemengde file wordt
+ * gedekt door scripts/audit-public-views.mjs (allowlist met motivering).
+ */
 const PUBLIC_HOOK_FILES = [
-  "src/hooks/useDeals.ts",
   "src/hooks/useCities.ts",
 ];
 
