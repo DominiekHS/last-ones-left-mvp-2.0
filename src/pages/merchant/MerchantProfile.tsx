@@ -297,6 +297,7 @@ export default function MerchantProfile() {
             <CardContent>
               <InfoRow icon={Mail} label="E-mailadres" value={user?.email} />
               <InfoRow icon={Building2} label="Bedrijfsnaam" value={companyName} />
+              <InfoRow icon={Tag} label="Categorie" value={CATEGORY_LABELS[merchant.venue_type] || merchant.venue_type} />
             </CardContent>
           </Card>
 
