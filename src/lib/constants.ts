@@ -27,6 +27,8 @@ export const CATEGORIES = [
   { value: "airhockey", label: "Airhockey" },
   { value: "darts", label: "Darts" },
   { value: "rondvaart", label: "Rondvaart" },
+  { value: "workshop", label: "Workshop" },
+  { value: "cocktail_walk", label: "Cocktail Walk" },
   { value: "overig", label: "Overig" },
 ] as const;
 
@@ -59,6 +61,8 @@ export const CATEGORY_LABELS: Record<string, string> = {
   airhockey: "Airhockey",
   darts: "Darts",
   rondvaart: "Rondvaart",
+  workshop: "Workshop",
+  cocktail_walk: "Cocktail Walk",
   overig: "Overig",
 };
 
