@@ -1,11 +1,12 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useMerchantDeals } from "@/hooks/useDeals";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Link, Navigate } from "react-router-dom";
 import { Plus, Trash2, Pencil, Eye, MousePointerClick, ChevronRight, AlertTriangle, Ban, AlertCircle, Copy } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DangerConfirmDialog } from "@/components/admin/DangerConfirmDialog";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -23,7 +24,8 @@ export default function MerchantDashboard() {
   const { data: deals, isLoading } = useMerchantDeals(merchant?.id);
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<DealFilter>("all");
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   if (!loading && (!user || !roles.includes("merchant"))) {
@@ -51,25 +53,52 @@ export default function MerchantDashboard() {
       </div>
     );
   }
-  const handleDelete = (dealId: string, title: string) => {
-    setDeleteTarget({ id: dealId, title });
+
+  const filteredDeals = (deals || []).filter((deal) => {
+    const isExpired = new Date(deal.expiry_time) < new Date();
+    if (filter === "active") return !isExpired;
+    if (filter === "expired") return isExpired;
+    return true;
+  });
+
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
-  const confirmDelete = async () => {
-    if (!deleteTarget) return;
+  const allVisibleSelected = filteredDeals.length > 0 && filteredDeals.every((d) => selected.has(d.id));
+  const toggleAllVisible = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        filteredDeals.forEach((d) => next.delete(d.id));
+      } else {
+        filteredDeals.forEach((d) => next.add(d.id));
+      }
+      return next;
+    });
+  };
+
+  const confirmBulkDelete = async () => {
+    if (selected.size === 0) return;
     setDeleting(true);
-    // Soft-delete: zet deleted_at i.p.v. fysiek verwijderen (herstelbaar door admin)
+    const ids = Array.from(selected);
     const { error } = await supabase
       .from("deals")
       .update({ deleted_at: new Date().toISOString() })
-      .eq("id", deleteTarget.id);
+      .in("id", ids);
     setDeleting(false);
     if (error) {
       toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
     } else {
       queryClient.invalidateQueries({ queryKey: ["deals", "merchant"] });
-      toast({ title: "Deal verwijderd" });
-      setDeleteTarget(null);
+      toast({ title: ids.length === 1 ? "Advertentie verwijderd" : `${ids.length} advertenties verwijderd` });
+      setSelected(new Set());
+      setBulkDeleteOpen(false);
     }
   };
 
@@ -105,7 +134,7 @@ export default function MerchantDashboard() {
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         {(["all", "active", "expired"] as const).map((f) => (
           <Button
             key={f}
@@ -118,58 +147,101 @@ export default function MerchantDashboard() {
         ))}
       </div>
 
+      {filteredDeals.length > 0 && (
+        <div className="flex items-center justify-between gap-3 flex-wrap rounded-md border bg-muted/30 px-3 py-2">
+          <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+            <Checkbox
+              checked={allVisibleSelected}
+              onCheckedChange={toggleAllVisible}
+              aria-label="Alles selecteren"
+            />
+            <span>
+              {selected.size > 0
+                ? `${selected.size} geselecteerd`
+                : "Selecteer alles"}
+            </span>
+          </label>
+          <div className="flex items-center gap-2">
+            {selected.size > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelected(new Set())}
+              >
+                Selectie wissen
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-destructive border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
+              disabled={selected.size === 0}
+              onClick={() => setBulkDeleteOpen(true)}
+            >
+              <Trash2 className="mr-1 h-3 w-3" />
+              Verwijder{selected.size > 0 ? ` (${selected.size})` : ""}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {isLoading ? (
         <p className="text-muted-foreground">Laden...</p>
-      ) : deals && deals.length > 0 ? (
+      ) : filteredDeals.length > 0 ? (
         <div className="space-y-3">
-          {deals
-            .filter((deal) => {
-              const isExpired = new Date(deal.expiry_time) < new Date();
-              if (filter === "active") return !isExpired;
-              if (filter === "expired") return isExpired;
-              return true;
-            })
-            .map((deal) => {
-              const isExpired = new Date(deal.expiry_time) < new Date();
-              return (
-                <DealRow
-                  key={deal.id}
-                  deal={deal}
-                  isExpired={isExpired}
-                  merchantId={merchant.id}
-                  onDelete={() => handleDelete(deal.id, deal.title)}
-                />
-              );
-            })}
+          {filteredDeals.map((deal) => {
+            const isExpired = new Date(deal.expiry_time) < new Date();
+            return (
+              <DealRow
+                key={deal.id}
+                deal={deal}
+                isExpired={isExpired}
+                merchantId={merchant.id}
+                selected={selected.has(deal.id)}
+                onToggleSelect={() => toggleOne(deal.id)}
+              />
+            );
+          })}
         </div>
       ) : (
         <Card>
           <CardContent className="py-8 text-center">
-            <p className="text-muted-foreground mb-4">Je hebt nog geen deals geplaatst.</p>
-            <Button asChild>
-              <Link to="/merchant/ads/new">Eerste advertentie plaatsen</Link>
-            </Button>
+            <p className="text-muted-foreground mb-4">
+              {filter === "all"
+                ? "Je hebt nog geen deals geplaatst."
+                : "Geen advertenties in deze filter."}
+            </p>
+            {filter === "all" && (
+              <Button asChild>
+                <Link to="/merchant/ads/new">Eerste advertentie plaatsen</Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
       )}
 
       <DangerConfirmDialog
-        open={!!deleteTarget}
-        onOpenChange={(o) => !o && setDeleteTarget(null)}
-        title="Advertentie verwijderen?"
-        description={`"${deleteTarget?.title ?? ""}" wordt verwijderd. Een admin kan dit binnen korte tijd terugdraaien.`}
+        open={bulkDeleteOpen}
+        onOpenChange={(o) => !o && setBulkDeleteOpen(false)}
+        title={selected.size === 1 ? "Advertentie verwijderen?" : `${selected.size} advertenties verwijderen?`}
+        description={
+          selected.size === 1
+            ? "De geselecteerde advertentie wordt verwijderd. Een admin kan dit binnen korte tijd terugdraaien."
+            : `De ${selected.size} geselecteerde advertenties worden verwijderd. Een admin kan dit binnen korte tijd terugdraaien.`
+        }
         loading={deleting}
-        onConfirm={confirmDelete}
+        onConfirm={confirmBulkDelete}
       />
     </div>
   );
 }
 
-function DealRow({ deal, isExpired, merchantId, onDelete }: {
+function DealRow({ deal, isExpired, merchantId, selected, onToggleSelect }: {
   deal: any;
   isExpired: boolean;
   merchantId: string;
-  onDelete: () => void;
+  selected: boolean;
+  onToggleSelect: () => void;
 }) {
   const navigate = useNavigate();
   const { data: stats } = useQuery({
@@ -205,10 +277,20 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
 
   return (
     <Card
-      className="cursor-pointer hover:border-primary/40 transition-colors"
+      className={`cursor-pointer hover:border-primary/40 transition-colors ${selected ? "border-primary ring-1 ring-primary/40" : ""}`}
       onClick={() => navigate(`/merchant/deals/${deal.id}`)}
     >
       <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+        <div
+          className="flex items-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Checkbox
+            checked={selected}
+            onCheckedChange={onToggleSelect}
+            aria-label={`Selecteer ${deal.title}`}
+          />
+        </div>
         <div className="flex-1 space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-display font-semibold">{deal.title}</h3>
@@ -241,9 +323,6 @@ function DealRow({ deal, isExpired, merchantId, onDelete }: {
           </div>
         </div>
         <div className="flex items-center gap-2 ml-auto">
-          <Button variant="outline" size="sm" className="text-destructive border-destructive/50 hover:bg-destructive/10 hover:text-destructive" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
-            <Trash2 className="h-3 w-3" />
-          </Button>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </div>
       </CardContent>
