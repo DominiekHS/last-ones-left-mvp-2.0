@@ -33,8 +33,9 @@ export function useCities() {
   return useQuery<CityOption[]>({
     queryKey: ["cities", "active"],
     queryFn: async () => {
+      // Publieke query → via view zodat anon nooit de base table raakt.
       const { data, error } = await supabase
-        .from("deals")
+        .from("deals_public" as any)
         .select("city")
         .gt("expiry_time", new Date().toISOString());
 
