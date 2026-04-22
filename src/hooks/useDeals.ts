@@ -1,15 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+/**
+ * Publieke deals-queries lopen via de view `deals_public`. Die view bevat
+ * GEEN `discount_code` — dat veld is alleen leesbaar voor:
+ *  - de merchant-eigenaar (via base table `deals`)
+ *  - admins (via base table `deals`)
+ *  - consumenten die de deal hebben geclaimd (via `vouchers` + RPC `claim_deal`)
+ *
+ * Idem voor merchants: we joinen op `merchants_public` zodat anon geen
+ * contact_email/contact_phone te zien krijgt.
+ */
 export function useActiveDeals(category?: string, city?: string) {
   return useQuery({
     queryKey: ["deals", "active", category, city],
     queryFn: async () => {
-      // NB: anon heeft column-level SELECT op `merchants` voor publieke velden
-      // (geen contact_email/phone). Zie docs/rls.md.
       let query = supabase
-        .from("deals")
-        .select("*, merchants(company_name)")
+        .from("deals_public" as any)
+        .select("*, merchants_public!inner(company_name)")
         .gt("expiry_time", new Date().toISOString())
         .order("start_time", { ascending: true });
 
@@ -22,7 +30,11 @@ export function useActiveDeals(category?: string, city?: string) {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      // Map relation key terug naar `merchants` voor backwards compat met UI
+      return (data ?? []).map((d: any) => ({
+        ...d,
+        merchants: d.merchants_public,
+      }));
     },
   });
 }
@@ -32,12 +44,16 @@ export function useDeal(id: string) {
     queryKey: ["deal", id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("deals")
-        .select("*, merchants(company_name, city, address, description)")
+        .from("deals_public" as any)
+        .select("*, merchants_public!inner(company_name, city, address, description)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      if (!data) return null;
+      return {
+        ...(data as any),
+        merchants: (data as any).merchants_public,
+      };
     },
     enabled: !!id,
   });
@@ -47,6 +63,8 @@ export function useMerchantDeals(merchantId?: string) {
   return useQuery({
     queryKey: ["deals", "merchant", merchantId],
     queryFn: async () => {
+      // Merchants kijken naar hun eigen deals — base table is OK,
+      // RLS zorgt dat alleen eigen rijen terugkomen, inclusief discount_code.
       const { data, error } = await supabase
         .from("deals")
         .select("*")
