@@ -112,11 +112,17 @@ export default function MerchantProfile() {
       return;
     }
 
+    if (!venueType) {
+      toast({ title: "Categorie verplicht", variant: "destructive" });
+      return;
+    }
+
     setSaving(true);
     const { error } = await supabase
       .from("merchants")
       .update({
         company_name: companyName,
+        venue_type: venueType,
         city,
         address,
         postcode: normalizePostcode(postcode),
