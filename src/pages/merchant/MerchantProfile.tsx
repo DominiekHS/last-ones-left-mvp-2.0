@@ -185,6 +185,13 @@ export default function MerchantProfile() {
                 <Label htmlFor="companyName">Bedrijfsnaam *</Label>
                 <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
               </div>
+              <div className="space-y-1">
+                <Label>Categorie</Label>
+                <Input value={CATEGORY_LABELS[merchant.venue_type] || merchant.venue_type} disabled />
+                <p className="text-xs text-muted-foreground">
+                  Categorie kan niet zelf gewijzigd worden. Neem contact op met support voor een aanpassing.
+                </p>
+              </div>
             </CardContent>
           </Card>
 
