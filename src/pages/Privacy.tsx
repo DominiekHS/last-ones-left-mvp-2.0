@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
-const LAST_UPDATED = "7 februari 2026";
+const LAST_UPDATED = "22 april 2026";
 
 const sections = [
   { id: "inleiding", title: "Inleiding" },
@@ -123,11 +123,43 @@ export default function Privacy() {
         </section>
 
         <section id="cookies">
-          <h2 className="font-display text-xl font-bold mb-2">8. Cookies</h2>
+          <h2 className="font-display text-xl font-bold mb-2">8. Cookies en analytics</h2>
           <p>
-            Last Ones Left maakt gebruik van functionele cookies die noodzakelijk zijn voor het
-            functioneren van het platform, zoals het onthouden van je inlogsessie. Wij maken geen
-            gebruik van tracking cookies of cookies van derden voor advertentiedoeleinden.
+            Last Ones Left gebruikt alléén cookies en opslag die strikt noodzakelijk zijn voor
+            het functioneren van het platform. Voor deze cookies is op grond van artikel 11.7a
+            van de Telecommunicatiewet géén toestemming vereist, en daarom tonen wij geen
+            cookiebanner.
+          </p>
+          <p className="mt-3 font-semibold">Wat wij gebruiken</p>
+          <ul className="list-disc list-inside mt-1 space-y-1">
+            <li>
+              <strong>Sessie-opslag (essentieel):</strong> wanneer je inlogt slaat onze
+              authenticatieprovider (Lovable Cloud / Supabase) een sessietoken op in
+              <em> localStorage</em> van je browser. Zonder dit token zouden wij je bij elke
+              paginalading opnieuw laten inloggen.
+            </li>
+            <li>
+              <strong>Voorkeuren (essentieel):</strong> kleine technische opslag voor zaken
+              als gekozen plaats of categorie-filter, zodat de site werkt zoals je verwacht.
+            </li>
+            <li>
+              <strong>Anonieme gebruiksstatistieken (geen persoonsgegevens):</strong> wij
+              registreren in onze eigen database hoe vaak een advertentie wordt bekeken of
+              aangeklikt (tabel <code>deal_events</code>). Voor niet-ingelogde bezoekers
+              gebeurt dit volledig anoniem (geen IP, geen device-fingerprint, geen cookie).
+              Voor ingelogde gebruikers wordt het user-id meegestuurd zodat eigenaars dubbele
+              tellingen op eigen advertenties kunnen uitsluiten.
+            </li>
+          </ul>
+          <p className="mt-3 font-semibold">Wat wij niet gebruiken</p>
+          <ul className="list-disc list-inside mt-1 space-y-1">
+            <li>Geen Google Analytics, Facebook Pixel of vergelijkbare third-party trackers.</li>
+            <li>Geen advertentie- of profileringscookies.</li>
+            <li>Geen cookies van sociale netwerken.</li>
+          </ul>
+          <p className="mt-3">
+            Je kunt cookies en lokale opslag op elk moment via je browserinstellingen
+            verwijderen. Houd er rekening mee dat je daarna opnieuw moet inloggen.
           </p>
         </section>
 
