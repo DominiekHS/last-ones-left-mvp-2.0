@@ -43,7 +43,10 @@ const ALLOWLIST = [
   { glob: /^src\/pages\/consumer\//, reason: "Consumer route — eigen claims, RLS-gefilterd" },
   { file: "src/hooks/useAuth.tsx", reason: "Auth bootstrap voor ingelogde gebruiker" },
   { file: "src/hooks/useMerchantProfile.ts", reason: "Haalt contact-velden bewust voor ingelogde users (RLS)" },
+  { file: "src/hooks/useDeals.ts", reason: "useMerchantDeals targets eigen deals — RLS filtert op merchant_id" },
   { file: "src/integrations/supabase/types.ts", reason: "Generated types file" },
+  { file: "src/lib/friendly-errors.ts", reason: "Voorbeeld in JSDoc-comment, geen runtime query" },
+  { glob: /^src\/test\//, reason: "Test files — literals in regex/asserties" },
 ];
 
 function walk(dir, files = []) {
