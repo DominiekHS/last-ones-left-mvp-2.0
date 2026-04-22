@@ -281,16 +281,19 @@ function DealRow({ deal, isExpired, merchantId, selected, onToggleSelect }: {
       onClick={() => navigate(`/merchant/deals/${deal.id}`)}
     >
       <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-        <div
-          className="flex items-center"
-          onClick={(e) => e.stopPropagation()}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onToggleSelect(); }}
+          className="flex items-center justify-center -m-2 p-2 rounded hover:bg-muted shrink-0"
+          aria-label={`Selecteer ${deal.title}`}
         >
           <Checkbox
             checked={selected}
             onCheckedChange={onToggleSelect}
-            aria-label={`Selecteer ${deal.title}`}
+            onClick={(e) => e.stopPropagation()}
+            className="h-5 w-5 pointer-events-none"
           />
-        </div>
+        </button>
         <div className="flex-1 space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-display font-semibold">{deal.title}</h3>
