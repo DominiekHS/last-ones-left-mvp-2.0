@@ -1,6 +1,6 @@
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useDeal } from "@/hooks/useDeals";
+import { useMerchantDeal } from "@/hooks/useDeals";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,7 @@ import { useState } from "react";
 export default function MerchantDealDetail() {
   const { dealId } = useParams<{ dealId: string }>();
   const { user, merchant, roles, loading: authLoading } = useAuth();
-  const { data: deal, isLoading } = useDeal(dealId!);
+  const { data: deal, isLoading } = useMerchantDeal(dealId);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [confirmOpen, setConfirmOpen] = useState(false);

@@ -59,6 +59,29 @@ export function useDeal(id: string) {
   });
 }
 
+/**
+ * Merchant-eigen deal-detail (incl. verlopen advertenties).
+ * Gebruikt de base table `deals` zodat RLS "Merchants can view own deals"
+ * van toepassing is — die filtert NIET op expiry, in tegenstelling tot
+ * de publieke view `deals_public`.
+ */
+export function useMerchantDeal(id?: string) {
+  return useQuery({
+    queryKey: ["deal", "merchant-own", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("deals")
+        .select("*, merchants(company_name, city, address, description)")
+        .eq("id", id!)
+        .is("deleted_at", null)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+}
+
 export function useMerchantDeals(merchantId?: string) {
   return useQuery({
     queryKey: ["deals", "merchant", merchantId],
