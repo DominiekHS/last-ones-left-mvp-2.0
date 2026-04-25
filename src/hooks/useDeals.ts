@@ -43,17 +43,31 @@ export function useDeal(id: string) {
   return useQuery({
     queryKey: ["deal", id],
     queryFn: async () => {
+      // 1) Probeer eerst de publieke view (filtert verlopen deals)
       const { data, error } = await supabase
         .from("deals_public" as any)
         .select("*, merchants_public!inner(company_name, city, address, description)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
-      if (!data) return null;
-      return {
-        ...(data as any),
-        merchants: (data as any).merchants_public,
-      };
+      if (data) {
+        return {
+          ...(data as any),
+          merchants: (data as any).merchants_public,
+        };
+      }
+
+      // 2) Fallback: misschien is de deal verlopen of soft-deleted maar mag de
+      // huidige gebruiker (eigenaar-merchant of admin) hem alsnog zien via RLS
+      // op de basis-tabel. Stille fallback — RLS bepaalt of er iets terugkomt.
+      const { data: ownerData, error: ownerError } = await supabase
+        .from("deals")
+        .select("*, merchants(company_name, city, address, description)")
+        .eq("id", id)
+        .is("deleted_at", null)
+        .maybeSingle();
+      if (ownerError) return null;
+      return ownerData ?? null;
     },
     enabled: !!id,
   });
