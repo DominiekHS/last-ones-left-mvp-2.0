@@ -20,7 +20,7 @@ import { useState } from "react";
 export default function MerchantDealDetail() {
   const { dealId } = useParams<{ dealId: string }>();
   const { user, merchant, roles, loading: authLoading } = useAuth();
-  const { data: deal, isLoading } = useDeal(dealId!);
+  const { data: deal, isLoading } = useMerchantDeal(dealId);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [confirmOpen, setConfirmOpen] = useState(false);
