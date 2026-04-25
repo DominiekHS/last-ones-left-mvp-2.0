@@ -1,6 +1,6 @@
 import { useParams, Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useDeal } from "@/hooks/useDeals";
+import { useMerchantDeal } from "@/hooks/useDeals";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,7 @@ import { useMemo } from "react";
 export default function DealAnalytics() {
   const { dealId } = useParams<{ dealId: string }>();
   const { user, merchant, roles, loading: authLoading } = useAuth();
-  const { data: deal, isLoading: dealLoading } = useDeal(dealId!);
+  const { data: deal, isLoading: dealLoading } = useMerchantDeal(dealId);
   const { data: events, isLoading: eventsLoading } = useDealEvents(dealId!, "all");
 
   const kpis = useMemo(() => {
