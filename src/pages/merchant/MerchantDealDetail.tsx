@@ -1,6 +1,6 @@
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useDeal } from "@/hooks/useDeals";
+import { useMerchantDeal } from "@/hooks/useDeals";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
