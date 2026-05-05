@@ -84,12 +84,12 @@ export function DealCard({ deal }: { deal: Deal }) {
               </div>
               <span className="text-xs text-muted-foreground">Totaalprijs afhankelijk van aantal personen</span>
             </div>
-          ) : (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter" ? (
+          ) : (deal as any).counter_discount_mode === "variable_amount" ? (
             <div className="flex items-baseline gap-2">
               <span className="font-display font-bold text-lg">
                 {deal.discount_percentage}% korting
               </span>
-              <span className="text-xs text-muted-foreground">aan de kassa</span>
+              <span className="text-xs text-muted-foreground">bedrag varieert</span>
             </div>
           ) : (
             <div className="flex items-baseline gap-2">
