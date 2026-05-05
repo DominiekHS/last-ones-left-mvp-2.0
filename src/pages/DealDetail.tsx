@@ -194,11 +194,12 @@ export default function DealDetail() {
               <p className="text-sm text-muted-foreground">De totaalprijs hangt af van het aantal personen dat je kiest in de checkout.</p>
             </CardContent>
           </Card>
-        ) : (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter" ? (
-          <div className="flex items-baseline gap-3">
+        ) : (deal as any).counter_discount_mode === "variable_amount" ? (
+          <div className="flex items-baseline gap-3 flex-wrap">
             <Badge className="bg-primary text-primary-foreground font-bold text-base px-3 py-1">
-              {deal.discount_percentage}% korting aan de kassa
+              {deal.discount_percentage}% korting
             </Badge>
+            <span className="text-sm text-muted-foreground">bedrag varieert</span>
           </div>
         ) : (
           <div className="flex items-baseline gap-3">
@@ -263,7 +264,7 @@ export default function DealDetail() {
               <h4 className="font-semibold text-sm mb-1">📋 Inwisselinstructies</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {(deal as any).redemption_instructions || (
-                  (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter"
+                  (deal as any).counter_discount_mode === "variable_amount"
                     ? "Toon je voucher aan de kassa. De korting wordt verrekend op het bedrag op jouw kassabon."
                     : "Je ontvangt na claimen een kortingscode. Gebruik deze op de betaalpagina van de aanbieder, of toon je voucher als dat bij deze deal geldt."
                 )}
