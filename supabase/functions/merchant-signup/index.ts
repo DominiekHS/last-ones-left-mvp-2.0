@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
     return bad(403, "Merchant signup disabled");
   }
 
-  // Create user (sends verification email by default since we don't pass email_confirm:true)
+  // Create user as confirmed while e-mail verification is tijdelijk uitgeschakeld voor testen.
   const { data: created, error: createErr } = await admin.auth.admin.createUser({
     email: body.email,
     password: body.password,
@@ -96,13 +96,6 @@ Deno.serve(async (req) => {
     await admin.auth.admin.deleteUser(userId);
     return bad(500, merchantErr.message);
   }
-
-  // Trigger email verification by generating a signup link.
-  await admin.auth.admin.generateLink({
-    type: "signup",
-    email: body.email,
-    password: body.password,
-  });
 
   return new Response(JSON.stringify({ ok: true, user_id: userId }), {
     status: 200,
