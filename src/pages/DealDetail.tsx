@@ -194,11 +194,12 @@ export default function DealDetail() {
               <p className="text-sm text-muted-foreground">De totaalprijs hangt af van het aantal personen dat je kiest in de checkout.</p>
             </CardContent>
           </Card>
-        ) : (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter" ? (
-          <div className="flex items-baseline gap-3">
+        ) : (deal as any).counter_discount_mode === "variable_amount" ? (
+          <div className="flex items-baseline gap-3 flex-wrap">
             <Badge className="bg-primary text-primary-foreground font-bold text-base px-3 py-1">
-              {deal.discount_percentage}% korting aan de kassa
+              {deal.discount_percentage}% korting
             </Badge>
+            <span className="text-sm text-muted-foreground">bedrag varieert</span>
           </div>
         ) : (
           <div className="flex items-baseline gap-3">
