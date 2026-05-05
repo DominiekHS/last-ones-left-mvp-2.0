@@ -215,7 +215,7 @@ export default function AdForm() {
     }
     if (!address.trim()) e.address = "Adres is verplicht";
 
-    const isVariableAmount = redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount";
+    const isVariableAmount = counterDiscountMode === "variable_amount" && pricingModel === "fixed";
     const isPerPersonVariable = pricingModel === "per_person_variable";
     if (!isVariableAmount && !isPerPersonVariable) {
       const price = parseFloat(originalPrice);
