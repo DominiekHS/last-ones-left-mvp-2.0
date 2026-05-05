@@ -76,9 +76,9 @@ export default function MerchantRegister() {
 
     toast({
       title: "Account aangemaakt!",
-      description: "Controleer je e-mail om je account te verifiëren.",
+      description: "Je kunt nu inloggen.",
     });
-    navigate("/verify-email");
+    navigate("/login");
     setLoading(false);
   };
 
