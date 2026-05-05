@@ -215,7 +215,7 @@ export default function AdForm() {
     }
     if (!address.trim()) e.address = "Adres is verplicht";
 
-    const isVariableAmount = redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount";
+    const isVariableAmount = counterDiscountMode === "variable_amount" && pricingModel === "fixed";
     const isPerPersonVariable = pricingModel === "per_person_variable";
     if (!isVariableAmount && !isPerPersonVariable) {
       const price = parseFloat(originalPrice);
@@ -360,8 +360,8 @@ export default function AdForm() {
       city: city.trim(),
       postal_code: (() => { const n = postalCode.trim().replace(/\s+/g, "").toUpperCase(); return n.slice(0, 4) + " " + n.slice(4); })(),
       address: address.trim(),
-      original_price: (redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") || pricingModel === "per_person_variable" ? 0 : parseFloat(originalPrice),
-      counter_discount_mode: redemptionMethod === "at_counter" ? counterDiscountMode : "fixed_price",
+      original_price: (counterDiscountMode === "variable_amount" && pricingModel === "fixed") || pricingModel === "per_person_variable" ? 0 : parseFloat(originalPrice),
+      counter_discount_mode: pricingModel === "fixed" ? counterDiscountMode : "fixed_price",
       pricing_model: pricingModel,
       indicative_price_from: pricingModel === "per_person_variable" && pricePerPerson ? parseFloat(pricePerPerson) : null,
       price_per_person: pricingModel === "per_person_variable" && pricePerPerson ? parseFloat(pricePerPerson) : null,
@@ -723,7 +723,7 @@ export default function AdForm() {
               </div>
             </div>
 
-            {redemptionMethod === "at_counter" && pricingModel === "fixed" && (
+            {pricingModel === "fixed" && (
               <div className="space-y-2">
                 <Label>Prijstype *</Label>
                 <div className="grid grid-cols-2 gap-3">
@@ -799,7 +799,7 @@ export default function AdForm() {
               </>
             ) : (
               <>
-                {!(redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") && (
+                {!(counterDiscountMode === "variable_amount") && (
                   <div className="space-y-2">
                     <Label htmlFor="price">Originele prijs (€) *</Label>
                     <Input
@@ -829,15 +829,15 @@ export default function AdForm() {
                   {showError("discountPercentage") && <p className="text-xs text-destructive">{showError("discountPercentage")}</p>}
                 </div>
 
-                {redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount" && discountPercentage && (
+                {counterDiscountMode === "variable_amount" && discountPercentage && (
                   <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
                     <p className="text-sm text-muted-foreground">
-                      Let op: Het bedrag aan de kassa kan per klant verschillen. Klanten krijgen <span className="font-semibold text-foreground">{discountPercentage}%</span> korting op de uiteindelijke kassabon.
+                      Let op: Het bedrag kan per klant verschillen. Klanten krijgen <span className="font-semibold text-foreground">{discountPercentage}%</span> korting op het uiteindelijke bedrag.
                     </p>
                   </div>
                 )}
 
-                {!(redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") && discountedPrice && (
+                {!(counterDiscountMode === "variable_amount") && discountedPrice && (
                   <div className="bg-primary/10 rounded-lg p-3 text-center">
                     <p className="text-sm text-muted-foreground">Prijs na korting:</p>
                     <p className="font-display text-xl font-bold">€{discountedPrice}</p>
