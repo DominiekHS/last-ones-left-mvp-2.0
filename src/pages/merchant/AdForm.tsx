@@ -799,7 +799,7 @@ export default function AdForm() {
               </>
             ) : (
               <>
-                {!(redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") && (
+                {!(counterDiscountMode === "variable_amount") && (
                   <div className="space-y-2">
                     <Label htmlFor="price">Originele prijs (€) *</Label>
                     <Input
@@ -829,15 +829,15 @@ export default function AdForm() {
                   {showError("discountPercentage") && <p className="text-xs text-destructive">{showError("discountPercentage")}</p>}
                 </div>
 
-                {redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount" && discountPercentage && (
+                {counterDiscountMode === "variable_amount" && discountPercentage && (
                   <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
                     <p className="text-sm text-muted-foreground">
-                      Let op: Het bedrag aan de kassa kan per klant verschillen. Klanten krijgen <span className="font-semibold text-foreground">{discountPercentage}%</span> korting op de uiteindelijke kassabon.
+                      Let op: Het bedrag kan per klant verschillen. Klanten krijgen <span className="font-semibold text-foreground">{discountPercentage}%</span> korting op het uiteindelijke bedrag.
                     </p>
                   </div>
                 )}
 
-                {!(redemptionMethod === "at_counter" && counterDiscountMode === "variable_amount") && discountedPrice && (
+                {!(counterDiscountMode === "variable_amount") && discountedPrice && (
                   <div className="bg-primary/10 rounded-lg p-3 text-center">
                     <p className="text-sm text-muted-foreground">Prijs na korting:</p>
                     <p className="font-display text-xl font-bold">€{discountedPrice}</p>
