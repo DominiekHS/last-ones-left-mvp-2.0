@@ -723,7 +723,7 @@ export default function AdForm() {
               </div>
             </div>
 
-            {redemptionMethod === "at_counter" && pricingModel === "fixed" && (
+            {pricingModel === "fixed" && (
               <div className="space-y-2">
                 <Label>Prijstype *</Label>
                 <div className="grid grid-cols-2 gap-3">
