@@ -48,12 +48,12 @@ export default function PaymentStepsDisplay({ steps }: Props) {
       </Card>
 
       <Dialog open={!!lightboxUrl} onOpenChange={() => setLightboxUrl(null)}>
-        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] p-2 overflow-auto">
+        <DialogContent className="max-w-[95vw] w-auto max-h-[95vh] p-2 overflow-auto sm:!max-w-[95vw]">
           {lightboxUrl && (
             <img
               src={lightboxUrl}
               alt="Stap afbeelding"
-              className="w-full h-auto max-h-[85vh] object-contain rounded-md"
+              className="w-auto h-auto max-w-full max-h-[90vh] object-contain rounded-md"
             />
           )}
         </DialogContent>
