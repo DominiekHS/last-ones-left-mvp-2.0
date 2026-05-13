@@ -230,6 +230,10 @@ export default function AdForm() {
 
     const now = new Date();
     const expiry = new Date(expiryTime);
+    // End of tomorrow: midnight at the end of the next calendar day
+    const endOfTomorrow = new Date(now);
+    endOfTomorrow.setDate(endOfTomorrow.getDate() + 2);
+    endOfTomorrow.setHours(0, 0, 0, 0);
 
     if (startTimeMode === "fixed") {
       const start = new Date(startTime);
@@ -237,20 +241,16 @@ export default function AdForm() {
         e.startTime = "Starttijd is verplicht";
       } else if (start.getTime() < now.getTime() + 5 * 60 * 1000) {
         e.startTime = "Starttijd moet minimaal 5 minuten in de toekomst liggen";
-      } else {
-        // End of tomorrow: midnight at the end of the next calendar day
-        const endOfTomorrow = new Date(now);
-        endOfTomorrow.setDate(endOfTomorrow.getDate() + 2);
-        endOfTomorrow.setHours(0, 0, 0, 0);
-        if (start.getTime() > endOfTomorrow.getTime()) {
-          e.startTime = "Starttijd moet vandaag of morgen zijn";
-        }
+      } else if (start.getTime() > endOfTomorrow.getTime()) {
+        e.startTime = "Starttijd moet vandaag of morgen zijn";
       }
 
       if (!expiryTime) {
         e.expiryTime = "Verwijdertijd is verplicht";
       } else if (expiry <= now) {
         e.expiryTime = "Verwijdertijd moet in de toekomst liggen";
+      } else if (expiry.getTime() > endOfTomorrow.getTime()) {
+        e.expiryTime = "Verwijdertijd moet uiterlijk morgen om 23:59 zijn";
       } else if (startTime && expiry > new Date(startTime)) {
         e.expiryTime = "Verwijdertijd moet vóór de starttijd liggen";
       }
@@ -260,6 +260,8 @@ export default function AdForm() {
         e.expiryTime = "Verwijdertijd is verplicht";
       } else if (expiry <= now) {
         e.expiryTime = "Verwijdertijd moet in de toekomst liggen";
+      } else if (expiry.getTime() > endOfTomorrow.getTime()) {
+        e.expiryTime = "Verwijdertijd moet uiterlijk morgen om 23:59 zijn";
       }
     }
 
@@ -910,7 +912,7 @@ export default function AdForm() {
                   onBlur={() => touch("expiryTime")}
                 />
                 <p className="text-xs text-muted-foreground">
-                  {startTimeMode === "fixed" ? "Moet vóór starttijd liggen" : "Moet in de toekomst liggen"}
+                  {startTimeMode === "fixed" ? "Moet vóór starttijd liggen, uiterlijk morgen 23:59" : "Moet in de toekomst liggen, uiterlijk morgen 23:59"}
                 </p>
                 {showError("expiryTime") && <p className="text-xs text-destructive">{showError("expiryTime")}</p>}
               </div>
