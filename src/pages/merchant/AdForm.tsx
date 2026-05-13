@@ -912,7 +912,7 @@ export default function AdForm() {
                   onBlur={() => touch("expiryTime")}
                 />
                 <p className="text-xs text-muted-foreground">
-                  {startTimeMode === "fixed" ? "Moet vóór starttijd liggen" : "Moet in de toekomst liggen"}
+                  {startTimeMode === "fixed" ? "Moet vóór starttijd liggen, uiterlijk morgen 23:59" : "Moet in de toekomst liggen, uiterlijk morgen 23:59"}
                 </p>
                 {showError("expiryTime") && <p className="text-xs text-destructive">{showError("expiryTime")}</p>}
               </div>
