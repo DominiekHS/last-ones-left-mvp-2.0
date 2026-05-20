@@ -198,9 +198,22 @@ export default function AdminDashboard() {
   const { data: deals } = useQuery({
     queryKey: ["admin-deals"],
     queryFn: async () => {
+      // NB: `discount_code` is column-level revoked voor de `authenticated` rol
+      // (security hardening). Een `select("*")` zou daarom 0 rijen teruggeven
+      // met een "permission denied for column discount_code"-fout. Daarom
+      // expliciet kolommen opsommen zonder `discount_code`.
       const { data, error } = await supabase
         .from("deals")
-        .select("*, merchants(company_name)")
+        .select(
+          "id, merchant_id, title, description, image_url, category, city, " +
+          "original_price, discount_percentage, start_time, expiry_time, " +
+          "checkout_link, created_at, updated_at, address, redemption_method, " +
+          "discount_type, redemption_instructions, cancellation_policy, " +
+          "terms_summary, counter_discount_mode, postal_code, pricing_model, " +
+          "indicative_price_from, price_per_person, start_time_mode, " +
+          "payment_steps, notification_sent_at, deleted_at, " +
+          "merchants(company_name)"
+        )
         .is("deleted_at", null)
         .order("created_at", { ascending: false });
       if (error) throw error;
