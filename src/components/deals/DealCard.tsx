@@ -48,13 +48,25 @@ export function DealCard({ deal }: { deal: Deal }) {
             {deal.title}
           </h3>
           {deal.merchants?.company_name && (
-            <Link
-              to={`/bedrijf/${deal.merchant_id}`}
-              className="text-xs text-muted-foreground hover:text-primary hover:underline"
-              onClick={(e) => e.stopPropagation()}
+            <span
+              role="link"
+              tabIndex={0}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                navigate(`/bedrijf/${deal.merchant_id}`);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  navigate(`/bedrijf/${deal.merchant_id}`);
+                }
+              }}
+              className="text-xs text-muted-foreground hover:text-primary hover:underline cursor-pointer inline-block"
             >
               {deal.merchants.company_name}
-            </Link>
+            </span>
           )}
           <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
             <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{deal.city}</span>
