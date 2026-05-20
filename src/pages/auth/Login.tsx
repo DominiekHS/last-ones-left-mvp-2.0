@@ -32,8 +32,10 @@ export default function Login() {
       });
       toast({ title: "Inloggen mislukt", description: friendlyAuthError(error), variant: "destructive" });
     } else {
-      // Use safe internal path only
-      const safe = redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/";
+      // Use safe internal path only — en stuur nooit terug naar een auth-route,
+      // anders blijf je in het inlogvenster hangen.
+      const isAuthRoute = /^\/(login|registreren|wachtwoord-vergeten|reset-password|verify-email|merchant\/registreren)(\/|$|\?)/.test(redirectTo);
+      const safe = redirectTo.startsWith("/") && !redirectTo.startsWith("//") && !isAuthRoute ? redirectTo : "/";
       navigate(safe);
     }
     setLoading(false);
