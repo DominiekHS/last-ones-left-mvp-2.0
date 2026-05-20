@@ -78,7 +78,6 @@ export default function DealDetail() {
       setClaimed(true);
       setClaimedCode(result?.discount_code || "");
       toast({ title: "Gelukt!", description: "Je kortingscode is opgeslagen." });
-      supabase.from("deal_events").insert({ deal_id: deal.id, event_type: "click", user_id: user.id }).then();
     }
     setClaiming(false);
   };
