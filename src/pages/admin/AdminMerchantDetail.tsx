@@ -38,6 +38,22 @@ export default function AdminMerchantDetail() {
     enabled: roles.includes("admin") && !!merchantId,
   });
 
+  const { data: moderation } = useQuery({
+    queryKey: ["admin-merchant-moderation", merchantId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .rpc("admin_get_merchant_moderation", { p_merchant_id: merchantId! });
+      if (error) throw error;
+      return (data?.[0] ?? null) as {
+        status_reason: string | null;
+        status_notes: string | null;
+        status_updated_at: string | null;
+        status_updated_by: string | null;
+      } | null;
+    },
+    enabled: roles.includes("admin") && !!merchantId,
+  });
+
   const { data: deals } = useQuery({
     queryKey: ["admin-merchant-deals", merchantId],
     queryFn: async () => {
@@ -51,6 +67,7 @@ export default function AdminMerchantDetail() {
     },
     enabled: roles.includes("admin") && !!merchantId,
   });
+
 
   if (!loading && (!user || !roles.includes("admin"))) {
     return <Navigate to="/" />;
