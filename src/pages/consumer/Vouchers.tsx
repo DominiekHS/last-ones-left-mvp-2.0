@@ -108,11 +108,10 @@ export default function Vouchers() {
 
                   {deal && (deal.pricing_model === "per_person_variable" ? (
                     <p className="text-sm text-muted-foreground">
-                      Start: {format(new Date(deal.start_time), "d MMM HH:mm", { locale: nl })} · {deal.price_per_person ? `€${(Number(deal.price_per_person) * (1 - deal.discount_percentage / 100)).toFixed(2)} p.p. (${deal.discount_percentage}% korting)` : `${deal.discount_percentage}% korting`} · prijs o.b.v. aantal personen
+                      {deal.price_per_person ? `€${(Number(deal.price_per_person) * (1 - deal.discount_percentage / 100)).toFixed(2)} p.p. (${deal.discount_percentage}% korting)` : `${deal.discount_percentage}% korting`} · prijs o.b.v. aantal personen
                     </p>
                   ) : deal.original_price > 0 && (
                     <p className="text-sm text-muted-foreground">
-                      Start: {format(new Date(deal.start_time), "d MMM HH:mm", { locale: nl })} ·{" "}
                       €{discountedPrice.toFixed(2)}
                     </p>
                   ))}
