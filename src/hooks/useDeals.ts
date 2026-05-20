@@ -84,28 +84,26 @@ export function useDeal(id: string) {
 // hardening); een `select("*")` zou daarom falen met "permission denied for
 // column discount_code". Merchants halen hun eigen code op via de RPC
 // `get_my_deal_code` (zie MerchantDealDetail / AdForm).
-const MERCHANT_DEAL_COLUMNS = [
-  "id", "merchant_id", "title", "description", "image_url", "category", "city",
-  "original_price", "discount_percentage", "start_time", "expiry_time",
-  "checkout_link", "created_at", "updated_at", "address", "redemption_method",
-  "discount_type", "redemption_instructions", "cancellation_policy",
-  "terms_summary", "counter_discount_mode", "postal_code", "pricing_model",
-  "indicative_price_from", "price_per_person", "start_time_mode",
-  "payment_steps", "notification_sent_at", "deleted_at",
-].join(", ");
+const MERCHANT_DEAL_COLUMNS =
+  "id, merchant_id, title, description, image_url, category, city, " +
+  "original_price, discount_percentage, start_time, expiry_time, " +
+  "checkout_link, created_at, updated_at, address, redemption_method, " +
+  "discount_type, redemption_instructions, cancellation_policy, " +
+  "terms_summary, counter_discount_mode, postal_code, pricing_model, " +
+  "indicative_price_from, price_per_person, start_time_mode, " +
+  "payment_steps, notification_sent_at, deleted_at";
 
 export function useMerchantDeal(id?: string) {
   return useQuery({
     queryKey: ["deal", "merchant-own", id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("deals")
+      const { data, error } = await (supabase.from("deals") as any)
         .select(`${MERCHANT_DEAL_COLUMNS}, merchants(company_name, city, address, description)`)
         .eq("id", id!)
         .is("deleted_at", null)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return data as any;
     },
     enabled: !!id,
   });
@@ -115,14 +113,13 @@ export function useMerchantDeals(merchantId?: string) {
   return useQuery({
     queryKey: ["deals", "merchant", merchantId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("deals")
+      const { data, error } = await (supabase.from("deals") as any)
         .select(MERCHANT_DEAL_COLUMNS)
         .eq("merchant_id", merchantId!)
         .is("deleted_at", null)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      return data as any[];
     },
     enabled: !!merchantId,
   });
