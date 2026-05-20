@@ -1,4 +1,4 @@
-import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useDeal } from "@/hooks/useDeals";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
