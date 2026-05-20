@@ -117,18 +117,19 @@ export default function AdminMerchantDetail() {
                 Tot: {format(new Date(merchant.suspended_until), "d MMMM yyyy HH:mm", { locale: nl })}
               </span>
             )}
-            {merchant.status_reason && (
-              <span className="text-muted-foreground">Reden: {merchant.status_reason}</span>
+            {moderation?.status_reason && (
+              <span className="text-muted-foreground">Reden: {moderation.status_reason}</span>
             )}
-            {merchant.status_updated_at && (
+            {moderation?.status_updated_at && (
               <span className="text-muted-foreground text-xs">
-                Laatste wijziging: {format(new Date(merchant.status_updated_at), "d MMM yyyy HH:mm", { locale: nl })}
+                Laatste wijziging: {format(new Date(moderation.status_updated_at), "d MMM yyyy HH:mm", { locale: nl })}
               </span>
             )}
           </div>
-          {merchant.status_notes && (
-            <p className="text-sm text-muted-foreground italic">"{merchant.status_notes}"</p>
+          {moderation?.status_notes && (
+            <p className="text-sm text-muted-foreground italic">"{moderation.status_notes}"</p>
           )}
+
           <div className="flex gap-2 flex-wrap">
             {effectiveStatus !== "suspended" && effectiveStatus !== "blocked" && (
               <Button variant="outline" size="sm" onClick={() => setStatusModal({ open: true, action: "suspend" })}>
