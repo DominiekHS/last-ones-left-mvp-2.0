@@ -143,7 +143,7 @@ Deno.serve(async (req) => {
     const safeDiscountPct = escapeHtml(deal.discount_percentage);
 
     for (const r of recipients) {
-      const dealLink = `${dealLinkBase}?as=${encodeURIComponent(r.user_id)}`;
+      const dealLink = dealLinkBase;
       const safeFullName = escapeHtml(r.full_name || "daar");
       const html = `
         <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto;">
