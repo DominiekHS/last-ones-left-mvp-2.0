@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { CATEGORY_LABELS } from "@/lib/constants";
@@ -10,6 +10,7 @@ import type { Tables } from "@/integrations/supabase/types";
 type Deal = Tables<"deals"> & { merchants?: { company_name: string } | null };
 
 export function DealCard({ deal }: { deal: Deal }) {
+  const navigate = useNavigate();
   const discountedPrice = deal.original_price * (1 - deal.discount_percentage / 100);
   const hasFixedStart = (deal as any).start_time_mode !== "flexible" && deal.start_time;
   const startDate = hasFixedStart ? new Date(deal.start_time) : null;
