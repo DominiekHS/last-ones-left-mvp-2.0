@@ -120,7 +120,13 @@ export default function AdForm() {
               } catch {}
             }
             if ((data as any).discount_type !== "unique") {
-              setUniversalCode(data.discount_code);
+              // discount_code is niet meer leesbaar via een gewone SELECT;
+              // haal hem op via de SECURITY DEFINER RPC voor de eigenaar.
+              supabase
+                .rpc("get_my_deal_code" as any, { p_deal_id: loadDealId })
+                .then(({ data: code }) => {
+                  if (typeof code === "string") setUniversalCode(code);
+                });
             }
             // Track if the deal was expired when editing started
             if (isEdit) {
