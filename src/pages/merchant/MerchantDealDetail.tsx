@@ -284,7 +284,7 @@ export default function MerchantDealDetail() {
                   <p className="text-sm text-muted-foreground">Geen codes gevonden</p>
                 )
               ) : (
-                <code className="text-sm font-mono bg-muted px-2 py-1 rounded">{deal.discount_code || "—"}</code>
+                <code className="text-sm font-mono bg-muted px-2 py-1 rounded">{universalCode || "—"}</code>
               )}
             </div>
           </CardContent>
