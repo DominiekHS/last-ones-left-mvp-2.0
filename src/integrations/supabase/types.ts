@@ -995,6 +995,15 @@ export type Database = {
       }
     }
     Functions: {
+      admin_get_merchant_moderation: {
+        Args: { p_merchant_id: string }
+        Returns: {
+          status_notes: string
+          status_reason: string
+          status_updated_at: string
+          status_updated_by: string
+        }[]
+      }
       claim_deal: {
         Args: { p_deal_id: string; p_user_id: string }
         Returns: {

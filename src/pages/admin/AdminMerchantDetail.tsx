@@ -38,6 +38,22 @@ export default function AdminMerchantDetail() {
     enabled: roles.includes("admin") && !!merchantId,
   });
 
+  const { data: moderation } = useQuery({
+    queryKey: ["admin-merchant-moderation", merchantId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .rpc("admin_get_merchant_moderation", { p_merchant_id: merchantId! });
+      if (error) throw error;
+      return (data?.[0] ?? null) as {
+        status_reason: string | null;
+        status_notes: string | null;
+        status_updated_at: string | null;
+        status_updated_by: string | null;
+      } | null;
+    },
+    enabled: roles.includes("admin") && !!merchantId,
+  });
+
   const { data: deals } = useQuery({
     queryKey: ["admin-merchant-deals", merchantId],
     queryFn: async () => {
@@ -51,6 +67,7 @@ export default function AdminMerchantDetail() {
     },
     enabled: roles.includes("admin") && !!merchantId,
   });
+
 
   if (!loading && (!user || !roles.includes("admin"))) {
     return <Navigate to="/" />;
@@ -100,18 +117,19 @@ export default function AdminMerchantDetail() {
                 Tot: {format(new Date(merchant.suspended_until), "d MMMM yyyy HH:mm", { locale: nl })}
               </span>
             )}
-            {merchant.status_reason && (
-              <span className="text-muted-foreground">Reden: {merchant.status_reason}</span>
+            {moderation?.status_reason && (
+              <span className="text-muted-foreground">Reden: {moderation.status_reason}</span>
             )}
-            {merchant.status_updated_at && (
+            {moderation?.status_updated_at && (
               <span className="text-muted-foreground text-xs">
-                Laatste wijziging: {format(new Date(merchant.status_updated_at), "d MMM yyyy HH:mm", { locale: nl })}
+                Laatste wijziging: {format(new Date(moderation.status_updated_at), "d MMM yyyy HH:mm", { locale: nl })}
               </span>
             )}
           </div>
-          {merchant.status_notes && (
-            <p className="text-sm text-muted-foreground italic">"{merchant.status_notes}"</p>
+          {moderation?.status_notes && (
+            <p className="text-sm text-muted-foreground italic">"{moderation.status_notes}"</p>
           )}
+
           <div className="flex gap-2 flex-wrap">
             {effectiveStatus !== "suspended" && effectiveStatus !== "blocked" && (
               <Button variant="outline" size="sm" onClick={() => setStatusModal({ open: true, action: "suspend" })}>
