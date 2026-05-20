@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
         .maybeSingle(),
       admin
         .from("merchants")
-        .select("user_id, company_name")
+        .select("user_id, company_name, blocked, status, deleted_at")
         .eq("id", deal.merchant_id)
         .maybeSingle(),
     ]);
@@ -66,6 +66,23 @@ Deno.serve(async (req) => {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Block suspended/blocked/deleted merchants from sending notifications (admins exempt)
+    if (
+      !isAdmin &&
+      isOwner &&
+      (merchantRow?.blocked === true ||
+        merchantRow?.status !== "active" ||
+        merchantRow?.deleted_at !== null)
+    ) {
+      return new Response(
+        JSON.stringify({ error: "Account geblokkeerd of niet actief" }),
+        {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     // 3. Idempotency
