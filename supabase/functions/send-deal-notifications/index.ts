@@ -106,8 +106,15 @@ Deno.serve(async (req) => {
       .eq("email_notifications_enabled", true);
 
     const recipients = (profiles ?? []).filter((p) => p.email);
-    const origin = "https://id-preview--b749b3f9-6f4b-447c-9d89-5acfe43fb2c7.lovable.app";
-    const dealLinkBase = `${origin}/deal/${deal.id}`;
+    const origin = Deno.env.get("SITE_URL");
+    if (!origin || !/^https?:\/\//.test(origin)) {
+      console.error("SITE_URL ontbreekt of ongeldig");
+      return new Response(JSON.stringify({ error: "Configuratiefout" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const dealLinkBase = `${origin.replace(/\/+$/, "")}/deal/${deal.id}`;
     const expiry = new Date(deal.expiry_time).toLocaleString("nl-NL", {
       timeZone: "Europe/Amsterdam",
       dateStyle: "short",
