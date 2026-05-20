@@ -217,8 +217,6 @@ export default function AdminDashboard() {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as any[];
-      if (error) throw error;
-      return data;
     },
     enabled: roles.includes("admin"),
   });
