@@ -1002,6 +1002,7 @@ export type Database = {
           voucher_id: string
         }[]
       }
+      get_my_deal_code: { Args: { p_deal_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
