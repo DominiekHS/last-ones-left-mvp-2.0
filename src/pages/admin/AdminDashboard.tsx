@@ -202,8 +202,7 @@ export default function AdminDashboard() {
       // (security hardening). Een `select("*")` zou daarom 0 rijen teruggeven
       // met een "permission denied for column discount_code"-fout. Daarom
       // expliciet kolommen opsommen zonder `discount_code`.
-      const { data, error } = await supabase
-        .from("deals")
+      const { data, error } = await (supabase.from("deals") as any)
         .select(
           "id, merchant_id, title, description, image_url, category, city, " +
           "original_price, discount_percentage, start_time, expiry_time, " +
@@ -216,6 +215,8 @@ export default function AdminDashboard() {
         )
         .is("deleted_at", null)
         .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as any[];
       if (error) throw error;
       return data;
     },
