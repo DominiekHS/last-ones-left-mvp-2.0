@@ -79,9 +79,19 @@ export default function AdForm() {
   const loadDealId = isEdit ? id : copyFromId;
   useEffect(() => {
     if (loadDealId) {
-      supabase
-        .from("deals")
-        .select("*")
+      // Let op: NIET `select("*")` — column-level SELECT op `discount_code`
+      // is ingetrokken voor de `authenticated` role, dus `*` faalt met
+      // "permission denied for column discount_code" en geeft `null` terug.
+      // We halen de code apart op via de RPC `get_my_deal_code`.
+      (supabase.from("deals") as any)
+        .select(
+          "id, merchant_id, title, description, image_url, category, city, " +
+          "original_price, discount_percentage, start_time, expiry_time, " +
+          "checkout_link, address, redemption_method, discount_type, " +
+          "redemption_instructions, cancellation_policy, terms_summary, " +
+          "counter_discount_mode, postal_code, pricing_model, " +
+          "indicative_price_from, price_per_person, start_time_mode, payment_steps"
+        )
         .eq("id", loadDealId)
         .maybeSingle()
         .then(({ data }) => {
