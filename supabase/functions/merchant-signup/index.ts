@@ -93,8 +93,9 @@ Deno.serve(async (req) => {
     contact_phone: body.contact_phone || null,
   });
   if (merchantErr) {
+    console.error("merchant-signup: insert merchants failed", merchantErr);
     await admin.auth.admin.deleteUser(userId);
-    return bad(500, merchantErr.message);
+    return bad(500, "Account aanmaken mislukt. Probeer opnieuw.");
   }
 
   return new Response(JSON.stringify({ ok: true, user_id: userId }), {
