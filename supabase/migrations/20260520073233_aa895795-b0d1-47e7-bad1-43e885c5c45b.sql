@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Users can self-assign consumer role" ON public.user_roles;
