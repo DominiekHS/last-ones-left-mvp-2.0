@@ -57,6 +57,20 @@ export default function MerchantDealDetail() {
     enabled: !!dealId && !!deal && deal.discount_type === "unique",
   });
 
+  // discount_code is niet meer leesbaar via de gewone deals-select;
+  // de eigenaar haalt hem op via een SECURITY DEFINER RPC.
+  const { data: universalCode } = useQuery({
+    queryKey: ["deal-universal-code", dealId],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_my_deal_code" as any, {
+        p_deal_id: dealId!,
+      });
+      if (error) return null;
+      return typeof data === "string" ? data : null;
+    },
+    enabled: !!dealId && !!deal && deal.discount_type !== "unique",
+  });
+
   if (!authLoading && (!user || !roles.includes("merchant"))) {
     return <Navigate to="/login" />;
   }
@@ -270,7 +284,7 @@ export default function MerchantDealDetail() {
                   <p className="text-sm text-muted-foreground">Geen codes gevonden</p>
                 )
               ) : (
-                <code className="text-sm font-mono bg-muted px-2 py-1 rounded">{deal.discount_code || "—"}</code>
+                <code className="text-sm font-mono bg-muted px-2 py-1 rounded">{universalCode || "—"}</code>
               )}
             </div>
           </CardContent>
