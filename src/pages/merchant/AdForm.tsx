@@ -997,7 +997,7 @@ export default function AdForm() {
               <div className="flex gap-2">
                 <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
                 <p className="text-sm font-semibold text-yellow-800">
-                  Let op: Koppel de kortingscode(s) in je eigen systeem aan deze deal en stel in dat ze maximaal 24 uur geldig zijn om misbruik te voorkomen.
+                  Let op: Koppel de kortingscode(s) in je eigen systeem aan deze deal en stel in dat ze een beperkte tijd, bijvoorbeeld maximaal 48 uur, geldig zijn om misbruik te voorkomen.
                 </p>
               </div>
               <div className="ml-7 space-y-1 text-sm">
