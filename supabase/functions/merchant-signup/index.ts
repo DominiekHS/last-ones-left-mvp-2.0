@@ -18,7 +18,7 @@ const VENUE_TYPES = [
 
 const SignupSchema = z.object({
   email: z.string().trim().email("Ongeldig e-mailadres").max(254),
-  password: z.string().min(6, "Wachtwoord minimaal 6 tekens").max(200),
+  password: z.string().min(8, "Wachtwoord minimaal 8 tekens").max(200),
   company_name: z.string().trim().min(1, "Bedrijfsnaam verplicht").max(200),
   venue_type: z.enum(VENUE_TYPES, { errorMap: () => ({ message: "Ongeldig venue type" }) }),
   address: z.string().trim().min(1, "Adres verplicht").max(300),
