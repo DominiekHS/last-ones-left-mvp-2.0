@@ -229,7 +229,7 @@ export default function MerchantDealDetail() {
                 )}
               </>
             )}
-            {isVariableAmount && <InfoRow label="Prijstype" value="Bedrag varieert per klant" />}
+            
             <InfoRow label="Stad" value={deal.city || "—"} />
             <InfoRow label="Postcode" value={(deal as any).postal_code || "—"} />
             <InfoRow label="Adres" value={deal.address || "—"} />
