@@ -212,8 +212,23 @@ export default function MerchantDealDetail() {
           </CardHeader>
           <CardContent className="space-y-3">
             <InfoRow label="Korting" value={`${deal.discount_percentage}%`} />
-            <InfoRow label="Originele prijs" value={isVariableAmount ? "n.v.t. (bedrag varieert)" : `€${Number(deal.original_price).toFixed(2)}`} />
-            {!isVariableAmount && <InfoRow label="Prijs na korting" value={`€${discountedPrice.toFixed(2)}`} />}
+            {isVariableAmount ? (
+              <InfoRow label="Prijstype" value="Bedrag varieert per klant" />
+            ) : isPerPersonVariable ? (
+              <>
+                <InfoRow label="Prijs per persoon" value={pricePerPerson > 0 ? `€${pricePerPerson.toFixed(2)} p.p.` : "—"} />
+                {pricePerPerson > 0 && (
+                  <InfoRow label="Prijs na korting" value={`€${discountedPricePerPerson.toFixed(2)} p.p.`} />
+                )}
+              </>
+            ) : (
+              <>
+                <InfoRow label="Originele prijs" value={originalPrice > 0 ? `€${originalPrice.toFixed(2)}` : "—"} />
+                {originalPrice > 0 && (
+                  <InfoRow label="Prijs na korting" value={`€${discountedPrice.toFixed(2)}`} />
+                )}
+              </>
+            )}
             {isVariableAmount && <InfoRow label="Prijstype" value="Bedrag varieert per klant" />}
             <InfoRow label="Stad" value={deal.city || "—"} />
             <InfoRow label="Postcode" value={(deal as any).postal_code || "—"} />
