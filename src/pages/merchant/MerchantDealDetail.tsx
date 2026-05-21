@@ -270,19 +270,17 @@ export default function MerchantDealDetail() {
             />
             <div>
               <p className="text-sm font-medium text-muted-foreground mb-1">Checkout link</p>
-              {hasCheckoutLink ? (
-                deal.checkout_link ? (
-                  <a
-                    href={deal.checkout_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline inline-flex items-center gap-1 break-all"
-                  >
-                    {deal.checkout_link} <ExternalLink className="h-3 w-3 shrink-0" />
-                  </a>
-                ) : (
-                  <p className="text-sm text-destructive">Ontbrekende checkout link</p>
-                )
+              {deal.checkout_link ? (
+                <a
+                  href={deal.checkout_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-primary hover:underline inline-flex items-center gap-1 break-all"
+                >
+                  {deal.checkout_link} <ExternalLink className="h-3 w-3 shrink-0" />
+                </a>
+              ) : hasCheckoutLink ? (
+                <p className="text-sm text-destructive">Ontbrekende checkout link</p>
               ) : (
                 <p className="text-sm">n.v.t.</p>
               )}
