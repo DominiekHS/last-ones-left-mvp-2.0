@@ -112,7 +112,12 @@ export default function MerchantDealDetail() {
 
   const isExpired = new Date(deal.expiry_time) < new Date();
   const isVariableAmount = (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter";
-  const discountedPrice = deal.original_price * (1 - deal.discount_percentage / 100);
+  const isPerPersonVariable = (deal as any).pricing_model === "per_person_variable";
+  const pricePerPerson = Number((deal as any).price_per_person) || 0;
+  const originalPrice = Number(deal.original_price) || 0;
+  const discountFactor = 1 - deal.discount_percentage / 100;
+  const discountedPrice = originalPrice * discountFactor;
+  const discountedPricePerPerson = pricePerPerson * discountFactor;
   const hasCheckoutLink = deal.redemption_method === "online_checkout" || deal.redemption_method === "online_pay_pos_refund";
   const methodLabel =
     deal.redemption_method === "online_checkout"
