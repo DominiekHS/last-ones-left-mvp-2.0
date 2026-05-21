@@ -60,9 +60,11 @@ export function useDeal(id: string) {
       // 2) Fallback: misschien is de deal verlopen of soft-deleted maar mag de
       // huidige gebruiker (eigenaar-merchant of admin) hem alsnog zien via RLS
       // op de basis-tabel. Stille fallback — RLS bepaalt of er iets terugkomt.
-      const { data: ownerData, error: ownerError } = await supabase
-        .from("deals")
-        .select("*, merchants(company_name, city, address, description)")
+      // BELANGRIJK: gebruik géén select("*") — column-level SELECT op
+      // `discount_code` is ingetrokken voor `authenticated`, dat zou de query
+      // laten falen met "permission denied for column discount_code".
+      const { data: ownerData, error: ownerError } = await (supabase.from("deals") as any)
+        .select(`${MERCHANT_DEAL_COLUMNS}, merchants(company_name, city, address, description)`)
         .eq("id", id)
         .is("deleted_at", null)
         .maybeSingle();
