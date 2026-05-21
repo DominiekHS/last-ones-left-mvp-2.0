@@ -131,6 +131,16 @@ describe("friendlyAuthError", () => {
     ).toBe("Wachtwoord is te zwak. Gebruik minimaal 8 tekens.");
   });
 
+  it("vertaalt gelekt wachtwoord (HIBP)", () => {
+    expect(
+      friendlyAuthError({ message: "Password is known to be leaked", code: "weak_password" }),
+    ).toBe("Dit wachtwoord komt voor in een bekende datalek. Kies een ander wachtwoord.");
+    expect(
+      friendlyAuthError({ message: "pwned password detected", code: "weak_password" }),
+    ).toBe("Dit wachtwoord komt voor in een bekende datalek. Kies een ander wachtwoord.");
+  });
+
+
   it("vertaalt ongeldig e-mailadres", () => {
     expect(friendlyAuthError({ message: "Unable to validate email address: invalid format" })).toBe(
       "Vul een geldig e-mailadres in.",
