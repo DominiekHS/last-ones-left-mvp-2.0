@@ -125,20 +125,27 @@ describe("friendlyAuthError", () => {
     );
   });
 
-  it("vertaalt zwak wachtwoord", () => {
+  it("vertaalt zwak wachtwoord (length)", () => {
     expect(
       friendlyAuthError({ message: "Password should be at least 8 characters", code: "weak_password" }),
-    ).toBe("Wachtwoord is te zwak. Gebruik minimaal 8 tekens.");
+    ).toBe("Wachtwoord is te zwak. Gebruik minimaal 8 tekens en combineer letters, cijfers en symbolen.");
   });
 
-  it("vertaalt gelekt wachtwoord (HIBP)", () => {
+  it("vertaalt gelekt wachtwoord (HIBP) via reasons-array", () => {
+    // supabase-js AuthWeakPasswordError vorm
     expect(
-      friendlyAuthError({ message: "Password is known to be leaked", code: "weak_password" }),
+      friendlyAuthError({
+        message: "Password is known to be weak and easy to guess, please use a different one.",
+        code: "weak_password",
+        weakPassword: { reasons: ["pwned"] },
+      }),
     ).toBe("Dit wachtwoord komt voor in een bekende datalek. Kies een ander wachtwoord.");
+    // Fallback op message-tekst (oudere clients / edge function relays)
     expect(
       friendlyAuthError({ message: "pwned password detected", code: "weak_password" }),
     ).toBe("Dit wachtwoord komt voor in een bekende datalek. Kies een ander wachtwoord.");
   });
+
 
 
   it("vertaalt ongeldig e-mailadres", () => {

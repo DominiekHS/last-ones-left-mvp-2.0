@@ -8,12 +8,26 @@
  *
  * Onbekende fouten → generieke fallback (geen rauwe message naar gebruiker).
  */
-type AuthLikeError = { message?: string; code?: string; status?: number } | null | undefined;
+type AuthLikeError =
+  | {
+      message?: string;
+      code?: string;
+      status?: number;
+      // supabase-js AuthWeakPasswordError zet hier de reden(en) neer
+      reasons?: string[];
+      weakPassword?: { reasons?: string[] };
+    }
+  | null
+  | undefined;
 
 export function friendlyAuthError(error: AuthLikeError): string {
   if (!error) return "Er ging iets mis. Probeer het opnieuw.";
   const raw = (error.message ?? "").toLowerCase();
   const code = (error.code ?? "").toLowerCase();
+  const reasons = [
+    ...(error.reasons ?? []),
+    ...(error.weakPassword?.reasons ?? []),
+  ].map((r) => r.toLowerCase());
 
   // Login
   if (raw.includes("invalid login credentials") || code === "invalid_credentials") {
@@ -27,12 +41,20 @@ export function friendlyAuthError(error: AuthLikeError): string {
   if (raw.includes("user already registered") || raw.includes("already been registered") || code === "user_already_exists") {
     return "Er bestaat al een account met dit e-mailadres. Log in of gebruik 'Wachtwoord vergeten'.";
   }
-  if (raw.includes("pwned") || raw.includes("leaked") || raw.includes("compromised")) {
+  // HIBP / gelekt wachtwoord — checken vóór de generieke "te zwak"-melding.
+  // Supabase zet de echte reden in `weakPassword.reasons` (bv. ["pwned"]).
+  if (
+    reasons.includes("pwned") ||
+    raw.includes("pwned") ||
+    raw.includes("leaked") ||
+    raw.includes("compromised")
+  ) {
     return "Dit wachtwoord komt voor in een bekende datalek. Kies een ander wachtwoord.";
   }
   if (raw.includes("password should be at least") || code === "weak_password") {
-    return "Wachtwoord is te zwak. Gebruik minimaal 8 tekens.";
+    return "Wachtwoord is te zwak. Gebruik minimaal 8 tekens en combineer letters, cijfers en symbolen.";
   }
+
   if (raw.includes("unable to validate email") || raw.includes("invalid email")) {
     return "Vul een geldig e-mailadres in.";
   }
