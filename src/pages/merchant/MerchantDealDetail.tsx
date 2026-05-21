@@ -112,7 +112,12 @@ export default function MerchantDealDetail() {
 
   const isExpired = new Date(deal.expiry_time) < new Date();
   const isVariableAmount = (deal as any).counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter";
-  const discountedPrice = deal.original_price * (1 - deal.discount_percentage / 100);
+  const isPerPersonVariable = (deal as any).pricing_model === "per_person_variable";
+  const pricePerPerson = Number((deal as any).price_per_person) || 0;
+  const originalPrice = Number(deal.original_price) || 0;
+  const discountFactor = 1 - deal.discount_percentage / 100;
+  const discountedPrice = originalPrice * discountFactor;
+  const discountedPricePerPerson = pricePerPerson * discountFactor;
   const hasCheckoutLink = deal.redemption_method === "online_checkout" || deal.redemption_method === "online_pay_pos_refund";
   const methodLabel =
     deal.redemption_method === "online_checkout"
@@ -207,9 +212,24 @@ export default function MerchantDealDetail() {
           </CardHeader>
           <CardContent className="space-y-3">
             <InfoRow label="Korting" value={`${deal.discount_percentage}%`} />
-            <InfoRow label="Originele prijs" value={isVariableAmount ? "n.v.t. (bedrag varieert)" : `€${Number(deal.original_price).toFixed(2)}`} />
-            {!isVariableAmount && <InfoRow label="Prijs na korting" value={`€${discountedPrice.toFixed(2)}`} />}
-            {isVariableAmount && <InfoRow label="Prijstype" value="Bedrag varieert per klant" />}
+            {isVariableAmount ? (
+              <InfoRow label="Prijstype" value="Bedrag varieert per klant" />
+            ) : isPerPersonVariable ? (
+              <>
+                <InfoRow label="Prijs per persoon" value={pricePerPerson > 0 ? `€${pricePerPerson.toFixed(2)} p.p.` : "—"} />
+                {pricePerPerson > 0 && (
+                  <InfoRow label="Prijs na korting" value={`€${discountedPricePerPerson.toFixed(2)} p.p.`} />
+                )}
+              </>
+            ) : (
+              <>
+                <InfoRow label="Originele prijs" value={originalPrice > 0 ? `€${originalPrice.toFixed(2)}` : "—"} />
+                {originalPrice > 0 && (
+                  <InfoRow label="Prijs na korting" value={`€${discountedPrice.toFixed(2)}`} />
+                )}
+              </>
+            )}
+            
             <InfoRow label="Stad" value={deal.city || "—"} />
             <InfoRow label="Postcode" value={(deal as any).postal_code || "—"} />
             <InfoRow label="Adres" value={deal.address || "—"} />
@@ -250,19 +270,17 @@ export default function MerchantDealDetail() {
             />
             <div>
               <p className="text-sm font-medium text-muted-foreground mb-1">Checkout link</p>
-              {hasCheckoutLink ? (
-                deal.checkout_link ? (
-                  <a
-                    href={deal.checkout_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline inline-flex items-center gap-1 break-all"
-                  >
-                    {deal.checkout_link} <ExternalLink className="h-3 w-3 shrink-0" />
-                  </a>
-                ) : (
-                  <p className="text-sm text-destructive">Ontbrekende checkout link</p>
-                )
+              {deal.checkout_link ? (
+                <a
+                  href={deal.checkout_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-primary hover:underline inline-flex items-center gap-1 break-all"
+                >
+                  {deal.checkout_link} <ExternalLink className="h-3 w-3 shrink-0" />
+                </a>
+              ) : hasCheckoutLink ? (
+                <p className="text-sm text-destructive">Ontbrekende checkout link</p>
               ) : (
                 <p className="text-sm">n.v.t.</p>
               )}
