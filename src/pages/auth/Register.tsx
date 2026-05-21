@@ -19,6 +19,10 @@ export default function Register() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password.length < 8) {
+      toast({ title: "Registratie mislukt", description: "Wachtwoord is te zwak. Gebruik minimaal 8 tekens.", variant: "destructive" });
+      return;
+    }
     setLoading(true);
 
     const { data, error } = await supabase.auth.signUp({
@@ -81,7 +85,7 @@ export default function Register() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Wachtwoord *</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Bezig..." : "Registreren"}
