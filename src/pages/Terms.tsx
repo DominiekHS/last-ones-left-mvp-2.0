@@ -79,7 +79,7 @@ export default function Terms() {
           <h2 className="font-display text-xl font-bold mb-2">4. Deals, beschikbaarheid en last-minute karakter</h2>
           <p>
             Alle deals op Last Ones Left hebben een last-minute karakter. Dit betekent dat activiteiten
-            binnen 24 uur starten en de beschikbaarheid beperkt is. Deals kunnen op elk moment uitverkocht
+            binnen 48 uur starten en de beschikbaarheid beperkt is. Deals kunnen op elk moment uitverkocht
             raken of door de aanbieder worden ingetrokken. Last Ones Left kan niet garanderen dat een deal
             beschikbaar blijft tot het moment van claimen.
           </p>
