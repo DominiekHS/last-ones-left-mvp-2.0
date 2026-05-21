@@ -27,6 +27,9 @@ export function friendlyAuthError(error: AuthLikeError): string {
   if (raw.includes("user already registered") || raw.includes("already been registered") || code === "user_already_exists") {
     return "Er bestaat al een account met dit e-mailadres. Log in of gebruik 'Wachtwoord vergeten'.";
   }
+  if (raw.includes("pwned") || raw.includes("leaked") || raw.includes("compromised")) {
+    return "Dit wachtwoord komt voor in een bekende datalek. Kies een ander wachtwoord.";
+  }
   if (raw.includes("password should be at least") || code === "weak_password") {
     return "Wachtwoord is te zwak. Gebruik minimaal 8 tekens.";
   }
