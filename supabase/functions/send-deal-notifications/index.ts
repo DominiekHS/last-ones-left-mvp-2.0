@@ -175,18 +175,18 @@ Deno.serve(async (req) => {
         </div>`;
 
       try {
-        const res = await fetch(`${GATEWAY_URL}/emails`, {
+        const res = await fetch(`${GATEWAY_URL}/smtp/email`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "X-Connection-Api-Key": RESEND_API_KEY,
+            "X-Connection-Api-Key": BREVO_API_KEY,
           },
           body: JSON.stringify({
-            from: "Last Ones Left <onboarding@resend.dev>",
-            to: [r.email],
+            sender: { name: FROM_NAME, email: FROM_EMAIL },
+            to: [{ email: r.email }],
             subject: `Nieuwe deal op Last Ones Left: ${deal.title}`,
-            html,
+            htmlContent: html,
           }),
         });
         if (!res.ok) {
