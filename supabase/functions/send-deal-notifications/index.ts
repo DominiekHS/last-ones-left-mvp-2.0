@@ -27,9 +27,9 @@ Deno.serve(async (req) => {
   try {
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-    if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY not configured");
+    if (!BREVO_API_KEY) throw new Error("BREVO_API_KEY not configured");
 
     const admin = auth.admin;
 
