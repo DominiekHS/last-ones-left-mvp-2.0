@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { friendlyAuthError } from "@/lib/friendly-errors";
 import { logAuthEvent } from "@/lib/audit";
 import { useMerchantSignupEnabled } from "@/hooks/useAppSettings";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
