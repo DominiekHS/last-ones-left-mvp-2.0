@@ -30,7 +30,7 @@ export default function Register() {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: fullName, phone },
+        data: { full_name: fullName, phone, role: "consumer" },
       },
     });
 
@@ -40,13 +40,10 @@ export default function Register() {
       return;
     }
 
-    // Assign consumer role
-    if (data.user) {
-      await supabase.from("user_roles").insert({ user_id: data.user.id, role: "consumer" });
-      // Update profile with DOB
-      if (dob) {
-        await supabase.from("profiles").update({ date_of_birth: dob }).eq("user_id", data.user.id);
-      }
+    // Rol wordt automatisch toegekend via de handle_new_user DB-trigger.
+    // Profiel-DOB hier nog updaten (niet in metadata opgenomen).
+    if (data.user && dob) {
+      await supabase.from("profiles").update({ date_of_birth: dob }).eq("user_id", data.user.id);
     }
 
     toast({
