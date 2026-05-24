@@ -2,7 +2,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { corsHeaders, requireUser } from "../_shared/auth.ts";
 import { z, parseJsonBody } from "../_shared/validation.ts";
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
+const GATEWAY_URL = "https://connector-gateway.lovable.dev/brevo";
+const FROM_EMAIL = "noreply@lastonesleft.nl";
+const FROM_NAME = "Last Ones Left";
 
 const NotifySchema = z.object({
   dealId: z.string().uuid("dealId moet een geldige UUID zijn"),
