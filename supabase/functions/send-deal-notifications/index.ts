@@ -108,19 +108,8 @@ Deno.serve(async (req) => {
       .eq("email_notifications_enabled", true);
 
     const recipients = (profiles ?? []).filter((p) => p.email);
-    const requestOrigin = req.headers.get("Origin");
-    const siteUrl = Deno.env.get("SITE_URL");
-    const origin = [requestOrigin, siteUrl]
-      .map((value) => value?.replace(/\/+$/, ""))
-      .find((value) => value && /^https?:\/\//.test(value));
-
-    if (!origin) {
-      console.error("SITE_URL/Origin ontbreekt of is ongeldig");
-      return new Response(JSON.stringify({ error: "Configuratiefout" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    // Always link to the live production domain, regardless of where the deal was created from
+    const origin = "https://lastonesleft.nl";
     const dealLinkBase = `${origin}/deal/${deal.id}`;
     console.log("Deal notification link", { dealId: deal.id, dealLinkBase });
     const expiry = new Date(deal.expiry_time).toLocaleString("nl-NL", {
