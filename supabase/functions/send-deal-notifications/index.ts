@@ -2,7 +2,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { corsHeaders, requireUser } from "../_shared/auth.ts";
 import { z, parseJsonBody } from "../_shared/validation.ts";
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
+const GATEWAY_URL = "https://connector-gateway.lovable.dev/brevo";
+const FROM_EMAIL = "noreply@lastonesleft.nl";
+const FROM_NAME = "Last Ones Left";
 
 const NotifySchema = z.object({
   dealId: z.string().uuid("dealId moet een geldige UUID zijn"),
@@ -25,9 +27,9 @@ Deno.serve(async (req) => {
   try {
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-    if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY not configured");
+    if (!BREVO_API_KEY) throw new Error("BREVO_API_KEY not configured");
 
     const admin = auth.admin;
 
@@ -173,18 +175,18 @@ Deno.serve(async (req) => {
         </div>`;
 
       try {
-        const res = await fetch(`${GATEWAY_URL}/emails`, {
+        const res = await fetch(`${GATEWAY_URL}/smtp/email`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "X-Connection-Api-Key": RESEND_API_KEY,
+            "X-Connection-Api-Key": BREVO_API_KEY,
           },
           body: JSON.stringify({
-            from: "Last Ones Left <onboarding@resend.dev>",
-            to: [r.email],
+            sender: { name: FROM_NAME, email: FROM_EMAIL },
+            to: [{ email: r.email }],
             subject: `Nieuwe deal op Last Ones Left: ${deal.title}`,
-            html,
+            htmlContent: html,
           }),
         });
         if (!res.ok) {
