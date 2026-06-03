@@ -64,6 +64,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   rondvaart: "Rondvaart",
   workshop: "Workshop",
   cocktail_walk: "Cocktail Walk",
+  bierproeverij: "Bierproeverij",
   overig: "Overig",
 };
 
