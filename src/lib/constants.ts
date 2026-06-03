@@ -29,6 +29,7 @@ export const CATEGORIES = [
   { value: "rondvaart", label: "Rondvaart" },
   { value: "workshop", label: "Workshop" },
   { value: "cocktail_walk", label: "Cocktail Walk" },
+  { value: "bierproeverij", label: "Bierproeverij" },
   { value: "overig", label: "Overig" },
 ] as const;
 
@@ -63,6 +64,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   rondvaart: "Rondvaart",
   workshop: "Workshop",
   cocktail_walk: "Cocktail Walk",
+  bierproeverij: "Bierproeverij",
   overig: "Overig",
 };
 
