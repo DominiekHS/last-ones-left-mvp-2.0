@@ -77,7 +77,7 @@ export function Header() {
                   </Button>
                 </>
               )}
-              <DropdownMenu>
+              <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
                     <User className="mr-1 h-4 w-4" />
