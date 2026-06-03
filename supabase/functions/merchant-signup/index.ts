@@ -13,7 +13,7 @@ const VENUE_TYPES = [
   "escaperoom", "arcade", "verhuur", "paintball", "concert", "voetbal",
   "basketbal", "overig", "jeu_de_boules", "shuffleboard", "boulderen",
   "pitch_putt", "voet_darts", "voetgolf", "minigolf", "padel",
-  "pickleball", "tennis", "karten", "pool", "airhockey", "darts", "rondvaart", "workshop", "cocktail_walk", "bierproeverij",
+  "pickleball", "tennis", "karten", "pool", "airhockey", "darts", "rondvaart", "workshop", "cocktail_walk", "bierproeverij", "indoor_golf",
 ] as const;
 
 const SignupSchema = z.object({
