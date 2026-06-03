@@ -30,6 +30,7 @@ export const CATEGORIES = [
   { value: "workshop", label: "Workshop" },
   { value: "cocktail_walk", label: "Cocktail Walk" },
   { value: "bierproeverij", label: "Bierproeverij" },
+  { value: "indoor_golf", label: "Indoor Golf" },
   { value: "overig", label: "Overig" },
 ] as const;
 
