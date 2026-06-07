@@ -36,6 +36,19 @@ export function Header() {
     navigate("/");
   };
 
+  const referralCode = (profile as { referral_code?: string | null } | null)?.referral_code;
+  const shareUrl = referralCode ? `${window.location.origin}/registreren?ref=${referralCode}` : "";
+
+  const copyDeelLink = async () => {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast({ title: "Link gekopieerd!", description: "Plak hem in een bericht aan je vrienden." });
+    } catch {
+      toast({ title: "Kopiëren mislukt", description: "Selecteer de link handmatig.", variant: "destructive" });
+    }
+  };
+
   const redirectTarget = `${location.pathname}${location.search}${location.hash}`;
 
   return (
