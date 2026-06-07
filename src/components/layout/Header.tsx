@@ -83,6 +83,10 @@ export function Header() {
               {!isMerchant && !isAdmin && (
                 <>
                   <NotificationBellToggle />
+                  <Button variant="ghost" size="sm" onClick={copyDeelLink} className="gap-1">
+                    <Share2 className="h-4 w-4" />
+                    Deel
+                  </Button>
                   <Button variant="ghost" size="sm" asChild>
                     <Link to="/vouchers">Mijn kortingscodes</Link>
                   </Button>
