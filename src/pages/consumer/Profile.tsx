@@ -148,6 +148,10 @@ export default function Profile() {
         </Card>
       )}
 
+      {isConsumer && !isAdmin && !isMerchant && <ReferralShareCard />}
+
+
+
       <Card className="mt-4">
         <CardContent className="p-4">
           <Button variant="outline" size="sm" asChild className="w-full">
