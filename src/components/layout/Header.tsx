@@ -2,10 +2,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { SafeLink as Link } from "@/components/SafeLink";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, X, User, LogOut, Store, Shield } from "lucide-react";
+import { Menu, X, User, LogOut, Store, Shield, Share2 } from "lucide-react";
 import { NotificationBellToggle } from "@/components/NotificationBellToggle";
 import { useState } from "react";
 import { useMerchantSignupEnabled } from "@/hooks/useAppSettings";
+import { toast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
