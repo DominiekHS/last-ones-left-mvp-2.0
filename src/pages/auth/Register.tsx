@@ -34,12 +34,13 @@ export default function Register() {
     }
     setLoading(true);
 
+    const referralCode = sessionStorage.getItem("ll_referral_code") || undefined;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: fullName, phone, role: "consumer" },
+        data: { full_name: fullName, phone, role: "consumer", referral_code: referralCode },
       },
     });
 
