@@ -15,7 +15,16 @@ export default function Register() {
   const [phone, setPhone] = useState("");
   const [dob, setDob] = useState("");
   const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  // Pak referral-code uit ?ref= en bewaar in sessionStorage zodat hij blijft na navigatie.
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      sessionStorage.setItem("ll_referral_code", ref.toUpperCase());
+    }
+  }, [searchParams]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
