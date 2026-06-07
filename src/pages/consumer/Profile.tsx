@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { friendlyDbError } from "@/lib/friendly-errors";
 import { Navigate, Link } from "react-router-dom";
+import { ReferralShareCard } from "@/components/consumer/ReferralShareCard";
 
 export default function Profile() {
   const { user, profile, roles, merchant, loading, refreshProfile } = useAuth();
