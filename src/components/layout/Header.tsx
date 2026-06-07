@@ -2,10 +2,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { SafeLink as Link } from "@/components/SafeLink";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, X, User, LogOut, Store, Shield } from "lucide-react";
+import { Menu, X, User, LogOut, Store, Shield, Share2 } from "lucide-react";
 import { NotificationBellToggle } from "@/components/NotificationBellToggle";
 import { useState } from "react";
 import { useMerchantSignupEnabled } from "@/hooks/useAppSettings";
+import { toast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +34,19 @@ export function Header() {
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
+  };
+
+  const referralCode = (profile as { referral_code?: string | null } | null)?.referral_code;
+  const shareUrl = referralCode ? `${window.location.origin}/registreren?ref=${referralCode}` : "";
+
+  const copyDeelLink = async () => {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast({ title: "Link gekopieerd!", description: "Plak hem in een bericht aan je vrienden." });
+    } catch {
+      toast({ title: "Kopiëren mislukt", description: "Selecteer de link handmatig.", variant: "destructive" });
+    }
   };
 
   const redirectTarget = `${location.pathname}${location.search}${location.hash}`;
@@ -69,6 +83,10 @@ export function Header() {
               {!isMerchant && !isAdmin && (
                 <>
                   <NotificationBellToggle />
+                  <Button variant="ghost" size="sm" onClick={copyDeelLink} className="gap-1">
+                    <Share2 className="h-4 w-4" />
+                    Deel
+                  </Button>
                   <Button variant="ghost" size="sm" asChild>
                     <Link to="/vouchers">Mijn kortingscodes</Link>
                   </Button>
@@ -132,6 +150,9 @@ export function Header() {
               </Link>
               {!isMerchant && !isAdmin && (
                 <>
+                  <button onClick={() => { copyDeelLink(); setMobileOpen(false); }} className="block py-2 text-sm w-full text-left">
+                    Deel Last Ones Left
+                  </button>
                   <Link to="/vouchers" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>
                     Mijn kortingscodes
                   </Link>
