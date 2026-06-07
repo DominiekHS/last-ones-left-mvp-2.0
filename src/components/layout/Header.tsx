@@ -150,6 +150,9 @@ export function Header() {
               </Link>
               {!isMerchant && !isAdmin && (
                 <>
+                  <button onClick={() => { copyDeelLink(); setMobileOpen(false); }} className="block py-2 text-sm w-full text-left">
+                    Deel Last Ones Left
+                  </button>
                   <Link to="/vouchers" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>
                     Mijn kortingscodes
                   </Link>
