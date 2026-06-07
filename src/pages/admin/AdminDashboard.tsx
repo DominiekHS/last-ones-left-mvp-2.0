@@ -601,6 +601,10 @@ export default function AdminDashboard() {
           <PlatformSettingsTab />
         </TabsContent>
 
+        <TabsContent value="referrals" className="mt-4">
+          <ReferralsTab />
+        </TabsContent>
+
         <TabsContent value="system" className="mt-4">
           <EnvironmentStatusTab />
         </TabsContent>
