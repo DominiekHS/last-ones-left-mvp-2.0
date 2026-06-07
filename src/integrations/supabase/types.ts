@@ -666,6 +666,7 @@ export type Database = {
           email_notifications_updated_at: string | null
           full_name: string
           id: string
+          referral_code: string | null
           updated_at: string
           user_id: string
         }
@@ -677,6 +678,7 @@ export type Database = {
           email_notifications_updated_at?: string | null
           full_name?: string
           id?: string
+          referral_code?: string | null
           updated_at?: string
           user_id: string
         }
@@ -688,8 +690,36 @@ export type Database = {
           email_notifications_updated_at?: string | null
           full_name?: string
           id?: string
+          referral_code?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referred_email: string
+          referred_user_id: string
+          referrer_user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referred_email?: string
+          referred_user_id: string
+          referrer_user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referred_email?: string
+          referred_user_id?: string
+          referrer_user_id?: string
+          verified_at?: string | null
         }
         Relationships: []
       }
@@ -1004,6 +1034,24 @@ export type Database = {
           status_updated_by: string
         }[]
       }
+      admin_get_referral_details: {
+        Args: { p_from?: string; p_referrer_user_id: string; p_to?: string }
+        Returns: {
+          created_at: string
+          referred_email: string
+          referred_user_id: string
+          verified_at: string
+        }[]
+      }
+      admin_get_referral_leaderboard: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+          referrer_user_id: string
+          total_verified: number
+        }[]
+      }
       claim_deal: {
         Args: { p_deal_id: string; p_user_id: string }
         Returns: {
@@ -1011,7 +1059,10 @@ export type Database = {
           voucher_id: string
         }[]
       }
+      confirm_my_referral: { Args: never; Returns: undefined }
+      generate_referral_code: { Args: never; Returns: string }
       get_my_deal_code: { Args: { p_deal_id: string }; Returns: string }
+      get_my_referral_count: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

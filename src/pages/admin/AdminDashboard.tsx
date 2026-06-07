@@ -22,10 +22,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket, CalendarDays, MapPin, Inbox, Settings, FileText } from "lucide-react";
+import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket, CalendarDays, MapPin, Inbox, Settings, FileText, Share2 } from "lucide-react";
 import { ActivityRequestsTab } from "@/components/admin/ActivityRequestsTab";
 import { PlatformSettingsTab } from "@/components/admin/PlatformSettingsTab";
 import { EnvironmentStatusTab } from "@/components/admin/EnvironmentStatusTab";
+import { ReferralsTab } from "@/components/admin/ReferralsTab";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { nl } from "date-fns/locale";
 import { CATEGORY_LABELS } from "@/lib/constants";
@@ -308,6 +309,7 @@ export default function AdminDashboard() {
           <TabsTrigger value="deals">Deals ({deals?.length || 0})</TabsTrigger>
           <TabsTrigger value="vouchers" onClick={() => navigate("/admin/kortingscodes")}>Kortingscodes</TabsTrigger>
           <TabsTrigger value="requests" className="gap-1"><Inbox className="h-3 w-3" />Voorkeuren</TabsTrigger>
+          <TabsTrigger value="referrals" className="gap-1"><Share2 className="h-3 w-3" />Referrals</TabsTrigger>
           <TabsTrigger value="settings" className="gap-1"><Settings className="h-3 w-3" />Instellingen</TabsTrigger>
           <TabsTrigger value="system" className="gap-1"><ShieldAlert className="h-3 w-3" />Systeem</TabsTrigger>
           <TabsTrigger value="audit" className="gap-1" onClick={() => navigate("/admin/audit-log")}><FileText className="h-3 w-3" />Audit log</TabsTrigger>
@@ -597,6 +599,10 @@ export default function AdminDashboard() {
 
         <TabsContent value="settings">
           <PlatformSettingsTab />
+        </TabsContent>
+
+        <TabsContent value="referrals" className="mt-4">
+          <ReferralsTab />
         </TabsContent>
 
         <TabsContent value="system" className="mt-4">

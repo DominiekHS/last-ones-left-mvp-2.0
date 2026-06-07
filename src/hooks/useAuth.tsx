@@ -45,6 +45,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(profileRes.data);
     setRoles((rolesRes.data || []).map((r) => r.role));
     setMerchant(merchantRes.data);
+    // Mark a pending referral as verified zodra de gebruiker zijn e-mail heeft bevestigd.
+    // De RPC is een no-op als er geen referral is of als de e-mail nog niet bevestigd is.
+    supabase.rpc("confirm_my_referral").then(() => {
+      sessionStorage.removeItem("ll_referral_code");
+    });
   }, []);
 
   const refreshProfile = useCallback(async () => {

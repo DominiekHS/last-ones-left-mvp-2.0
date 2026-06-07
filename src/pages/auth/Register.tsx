@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,16 @@ export default function Register() {
   const [phone, setPhone] = useState("");
   const [dob, setDob] = useState("");
   const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  // Pak referral-code uit ?ref= en bewaar in sessionStorage zodat hij blijft na navigatie.
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) {
+      sessionStorage.setItem("ll_referral_code", ref.toUpperCase());
+    }
+  }, [searchParams]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,12 +34,13 @@ export default function Register() {
     }
     setLoading(true);
 
+    const referralCode = sessionStorage.getItem("ll_referral_code") || undefined;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: fullName, phone, role: "consumer" },
+        data: { full_name: fullName, phone, role: "consumer", referral_code: referralCode },
       },
     });
 
