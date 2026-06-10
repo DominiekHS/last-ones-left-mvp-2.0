@@ -68,13 +68,23 @@ export default function AdminDashboard() {
   const { data: consumers } = useQuery({
     queryKey: ["admin-consumers"],
     queryFn: async () => {
-      const { data: consumerRoles, error: rolesError } = await supabase
+      const { data: allRoles, error: rolesError } = await supabase
         .from("user_roles")
-        .select("user_id")
-        .eq("role", "consumer");
+        .select("user_id, role");
       if (rolesError) throw rolesError;
-      if (!consumerRoles?.length) return [];
-      const userIds = consumerRoles.map((r) => r.user_id);
+      if (!allRoles?.length) return [];
+      // Exclude users that also have merchant or admin role
+      const excluded = new Set(
+        allRoles.filter((r) => r.role === "merchant" || r.role === "admin").map((r) => r.user_id)
+      );
+      const userIds = Array.from(
+        new Set(
+          allRoles
+            .filter((r) => r.role === "consumer" && !excluded.has(r.user_id))
+            .map((r) => r.user_id)
+        )
+      );
+      if (!userIds.length) return [];
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
