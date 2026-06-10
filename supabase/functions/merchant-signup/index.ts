@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
     email: body.email,
     password: body.password,
     email_confirm: true,
-    user_metadata: { full_name: body.company_name },
+    user_metadata: { full_name: body.company_name, role: "merchant" },
   });
   if (createErr || !created?.user) {
     return bad(400, createErr?.message || "Could not create user");
