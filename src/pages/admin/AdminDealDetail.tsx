@@ -26,15 +26,29 @@ export default function AdminDealDetail() {
   const { data: deal, isLoading } = useQuery({
     queryKey: ["admin-deal", dealId],
     queryFn: async () => {
+      // NB: 'discount_code' is bewust uitgesloten — geen SELECT-grant op die kolom.
+      // We halen 'm hieronder op via de RPC get_my_deal_code (admin is geautoriseerd).
       const { data, error } = await supabase
         .from("deals")
-        .select("*, merchants(id, company_name, city, contact_email)")
+        .select(
+          "id, merchant_id, title, description, image_url, category, city, original_price, discount_percentage, start_time, expiry_time, checkout_link, created_at, updated_at, address, redemption_method, discount_type, redemption_instructions, cancellation_policy, terms_summary, counter_discount_mode, postal_code, pricing_model, indicative_price_from, price_per_person, start_time_mode, payment_steps, notification_sent_at, deleted_at, merchants(id, company_name, city, contact_email)"
+        )
         .eq("id", dealId!)
         .maybeSingle();
       if (error) throw error;
       return data;
     },
     enabled: roles.includes("admin") && !!dealId,
+  });
+
+  const { data: discountCode } = useQuery({
+    queryKey: ["admin-deal-code", dealId],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_my_deal_code", { p_deal_id: dealId! });
+      if (error) throw error;
+      return (data as string | null) ?? null;
+    },
+    enabled: roles.includes("admin") && !!dealId && deal?.discount_type === "universal",
   });
 
   const { data: stats } = useQuery({
