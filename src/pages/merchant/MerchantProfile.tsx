@@ -35,6 +35,7 @@ export default function MerchantProfile() {
   const [uploading, setUploading] = useState(false);
 
   // Password change
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -42,8 +43,20 @@ export default function MerchantProfile() {
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user?.email) {
+      toast({ title: "Niet ingelogd", variant: "destructive" });
+      return;
+    }
+    if (!currentPassword) {
+      toast({ title: "Huidig wachtwoord vereist", variant: "destructive" });
+      return;
+    }
     if (newPassword.length < 8) {
       toast({ title: "Wachtwoord te kort", description: "Minimaal 8 tekens.", variant: "destructive" });
+      return;
+    }
+    if (newPassword === currentPassword) {
+      toast({ title: "Nieuw wachtwoord moet anders zijn dan het huidige", variant: "destructive" });
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -51,12 +64,25 @@ export default function MerchantProfile() {
       return;
     }
     setChangingPassword(true);
+
+    // Re-authenticatie: verifieer huidig wachtwoord
+    const { error: reauthError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: currentPassword,
+    });
+    if (reauthError) {
+      setChangingPassword(false);
+      toast({ title: "Huidig wachtwoord onjuist", variant: "destructive" });
+      return;
+    }
+
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     setChangingPassword(false);
     if (error) {
       toast({ title: "Fout", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Wachtwoord gewijzigd" });
+      setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     }
@@ -404,6 +430,17 @@ export default function MerchantProfile() {
             <CardContent>
               <form onSubmit={handleChangePassword} className="space-y-3">
                 <div className="space-y-1">
+                  <Label htmlFor="currentPassword">Huidig wachtwoord</Label>
+                  <Input
+                    id="currentPassword"
+                    type={showPassword ? "text" : "password"}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    autoComplete="current-password"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
                   <Label htmlFor="newPassword">Nieuw wachtwoord</Label>
                   <div className="relative">
                     <Input
@@ -440,7 +477,7 @@ export default function MerchantProfile() {
                 </div>
                 <Button
                   type="submit"
-                  disabled={changingPassword || !newPassword || !confirmPassword}
+                  disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
                 >
                   {changingPassword ? "Bezig..." : "Wachtwoord wijzigen"}
