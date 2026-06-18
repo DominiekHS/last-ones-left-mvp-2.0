@@ -477,7 +477,7 @@ export default function MerchantProfile() {
                 </div>
                 <Button
                   type="submit"
-                  disabled={changingPassword || !newPassword || !confirmPassword}
+                  disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
                 >
                   {changingPassword ? "Bezig..." : "Wachtwoord wijzigen"}
