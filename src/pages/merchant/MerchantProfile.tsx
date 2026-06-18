@@ -393,6 +393,61 @@ export default function MerchantProfile() {
               <InfoRow icon={MapPin} label="Plaats" value={city} />
             </CardContent>
           </Card>
+
+          {/* Wachtwoord wijzigen */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Lock className="h-4 w-4" /> Wachtwoord wijzigen
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleChangePassword} className="space-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor="newPassword">Nieuw wachtwoord</Label>
+                  <div className="relative">
+                    <Input
+                      id="newPassword"
+                      type={showPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Minimaal 8 tekens"
+                      autoComplete="new-password"
+                      required
+                      minLength={8}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                      aria-label={showPassword ? "Verberg wachtwoord" : "Toon wachtwoord"}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="confirmPassword">Bevestig nieuw wachtwoord</Label>
+                  <Input
+                    id="confirmPassword"
+                    type={showPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    autoComplete="new-password"
+                    required
+                    minLength={8}
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={changingPassword || !newPassword || !confirmPassword}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                >
+                  {changingPassword ? "Bezig..." : "Wachtwoord wijzigen"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>
