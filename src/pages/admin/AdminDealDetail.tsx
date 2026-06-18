@@ -201,8 +201,8 @@ export default function AdminDealDetail() {
               </div>
             )}
             <InfoRow label="Kortingstype" value={deal.discount_type === "unique" ? "Unieke codes" : "Universele code"} />
-            {deal.discount_type === "universal" && deal.discount_code && (
-              <InfoRow label="Kortingscode" value={deal.discount_code} />
+            {deal.discount_type === "universal" && discountCode && (
+              <InfoRow label="Kortingscode" value={discountCode} />
             )}
             {deal.discount_type === "unique" && uniqueCodeStats && (
               <div className="space-y-1">
