@@ -430,6 +430,17 @@ export default function MerchantProfile() {
             <CardContent>
               <form onSubmit={handleChangePassword} className="space-y-3">
                 <div className="space-y-1">
+                  <Label htmlFor="currentPassword">Huidig wachtwoord</Label>
+                  <Input
+                    id="currentPassword"
+                    type={showPassword ? "text" : "password"}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    autoComplete="current-password"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
                   <Label htmlFor="newPassword">Nieuw wachtwoord</Label>
                   <div className="relative">
                     <Input
