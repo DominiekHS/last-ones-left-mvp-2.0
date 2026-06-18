@@ -12,7 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { friendlyDbError } from "@/lib/friendly-errors";
 import { Navigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Camera, Pencil, X, Save, Mail, Building2, MapPin, Phone, Globe, FileText, Tag } from "lucide-react";
+import { Camera, Pencil, X, Save, Mail, Building2, MapPin, Phone, Globe, FileText, Tag, Lock, Eye, EyeOff } from "lucide-react";
 import { CATEGORIES, CATEGORY_LABELS, type VenueCategory } from "@/lib/constants";
 
 export default function MerchantProfile() {
@@ -33,6 +33,34 @@ export default function MerchantProfile() {
   const [logoUrl, setLogoUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  // Password change
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword.length < 8) {
+      toast({ title: "Wachtwoord te kort", description: "Minimaal 8 tekens.", variant: "destructive" });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast({ title: "Wachtwoorden komen niet overeen", variant: "destructive" });
+      return;
+    }
+    setChangingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setChangingPassword(false);
+    if (error) {
+      toast({ title: "Fout", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Wachtwoord gewijzigd" });
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+  };
 
   const syncFromMerchant = () => {
     if (merchant) {
@@ -363,6 +391,61 @@ export default function MerchantProfile() {
               <InfoRow icon={MapPin} label="Straat + huisnummer" value={address} />
               <InfoRow icon={MapPin} label="Postcode" value={postcode} />
               <InfoRow icon={MapPin} label="Plaats" value={city} />
+            </CardContent>
+          </Card>
+
+          {/* Wachtwoord wijzigen */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Lock className="h-4 w-4" /> Wachtwoord wijzigen
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleChangePassword} className="space-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor="newPassword">Nieuw wachtwoord</Label>
+                  <div className="relative">
+                    <Input
+                      id="newPassword"
+                      type={showPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Minimaal 8 tekens"
+                      autoComplete="new-password"
+                      required
+                      minLength={8}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                      aria-label={showPassword ? "Verberg wachtwoord" : "Toon wachtwoord"}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="confirmPassword">Bevestig nieuw wachtwoord</Label>
+                  <Input
+                    id="confirmPassword"
+                    type={showPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    autoComplete="new-password"
+                    required
+                    minLength={8}
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={changingPassword || !newPassword || !confirmPassword}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                >
+                  {changingPassword ? "Bezig..." : "Wachtwoord wijzigen"}
+                </Button>
+              </form>
             </CardContent>
           </Card>
         </div>
