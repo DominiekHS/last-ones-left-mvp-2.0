@@ -313,17 +313,19 @@ export default function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="merchants">
-        <TabsList>
-          <TabsTrigger value="merchants">Ondernemers ({merchants?.length || 0})</TabsTrigger>
-          <TabsTrigger value="consumers">Consumenten ({consumers?.length || 0})</TabsTrigger>
-          <TabsTrigger value="deals">Deals ({deals?.length || 0})</TabsTrigger>
-          <TabsTrigger value="vouchers" onClick={() => navigate("/admin/kortingscodes")}>Kortingscodes</TabsTrigger>
-          <TabsTrigger value="requests" className="gap-1"><Inbox className="h-3 w-3" />Voorkeuren</TabsTrigger>
-          <TabsTrigger value="referrals" className="gap-1"><Share2 className="h-3 w-3" />Referrals</TabsTrigger>
-          <TabsTrigger value="settings" className="gap-1"><Settings className="h-3 w-3" />Instellingen</TabsTrigger>
-          <TabsTrigger value="system" className="gap-1"><ShieldAlert className="h-3 w-3" />Systeem</TabsTrigger>
-          <TabsTrigger value="audit" className="gap-1" onClick={() => navigate("/admin/audit-log")}><FileText className="h-3 w-3" />Audit log</TabsTrigger>
-        </TabsList>
+        <div className="w-full overflow-x-auto -mx-1 px-1">
+          <TabsList className="w-max flex-nowrap">
+            <TabsTrigger value="merchants">Ondernemers ({merchants?.length || 0})</TabsTrigger>
+            <TabsTrigger value="consumers">Consumenten ({consumers?.length || 0})</TabsTrigger>
+            <TabsTrigger value="deals">Deals ({deals?.length || 0})</TabsTrigger>
+            <TabsTrigger value="vouchers" onClick={() => navigate("/admin/kortingscodes")}>Kortingscodes</TabsTrigger>
+            <TabsTrigger value="requests" className="gap-1"><Inbox className="h-3 w-3" />Voorkeuren</TabsTrigger>
+            <TabsTrigger value="referrals" className="gap-1"><Share2 className="h-3 w-3" />Referrals</TabsTrigger>
+            <TabsTrigger value="settings" className="gap-1"><Settings className="h-3 w-3" />Instellingen</TabsTrigger>
+            <TabsTrigger value="system" className="gap-1"><ShieldAlert className="h-3 w-3" />Systeem</TabsTrigger>
+            <TabsTrigger value="audit" className="gap-1" onClick={() => navigate("/admin/audit-log")}><FileText className="h-3 w-3" />Audit log</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="merchants" className="space-y-3 mt-4">
           <div className="flex gap-2 flex-wrap">
