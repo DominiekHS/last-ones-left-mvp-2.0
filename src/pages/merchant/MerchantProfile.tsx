@@ -12,7 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { friendlyDbError } from "@/lib/friendly-errors";
 import { Navigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Camera, Pencil, X, Save, Mail, Building2, MapPin, Phone, Globe, FileText, Tag } from "lucide-react";
+import { Camera, Pencil, X, Save, Mail, Building2, MapPin, Phone, Globe, FileText, Tag, Lock, Eye, EyeOff } from "lucide-react";
 import { CATEGORIES, CATEGORY_LABELS, type VenueCategory } from "@/lib/constants";
 
 export default function MerchantProfile() {
