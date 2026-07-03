@@ -914,7 +914,7 @@ export default function AdForm() {
                     onChange={(e) => setStartTime(e.target.value)}
                     onBlur={() => touch("startTime")}
                   />
-                  <p className="text-xs text-muted-foreground">Moet vandaag of morgen zijn</p>
+                  <p className="text-xs text-muted-foreground">Moet vandaag, morgen of overmorgen zijn</p>
                   {showError("startTime") && <p className="text-xs text-destructive">{showError("startTime")}</p>}
                 </div>
               )}
