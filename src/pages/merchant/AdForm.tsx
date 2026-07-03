@@ -501,7 +501,7 @@ export default function AdForm() {
             <CardContent className="p-4 flex gap-3">
               <AlertTriangle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
               <div>
-                <p className="font-display font-semibold text-sm">Let op: Starttijd moet vandaag of morgen zijn</p>
+                <p className="font-display font-semibold text-sm">Let op: Starttijd moet vandaag, morgen of overmorgen zijn</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Dit is een last-minute marketplace. Activiteiten die later starten kunnen niet worden geplaatst.
                 </p>
