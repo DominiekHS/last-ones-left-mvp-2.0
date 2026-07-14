@@ -223,6 +223,7 @@ export default function AdminDashboard() {
           "terms_summary, counter_discount_mode, postal_code, pricing_model, " +
           "indicative_price_from, price_per_person, start_time_mode, " +
           "payment_steps, notification_sent_at, deleted_at, " +
+          "is_teaser, always_show, teaser_body, " +
           "merchants(company_name)"
         )
         .is("deleted_at", null)
