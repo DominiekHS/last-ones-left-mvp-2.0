@@ -532,6 +532,11 @@ export default function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="deals" className="space-y-3 mt-4">
+          <div className="flex justify-end">
+            <Button size="sm" onClick={() => navigate("/admin/proefadvertentie/nieuw")}>
+              + Nieuwe proefadvertentie
+            </Button>
+          </div>
           <div className="flex gap-2 flex-wrap">
             {([
               { key: "all" as const, label: `Alles (${deals?.length || 0})` },
@@ -543,6 +548,22 @@ export default function AdminDashboard() {
                 variant={dealStatusFilter === s.key ? "default" : "outline"}
                 size="sm"
                 onClick={() => setDealStatusFilter(s.key)}
+              >
+                {s.label}
+              </Button>
+            ))}
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {([
+              { key: "all" as const, label: "Type: alle" },
+              { key: "real" as const, label: "Type: echt" },
+              { key: "teaser" as const, label: "Type: proef" },
+            ]).map(s => (
+              <Button
+                key={s.key}
+                variant={dealTypeFilter === s.key ? "default" : "outline"}
+                size="sm"
+                onClick={() => setDealTypeFilter(s.key)}
               >
                 {s.label}
               </Button>
@@ -562,21 +583,30 @@ export default function AdminDashboard() {
           )}
           {filteredDeals?.map((d) => {
             const isExpired = new Date(d.expiry_time) < new Date();
+            const isTeaser = !!d.is_teaser;
+            const rowHref = isTeaser ? `/admin/proefadvertentie/${d.id}` : `/admin/deals/${d.id}`;
             return (
-              <Card key={d.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/deals/${d.id}`)}>
+              <Card key={d.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(rowHref)}>
                 <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-display font-semibold">{d.title}</h3>
-                      <Badge variant={isExpired ? "secondary" : "default"} className="text-xs">
-                        {isExpired ? "Verlopen" : "Actief"}
-                      </Badge>
+                      {isTeaser ? (
+                        <Badge variant="outline" className="text-xs">Proef</Badge>
+                      ) : (
+                        <Badge variant={isExpired ? "secondary" : "default"} className="text-xs">
+                          {isExpired ? "Verlopen" : "Actief"}
+                        </Badge>
+                      )}
                       <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[d.category]}</Badge>
+                      {isTeaser && d.always_show && (
+                        <Badge variant="secondary" className="text-xs">Altijd tonen</Badge>
+                      )}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {(d.merchants as any)?.company_name} · {d.city} · -{d.discount_percentage}% ·{" "}
-                      {format(new Date(d.start_time), "d MMM HH:mm", { locale: nl })} -{" "}
-                      {format(new Date(d.expiry_time), "d MMM HH:mm", { locale: nl })}
+                      {isTeaser
+                        ? `${(d.merchants as any)?.company_name || "Last Ones Left"} · ${d.city} · Proefadvertentie`
+                        : `${(d.merchants as any)?.company_name} · ${d.city} · -${d.discount_percentage}% · ${d.start_time ? format(new Date(d.start_time), "d MMM HH:mm", { locale: nl }) : "flexibel"} - ${format(new Date(d.expiry_time), "d MMM HH:mm", { locale: nl })}`}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
