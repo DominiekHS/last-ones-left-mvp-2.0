@@ -58,10 +58,21 @@ export default function AdminTeaserForm() {
   useEffect(() => {
     if (!isEdit || !id) return;
     (async () => {
-      const { data } = await (supabase.from("deals") as any)
-        .select("*")
+      const { data, error } = await (supabase.from("deals") as any)
+        .select(
+          "id, title, category, city, postal_code, address, image_url, " +
+          "teaser_body, teaser_cta_label, teaser_cta_url, always_show, is_teaser"
+        )
         .eq("id", id)
         .maybeSingle();
+      if (error) {
+        toast({
+          title: "Laden mislukt",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
       if (data) {
         setTitle(data.title || "");
         setCategory(data.category || "overig");
