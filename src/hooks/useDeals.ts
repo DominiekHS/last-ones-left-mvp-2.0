@@ -30,11 +30,32 @@ export function useActiveDeals(category?: string, city?: string) {
 
       const { data, error } = await query;
       if (error) throw error;
-      // Map relation key terug naar `merchants` voor backwards compat met UI
-      return (data ?? []).map((d: any) => ({
+      const rows = (data ?? []).map((d: any) => ({
         ...d,
         merchants: d.merchants_public,
       }));
+
+      // Auto-verberg teasers als er echte deal bestaat in dezelfde
+      // categorie + plaats (case-insensitive), tenzij always_show = true.
+      const realKeys = new Set<string>();
+      for (const d of rows) {
+        if (!d.is_teaser) {
+          realKeys.add(`${d.category}::${(d.city || "").toLowerCase()}`);
+        }
+      }
+      const visible = rows.filter((d: any) => {
+        if (!d.is_teaser) return true;
+        if (d.always_show) return true;
+        return !realKeys.has(`${d.category}::${(d.city || "").toLowerCase()}`);
+      });
+
+      // Echte deals eerst, teasers erachter
+      visible.sort((a: any, b: any) => {
+        if (!!a.is_teaser === !!b.is_teaser) return 0;
+        return a.is_teaser ? 1 : -1;
+      });
+
+      return visible;
     },
   });
 }

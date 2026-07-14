@@ -36,6 +36,7 @@ import AdminMerchantDetail from "./pages/admin/AdminMerchantDetail";
 import AdminConsumerDetail from "./pages/admin/AdminConsumerDetail";
 import AdminVoucherUsage from "./pages/admin/AdminVoucherUsage";
 import AdminAuditLog from "./pages/admin/AdminAuditLog";
+import AdminTeaserForm from "./pages/admin/AdminTeaserForm";
 import TestInfo from "./pages/TestInfo";
 import NotFound from "./pages/NotFound";
 
@@ -87,6 +88,8 @@ const App = () => (
               <Route path="/admin/consumenten/:userId" element={<AdminConsumerDetail />} />
               <Route path="/admin/kortingscodes" element={<AdminVoucherUsage />} />
               <Route path="/admin/audit-log" element={<AdminAuditLog />} />
+              <Route path="/admin/proefadvertentie/nieuw" element={<AdminTeaserForm />} />
+              <Route path="/admin/proefadvertentie/:id" element={<AdminTeaserForm />} />
               <Route path="*" element={<NotFound />} />
             </Route>
             </Routes>

@@ -108,6 +108,12 @@ export default function DealDetail() {
     );
   }
 
+  const isTeaser = !!(deal as any).is_teaser;
+
+  if (isTeaser) {
+    return <TeaserView deal={deal} />;
+  }
+
   const discountedPrice = deal.original_price * (1 - deal.discount_percentage / 100);
   const hasFixedStart = (deal as any).start_time_mode !== "flexible" && deal.start_time;
   const startDate = hasFixedStart ? new Date(deal.start_time) : null;
@@ -436,5 +442,83 @@ function MerchantPreviewCTA({ dealId }: { dealId: string }) {
         </Button>
       </div>
     </>
+  );
+}
+
+function TeaserView({ deal }: { deal: any }) {
+  // noindex voor zoekmachines
+  useEffect(() => {
+    const meta = document.createElement("meta");
+    meta.name = "robots";
+    meta.content = "noindex,nofollow";
+    document.head.appendChild(meta);
+    return () => { document.head.removeChild(meta); };
+  }, []);
+
+  const ctaLabel = deal.teaser_cta_label || "Deel met vrienden";
+  const ctaUrl = deal.teaser_cta_url || null;
+
+  const handleCta = () => {
+    if (ctaUrl) {
+      if (ctaUrl.startsWith("http")) {
+        window.open(ctaUrl, "_blank", "noopener,noreferrer");
+      } else {
+        window.location.href = ctaUrl;
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast({ title: "Link gekopieerd!", description: "Deel deze plek met je vrienden zodat we hem sneller kunnen invullen." });
+    }
+  };
+
+  return (
+    <div className="container py-4 max-w-2xl space-y-4">
+      <Button variant="ghost" size="sm" asChild>
+        <Link to="/"><ArrowLeft className="mr-1 h-4 w-4" />Terug</Link>
+      </Button>
+
+      <div className="rounded-md border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
+        <strong>Voorproefje.</strong> Dit is nog geen actieve deal — bedrijven kunnen deze plek binnenkort invullen.
+      </div>
+
+      {deal.image_url && (
+        <div className="aspect-video rounded-lg overflow-hidden bg-muted">
+          <img src={deal.image_url} alt={deal.title} className="w-full h-full object-cover grayscale-[20%]" />
+        </div>
+      )}
+
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="secondary" className="font-bold">?%</Badge>
+          <Badge variant="outline">{CATEGORY_LABELS[deal.category] || deal.category}</Badge>
+          <Badge variant="outline">Proefadvertentie</Badge>
+        </div>
+
+        <h1 className="font-display text-2xl font-bold">{deal.title}</h1>
+        <p className="text-sm text-muted-foreground">Geplaatst door Last Ones Left</p>
+
+        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+          <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{[deal.address, deal.city, deal.postal_code].filter(Boolean).join(", ")}</span>
+        </div>
+
+        <div className="space-y-1">
+          <span className="font-display text-3xl font-bold">€ ?</span>
+          <p className="text-sm text-muted-foreground">Nog geen prijs bekend — dit wordt zichtbaar zodra een bedrijf de plek claimt.</p>
+        </div>
+
+        {deal.teaser_body && (
+          <p className="text-sm leading-relaxed whitespace-pre-wrap">{deal.teaser_body}</p>
+        )}
+      </div>
+
+      <Card>
+        <CardContent className="p-4 space-y-3">
+          <p className="text-sm font-medium">Wil je dat we deze plek snel invullen?</p>
+          <Button onClick={handleCta} className="w-full">
+            <Share2 className="mr-1 h-4 w-4" />{ctaLabel}
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
