@@ -36,6 +36,7 @@ import AdminMerchantDetail from "./pages/admin/AdminMerchantDetail";
 import AdminConsumerDetail from "./pages/admin/AdminConsumerDetail";
 import AdminVoucherUsage from "./pages/admin/AdminVoucherUsage";
 import AdminAuditLog from "./pages/admin/AdminAuditLog";
+import AdminTeaserForm from "./pages/admin/AdminTeaserForm";
 import TestInfo from "./pages/TestInfo";
 import NotFound from "./pages/NotFound";
 
