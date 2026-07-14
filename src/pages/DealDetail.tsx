@@ -108,6 +108,12 @@ export default function DealDetail() {
     );
   }
 
+  const isTeaser = !!(deal as any).is_teaser;
+
+  if (isTeaser) {
+    return <TeaserView deal={deal} />;
+  }
+
   const discountedPrice = deal.original_price * (1 - deal.discount_percentage / 100);
   const hasFixedStart = (deal as any).start_time_mode !== "flexible" && deal.start_time;
   const startDate = hasFixedStart ? new Date(deal.start_time) : null;
