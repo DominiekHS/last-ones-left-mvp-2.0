@@ -293,6 +293,8 @@ export default function AdminDashboard() {
     const isExpired = new Date(d.expiry_time) < new Date();
     if (dealStatusFilter === "active" && isExpired) return false;
     if (dealStatusFilter === "expired" && !isExpired) return false;
+    if (dealTypeFilter === "real" && d.is_teaser) return false;
+    if (dealTypeFilter === "teaser" && !d.is_teaser) return false;
     return d.title.toLowerCase().includes(dealSearch.toLowerCase()) ||
       d.city.toLowerCase().includes(dealSearch.toLowerCase()) ||
       (d.merchants as any)?.company_name?.toLowerCase().includes(dealSearch.toLowerCase());
