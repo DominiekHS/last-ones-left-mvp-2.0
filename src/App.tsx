@@ -88,6 +88,8 @@ const App = () => (
               <Route path="/admin/consumenten/:userId" element={<AdminConsumerDetail />} />
               <Route path="/admin/kortingscodes" element={<AdminVoucherUsage />} />
               <Route path="/admin/audit-log" element={<AdminAuditLog />} />
+              <Route path="/admin/proefadvertentie/nieuw" element={<AdminTeaserForm />} />
+              <Route path="/admin/proefadvertentie/:id" element={<AdminTeaserForm />} />
               <Route path="*" element={<NotFound />} />
             </Route>
             </Routes>
