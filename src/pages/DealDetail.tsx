@@ -491,7 +491,7 @@ function TeaserView({ deal }: { deal: any }) {
         <div className="flex flex-wrap gap-2">
           <Badge variant="secondary" className="font-bold">?%</Badge>
           <Badge variant="outline">{CATEGORY_LABELS[deal.category] || deal.category}</Badge>
-          <Badge variant="outline">Proefadvertentie</Badge>
+          <Badge variant="outline">Binnenkort</Badge>
         </div>
 
         <h1 className="font-display text-2xl font-bold">{deal.title}</h1>
