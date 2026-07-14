@@ -19,7 +19,9 @@ const Index = () => {
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const deal of allDealsForCounts || []) {
-      if (deal.category) {
+      // Teasers tellen niet mee — de chip-telling moet corresponderen
+      // met wat consumenten ook daadwerkelijk kunnen claimen.
+      if (deal.category && !(deal as any).is_teaser) {
         counts[deal.category] = (counts[deal.category] || 0) + 1;
       }
     }
