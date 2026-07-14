@@ -44,7 +44,7 @@ export function DealCard({ deal }: { deal: Deal }) {
               </Badge>
             )}
             {isTeaser && (
-              <Badge variant="outline" className="bg-card/90 text-[10px]">Proefadvertentie</Badge>
+              <Badge variant="outline" className="bg-card/90 text-[10px]">Binnenkort</Badge>
             )}
           </div>
           <Badge variant="outline" className="absolute top-2 right-2 bg-card/90 text-xs">
