@@ -43,6 +43,7 @@ export default function AdminDashboard() {
   const [consumerSearch, setConsumerSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended" | "blocked">("all");
   const [dealStatusFilter, setDealStatusFilter] = useState<"all" | "active" | "expired">("all");
+  const [dealTypeFilter, setDealTypeFilter] = useState<"all" | "real" | "teaser">("all");
 
   // Consumer date filter
   const defaultStart = format(subDays(new Date(), 30), "yyyy-MM-dd");
