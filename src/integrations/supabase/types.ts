@@ -313,6 +313,7 @@ export type Database = {
       deals: {
         Row: {
           address: string
+          always_show: boolean
           cancellation_policy: string | null
           category: Database["public"]["Enums"]["venue_category"]
           checkout_link: string
@@ -328,6 +329,7 @@ export type Database = {
           id: string
           image_url: string | null
           indicative_price_from: number | null
+          is_teaser: boolean
           merchant_id: string
           notification_sent_at: string | null
           original_price: number
@@ -339,12 +341,16 @@ export type Database = {
           redemption_method: string
           start_time: string | null
           start_time_mode: string
+          teaser_body: string | null
+          teaser_cta_label: string | null
+          teaser_cta_url: string | null
           terms_summary: string | null
           title: string
           updated_at: string
         }
         Insert: {
           address?: string
+          always_show?: boolean
           cancellation_policy?: string | null
           category?: Database["public"]["Enums"]["venue_category"]
           checkout_link?: string
@@ -360,6 +366,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           indicative_price_from?: number | null
+          is_teaser?: boolean
           merchant_id: string
           notification_sent_at?: string | null
           original_price: number
@@ -371,12 +378,16 @@ export type Database = {
           redemption_method?: string
           start_time?: string | null
           start_time_mode?: string
+          teaser_body?: string | null
+          teaser_cta_label?: string | null
+          teaser_cta_url?: string | null
           terms_summary?: string | null
           title: string
           updated_at?: string
         }
         Update: {
           address?: string
+          always_show?: boolean
           cancellation_policy?: string | null
           category?: Database["public"]["Enums"]["venue_category"]
           checkout_link?: string
@@ -392,6 +403,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           indicative_price_from?: number | null
+          is_teaser?: boolean
           merchant_id?: string
           notification_sent_at?: string | null
           original_price?: number
@@ -403,6 +415,9 @@ export type Database = {
           redemption_method?: string
           start_time?: string | null
           start_time_mode?: string
+          teaser_body?: string | null
+          teaser_cta_label?: string | null
+          teaser_cta_url?: string | null
           terms_summary?: string | null
           title?: string
           updated_at?: string
@@ -873,6 +888,7 @@ export type Database = {
       deals_public: {
         Row: {
           address: string | null
+          always_show: boolean | null
           cancellation_policy: string | null
           category: Database["public"]["Enums"]["venue_category"] | null
           checkout_link: string | null
@@ -886,6 +902,7 @@ export type Database = {
           id: string | null
           image_url: string | null
           indicative_price_from: number | null
+          is_teaser: boolean | null
           merchant_id: string | null
           original_price: number | null
           payment_steps: Json | null
@@ -896,12 +913,16 @@ export type Database = {
           redemption_method: string | null
           start_time: string | null
           start_time_mode: string | null
+          teaser_body: string | null
+          teaser_cta_label: string | null
+          teaser_cta_url: string | null
           terms_summary: string | null
           title: string | null
           updated_at: string | null
         }
         Insert: {
           address?: string | null
+          always_show?: boolean | null
           cancellation_policy?: string | null
           category?: Database["public"]["Enums"]["venue_category"] | null
           checkout_link?: string | null
@@ -915,6 +936,7 @@ export type Database = {
           id?: string | null
           image_url?: string | null
           indicative_price_from?: number | null
+          is_teaser?: boolean | null
           merchant_id?: string | null
           original_price?: number | null
           payment_steps?: Json | null
@@ -925,12 +947,16 @@ export type Database = {
           redemption_method?: string | null
           start_time?: string | null
           start_time_mode?: string | null
+          teaser_body?: string | null
+          teaser_cta_label?: string | null
+          teaser_cta_url?: string | null
           terms_summary?: string | null
           title?: string | null
           updated_at?: string | null
         }
         Update: {
           address?: string | null
+          always_show?: boolean | null
           cancellation_policy?: string | null
           category?: Database["public"]["Enums"]["venue_category"] | null
           checkout_link?: string | null
@@ -944,6 +970,7 @@ export type Database = {
           id?: string | null
           image_url?: string | null
           indicative_price_from?: number | null
+          is_teaser?: boolean | null
           merchant_id?: string | null
           original_price?: number | null
           payment_steps?: Json | null
@@ -954,6 +981,9 @@ export type Database = {
           redemption_method?: string | null
           start_time?: string | null
           start_time_mode?: string | null
+          teaser_body?: string | null
+          teaser_cta_label?: string | null
+          teaser_cta_url?: string | null
           terms_summary?: string | null
           title?: string | null
           updated_at?: string | null
