@@ -21,13 +21,13 @@ export function DealCard({ deal }: { deal: Deal }) {
 
   return (
     <Link to={`/deal/${deal.id}`} className="block group">
-      <Card className="overflow-hidden border hover:shadow-md transition-shadow h-full">
+      <Card className={`overflow-hidden border hover:shadow-md transition-shadow h-full ${isTeaser ? "opacity-95" : ""}`}>
         <div className="relative aspect-[16/10] bg-muted overflow-hidden">
           {deal.image_url ? (
             <img
               src={deal.image_url}
               alt={deal.title}
-              className="w-full h-full object-cover"
+              className={`w-full h-full object-cover ${isTeaser ? "grayscale-[30%]" : ""}`}
               loading="lazy"
             />
           ) : (
@@ -36,9 +36,16 @@ export function DealCard({ deal }: { deal: Deal }) {
             </div>
           )}
           <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
-            <Badge className="bg-primary text-primary-foreground font-bold text-xs">
-              -{deal.discount_percentage}%
-            </Badge>
+            {isTeaser ? (
+              <Badge variant="secondary" className="font-bold text-xs">?%</Badge>
+            ) : (
+              <Badge className="bg-primary text-primary-foreground font-bold text-xs">
+                -{deal.discount_percentage}%
+              </Badge>
+            )}
+            {isTeaser && (
+              <Badge variant="outline" className="bg-card/90 text-[10px]">Proefadvertentie</Badge>
+            )}
           </div>
           <Badge variant="outline" className="absolute top-2 right-2 bg-card/90 text-xs">
             {CATEGORY_LABELS[deal.category] || deal.category}
@@ -48,7 +55,7 @@ export function DealCard({ deal }: { deal: Deal }) {
           <h3 className="font-display font-semibold text-sm leading-tight line-clamp-2 group-hover:text-primary-foreground">
             {deal.title}
           </h3>
-          {deal.merchants?.company_name && (
+          {!isTeaser && deal.merchants?.company_name && (
             <span
               role="link"
               tabIndex={0}
@@ -71,14 +78,23 @@ export function DealCard({ deal }: { deal: Deal }) {
           )}
           <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
             <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{deal.city}</span>
-            {hasFixedStart && startDate ? (
+            {!isTeaser && hasFixedStart && startDate ? (
               <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Start: {format(startDate, "HH:mm", { locale: nl })}</span>
-            ) : (deal as any).start_time_mode === "flexible" ? (
+            ) : !isTeaser && (deal as any).start_time_mode === "flexible" ? (
               <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Tijd: op reserveringspagina</span>
             ) : null}
-            <span className="flex items-center gap-1 text-muted-foreground/70">Verloopt: {format(expiryDate, "HH:mm", { locale: nl })}</span>
+            {isTeaser ? (
+              <span className="flex items-center gap-1"><Clock className="h-3 w-3" />Binnenkort</span>
+            ) : (
+              <span className="flex items-center gap-1 text-muted-foreground/70">Verloopt: {format(expiryDate, "HH:mm", { locale: nl })}</span>
+            )}
           </div>
-          {(deal as any).pricing_model === "per_person_variable" ? (
+          {isTeaser ? (
+            <div className="space-y-0.5">
+              <span className="font-display font-bold text-lg">€ ?</span>
+              <p className="text-xs text-muted-foreground">Nog geen prijs bekend</p>
+            </div>
+          ) : (deal as any).pricing_model === "per_person_variable" ? (
             <div className="space-y-0.5">
               <div className="flex items-baseline gap-2 flex-wrap">
                 {(deal as any).price_per_person ? (
