@@ -28,8 +28,10 @@ const SYSTEM_MERCHANT_ID = "da422c68-1f5f-4e7d-8168-c44d6e4cd2ee";
 // maar de tabel eist NOT NULL op deze velden. Deze waarden worden
 // nergens getoond dankzij de teaser-branch in DealCard/DealDetail.
 const TEASER_SENTINELS = {
-  original_price: 0,
-  discount_percentage: 0,
+  // Moet voldoen aan CHECK (>0 en <=100) op discount_percentage.
+  // Wordt nooit getoond dankzij de teaser-branch in DealCard/DealDetail.
+  original_price: 1,
+  discount_percentage: 1,
   // 100 jaar in de toekomst — de publieke view filtert op expiry > now()
   expiry_time_iso: new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000).toISOString(),
 };
