@@ -1,117 +1,132 @@
+# Plan: Proefadvertenties (teasers) door admin
 
-
-# Last Ones Left — Full MVP Plan
-**"Bezoek. Beleef. Bespaar. Wat ga jij doen vandaag?"**
-
-A Dutch, mobile-first marketplace for last-minute local deals. Built with React/Vite + Lovable Cloud (Supabase).
+Doel: als admin kunnen we "proefadvertenties" plaatsen die er visueel uitzien als een deal, maar geen prijs/korting/claim hebben. Ze vullen lege categorieën en verdwijnen zodra een bedrijf in dezelfde categorie + plaats een echte deal plaatst.
 
 ---
 
-## 1. Backend Setup (Lovable Cloud)
+## 1. Database — wijzigingen op `deals`
 
-### Database Tables
-- **users/profiles** — name, date of birth, email, verified status
-- **merchants** — company name, email, venue type, address, city, blocked status
-- **user_roles** — role-based access (consumer, merchant, admin) in a separate table for security
-- **deals** — title, image URL, description, category, city, original price, discount %, start time, expiry time, checkout link, discount code, merchant ID, status (auto-derived from expiry)
-- **vouchers/claims** — user ID, deal ID, discount code, claimed timestamp
-- **deal_events** — tracking table for views and click-throughs with timestamps
+Eén migratie, alles op de bestaande `deals`-tabel (Optie A).
 
-### Auth
-- Email + password authentication for both consumers and merchants
-- Email verification flow
-- Separate registration flows for consumers vs merchants
+**Nieuwe kolommen**
+- `is_teaser boolean not null default false` — markeert de rij als proefadvertentie
+- `teaser_cta_label text` — optionele knoptekst (bv. "Meldingen aan", "Deel met vrienden")
+- `teaser_cta_url text` — optionele link/actie voor die knop
+- `teaser_body text` — vrije uitlegtekst op detailpagina ("Dit is een voorproefje…")
+- `always_show boolean not null default false` — als true blijft de teaser óók zichtbaar als er echte deals in dezelfde categorie+plaats zijn
 
-### Storage
-- Image upload bucket for deal photos (public bucket with merchant-only upload RLS)
+**Nullable maken voor teasers**
+- `original_price`, `discount_percentage`, `expiry_time`, `start_time` → nullable maken. Er komt een `CHECK`-trigger die afdwingt: **óf** `is_teaser = true`, **óf** al deze velden verplicht (huidige regels blijven voor echte deals).
+- `merchant_id` blijft NOT NULL. We maken één system-merchant "Last Ones Left" (interne admin) waar teasers aan hangen. Dit voorkomt joins/RLS-uitzonderingen.
 
-### Row-Level Security
-- Consumers can read active deals, manage their own vouchers/profile
-- Merchants can CRUD their own deals, read their own stats
-- Admins can manage all deals and block merchants
+**Indexen**
+- `create index deals_teaser_lookup on deals(is_teaser, category, lower(city)) where deleted_at is null;`
 
----
+**Publieke view `deals_public`**
+- `is_teaser`, `teaser_cta_label`, `teaser_cta_url`, `teaser_body`, `always_show` toevoegen.
+- View blijft `expiry_time > now()` filteren; voor teasers wordt `expiry_time` gezet op `now() + interval '100 years'` zodat ze niet verlopen. (Simpeler dan de view-definitie aanpassen.)
 
-## 2. Consumer Experience (Mobile-First)
+**RLS-updates op `deals`**
+- INSERT/UPDATE waarbij `is_teaser = true`: alleen als `has_role(auth.uid(),'admin')`.
+- Merchant-policies blijven ongewijzigd (kunnen geen teasers maken, want ze zijn niet admin).
+- Bestaande SELECT-policies blijven werken; teasers zijn "eigendom" van de system-merchant.
 
-### Homepage / Deal Feed
-- Card-based grid of active deals (only deals expiring in the future)
-- Each card shows: title, image, city, category badge, original price with discount, start time, urgency badges ("Laatste plekken!", "Vandaag")
-- All UI text in Dutch
-
-### Filtering & Search
-- Filter by: category (bioscoop, theater, sport, museum, etc.), city/postcode, price range, start time
-- Filters accessible via a sticky filter bar
-
-### Deal Detail Page
-- Full deal info: venue name, description, image, start time, expiry countdown, discount details, conditions
-- CTA button behavior:
-  - Not logged in → "Account aanmaken (± 1 minuut)" + disabled claim button
-  - Logged in → "Claim korting / Naar afrekenen"
-
-### Claiming a Deal
-- On claim: store voucher, show discount code on screen
-- Redirect button to merchant's checkout link
-- Code also visible in "Mijn Vouchers"
-
-### Consumer Profile
-- "Mijn Vouchers" page listing all claimed deals with codes, status, and checkout links
-- Basic profile settings (name, email, date of birth)
-
-### Other Pages
-- Share deal via link (copy URL)
-- Contact/support page (simple form)
+**`claim_deal` RPC**
+- Vroege check: `if v_deal.is_teaser then raise exception 'Cannot claim teaser';`
 
 ---
 
-## 3. Merchant Experience
+## 2. Auto-verbergen: query-time filter (categorie + plaats)
 
-### Merchant Registration
-- Separate signup: email, password, company name, venue type, address/city
+Aanpassing in `useActiveDeals` (`src/hooks/useDeals.ts`):
 
-### Deal Creation Form
-- Fields: title, image upload, description, category dropdown, city, original price, discount %, start time, expiry time, checkout link, discount code
-- Validation: start time must be within 24 hours, expiry ≤ start time
-- Deal goes live instantly on save
+1. Haal alle actieve deals op zoals nu (via `deals_public`), inclusief `is_teaser` en `always_show`.
+2. Bepaal per (category, lower(city))-combinatie of er ≥1 **echte** deal is (`is_teaser = false`).
+3. Filter teasers eruit als die combinatie een echte deal bevat, tenzij `always_show = true`.
 
-### Merchant Dashboard
-- List of active and expired deals
-- Edit / delete deals
-- Basic stats per deal: total views, total click-throughs
+Volgorde in output: echte deals eerst (op `start_time`), teasers erachter.
+
+Voor de category-counts op de homepage (`allDealsForCounts`) tellen teasers niet mee — telling gaat alleen over echte deals, zodat het aantal in de filterchips overeenkomt met wat consumenten claimen kunnen.
 
 ---
 
-## 4. Admin Panel
+## 3. UI
 
-### Admin Dashboard
-- List view of all merchants (with block/unblock action)
-- List view of all deals (with remove action)
-- Simple and functional — no complex analytics
+### DealCard (teaser-variant)
+Zelfde layout, subtiele visuele verschillen:
+- Kaart-overlay: lichte grijs/tint (`bg-muted/40` overlay of `opacity-95`)
+- Kortingsbadge: `?%` in plaats van `-30%`, badge-kleur `secondary` i.p.v. primary
+- Categoriebadge onveranderd
+- Rechter-boven extra badge: **"Proefadvertentie"** (kleine outline-badge)
+- Prijsblok toont `€ ?` (doorgestreepte prijs weglaten) met kleine tekst *"Nog geen prijs bekend"*
+- Titel, plaats, tijden onveranderd — als teaser geen tijd heeft, tonen we alleen "Binnenkort"
+
+### Detailpagina (`DealDetail`)
+Als `deal.is_teaser === true`:
+- Bovenaan een strip: **"Dit is een voorproefje — nog geen actieve deal. Bedrijven kunnen deze plek binnenkort claimen."**
+- Prijsblok verborgen; in plaats daarvan `teaser_body` (rich text alinea).
+- Geen claim-knop, geen kortingscode-blok, geen betaalstappen, geen annuleringsvoorwaarden.
+- CTA-knop: `teaser_cta_label` → `teaser_cta_url` (target=_blank als externe URL, anders in-app route). Fallback: "Meldingen aan" die naar profiel-instellingen linkt.
+- Merchant-blok (Last Ones Left system-merchant) wordt vervangen door tekst *"Geplaatst door Last Ones Left"* — geen link naar merchantprofiel.
+- `<meta name="robots" content="noindex,nofollow">` via react-helmet-async voor deze route wanneer teaser.
+
+### Admin-portal
+Nieuwe tab of knop op AdminDashboard: **"Proefadvertentie maken"** → nieuw scherm `src/pages/admin/AdminTeaserForm.tsx`.
+
+Velden:
+- Titel *
+- Categorie * (bestaande enum)
+- Plaats * + postcode (optioneel)
+- Adres (optioneel)
+- Afbeelding * (upload naar `deal-images` bucket, zelfde flow als AdForm)
+- Uitleg / teaser_body * (textarea, 20–500 tekens)
+- CTA-label (optioneel, default "Meldingen aan")
+- CTA-URL (optioneel; leeg = in-app default)
+- `always_show` (checkbox, default uit) met uitleg-tooltip
+
+Geen prijs, korting, start-/expiry-tijd, kortingscode, unique codes, redemption method, betaalstappen.
+
+Overzicht: bestaande admin deals-lijst krijgt filter-chip "Type: alle / echt / proef". Teasers tonen "Proef"-badge.
 
 ---
 
-## 5. Design & UI
+## 4. Analytics-scheiding
 
-### Visual Style
-- **Color palette**: white, black, yellow accents
-- Clean marketplace layout with card-based design
-- Youthful, fresh typography — strong visual hierarchy
-- Mobile-first responsive (works on desktop too)
-- No animations per your request
-
-### Deal Card Hierarchy
-- Price + discount prominently displayed
-- Start time, city, category badge clearly visible
-- Urgency labels: "Last spot", "Hot deal", "Binnen 24 uur"
-
-### Language
-- Entire UI in Dutch — all labels, buttons, error messages, system text
+- `deal_events` blijft ongewijzigd; view/click op teasers wordt gewoon geregistreerd.
+- Merchant-analytics (`useDealEvents`, `deal_sales_daily`) zien teasers niet, want ze horen bij de system-merchant. Merchants blijven schone cijfers houden.
+- Admin-overzicht krijgt een extra kaart "Teaser-performance" (views + clicks per teaser) op AdminDashboard. Klein, later uit te breiden — buiten scope van deze eerste bouwslag als je wil, maar de data is er al.
 
 ---
 
-## 6. Tracking & Analytics (MVP)
+## 5. Implementatiestappen (volgorde)
 
-- Log deal page views and click-through events in the database
-- Display totals on merchant dashboard
-- No purchase tracking (external checkout)
+1. **Migratie** — kolommen toevoegen op `deals`, view uitbreiden, indexen, RLS-policy voor admin-teasers, system-merchant "Last Ones Left" seeden, `claim_deal` bijwerken, CHECK-trigger voor teaser-vs-echt.
+2. **Types regeneratie** — automatisch door Lovable na migratie.
+3. **Hook update** — `useActiveDeals` filtert teasers weg als echte deal in categorie+plaats bestaat (tenzij `always_show`). Category-counts negeren teasers.
+4. **DealCard** — teaser-variant met grijzige tint, `?%`-badge, "Proefadvertentie"-badge, prijs vervangen door "€ ?".
+5. **DealDetail** — teaser-modus met strip, `teaser_body`, CTA-knop, geen claim, noindex meta.
+6. **Admin-form** — `AdminTeaserForm.tsx` + route (`/admin/proefadvertentie/nieuw` en `/admin/proefadvertentie/:id`), knop op AdminDashboard.
+7. **Admin-lijst** — filter-chip "Type" in bestaande admin-deals-overzicht, "Proef"-badge in rij.
+8. **Smoke-tests**:
+   - Teaser maken → verschijnt op home in lege categorie.
+   - Echte deal aanmaken in dezelfde categorie + plaats → teaser verdwijnt.
+   - `always_show` aan → teaser blijft.
+   - Consumer probeert teaser te claimen via directe URL → RPC weigert.
+   - Category-count klopt (teasers tellen niet mee).
 
+---
+
+## Technische samenvatting (voor development)
+
+| Wijziging | Bestand / object |
+|---|---|
+| Schema | migratie: kolommen, view, RLS, trigger, seed system-merchant |
+| RPC | `claim_deal` — reject when `is_teaser` |
+| Hook | `src/hooks/useDeals.ts` — teaser-filter + count-filter |
+| Card | `src/components/deals/DealCard.tsx` — teaser-branch |
+| Detail | `src/pages/DealDetail.tsx` — teaser-branch + noindex |
+| Admin form | `src/pages/admin/AdminTeaserForm.tsx` (nieuw) |
+| Admin list | `src/pages/admin/AdminDashboard.tsx` — type-filter + badge + "Nieuwe proef"-knop |
+| Router | `src/App.tsx` — 2 admin-routes toevoegen |
+
+Zeg **ja** als ik dit mag bouwen, of geef aan wat je nog wilt aanpassen.
