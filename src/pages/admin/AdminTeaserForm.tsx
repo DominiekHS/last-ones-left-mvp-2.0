@@ -18,6 +18,7 @@ import {
 import { CATEGORIES } from "@/lib/constants";
 import { toast } from "@/hooks/use-toast";
 import { uploadImage } from "@/lib/storage-uploads";
+import { compressImage } from "@/lib/image-compress";
 import { ArrowLeft } from "lucide-react";
 import { recordAdminAction } from "@/lib/audit";
 
@@ -112,10 +113,15 @@ export default function AdminTeaserForm() {
     try {
       let finalImageUrl = imageUrl;
       if (imageFile) {
+        const compressed = await compressImage(imageFile, {
+          maxDim: 1600,
+          quality: 0.82,
+          mimeType: "image/jpeg",
+        });
         const uploaded = await uploadImage({
           bucket: "deal-images",
           userId: user.id,
-          file: imageFile,
+          file: compressed,
           subfolder: "teasers",
         });
         finalImageUrl = uploaded.url;
