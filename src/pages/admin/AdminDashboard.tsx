@@ -258,7 +258,7 @@ export default function AdminDashboard() {
   };
 
   const deleteDeal = async (dealId: string) => {
-    // Soft-delete: rij blijft fysiek bestaan, herstel mogelijk via DB.
+    // Soft-delete: rij blijft fysiek bestaan, herstel mogelijk via "Verwijderd"-filter.
     const { error } = await supabase
       .from("deals")
       .update({ deleted_at: new Date().toISOString() })
@@ -277,7 +277,27 @@ export default function AdminDashboard() {
     }
   };
 
-  const activeDeals = deals?.filter((d) => new Date(d.expiry_time) > new Date()).length || 0;
+  const restoreDeal = async (dealId: string) => {
+    const { error } = await supabase
+      .from("deals")
+      .update({ deleted_at: null })
+      .eq("id", dealId);
+    if (error) {
+      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
+    } else {
+      void recordAdminAction({
+        action_type: "deal_restore",
+        target_type: "deal",
+        target_id: dealId,
+        reason: "Hersteld via dashboard",
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
+      toast({ title: "Deal hersteld" });
+    }
+  };
+
+  const activeDealsList = deals?.filter((d) => !d.deleted_at) || [];
+  const activeDeals = activeDealsList.filter((d) => new Date(d.expiry_time) > new Date()).length;
   const blockedMerchants = merchants?.filter((m) => getMerchantEffectiveStatus(m as any) === "blocked").length || 0;
   const suspendedMerchants = merchants?.filter((m) => getMerchantEffectiveStatus(m as any) === "suspended").length || 0;
 
@@ -289,9 +309,15 @@ export default function AdminDashboard() {
   });
 
   const filteredDeals = deals?.filter((d) => {
+    const isDeleted = !!d.deleted_at;
     const isExpired = new Date(d.expiry_time) < new Date();
-    if (dealStatusFilter === "active" && isExpired) return false;
-    if (dealStatusFilter === "expired" && !isExpired) return false;
+    if (dealStatusFilter === "deleted") {
+      if (!isDeleted) return false;
+    } else {
+      if (isDeleted) return false;
+      if (dealStatusFilter === "active" && isExpired) return false;
+      if (dealStatusFilter === "expired" && !isExpired) return false;
+    }
     if (dealTypeFilter === "real" && d.is_teaser) return false;
     if (dealTypeFilter === "teaser" && !d.is_teaser) return false;
     return d.title.toLowerCase().includes(dealSearch.toLowerCase()) ||
@@ -299,8 +325,12 @@ export default function AdminDashboard() {
       (d.merchants as any)?.company_name?.toLowerCase().includes(dealSearch.toLowerCase());
   });
 
-  const activeDealsCount = deals?.filter((d) => new Date(d.expiry_time) > new Date()).length || 0;
-  const expiredDealsCount = (deals?.length || 0) - activeDealsCount;
+  const nonDeletedDeals = deals?.filter((d) => !d.deleted_at) || [];
+  const allDealsCount = nonDeletedDeals.length;
+  const activeDealsCount = nonDeletedDeals.filter((d) => new Date(d.expiry_time) > new Date()).length;
+  const expiredDealsCount = allDealsCount - activeDealsCount;
+  const deletedDealsCount = deals?.filter((d) => !!d.deleted_at).length || 0;
+
 
   return (
     <div className="container py-6 space-y-6">
