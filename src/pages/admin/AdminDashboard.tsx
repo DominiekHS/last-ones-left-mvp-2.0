@@ -42,7 +42,7 @@ export default function AdminDashboard() {
   const [dealSearch, setDealSearch] = useState("");
   const [consumerSearch, setConsumerSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended" | "blocked">("all");
-  const [dealStatusFilter, setDealStatusFilter] = useState<"all" | "active" | "expired">("all");
+  const [dealStatusFilter, setDealStatusFilter] = useState<"all" | "active" | "expired" | "deleted">("all");
   const [dealTypeFilter, setDealTypeFilter] = useState<"all" | "real" | "teaser">("all");
 
   // Consumer date filter
