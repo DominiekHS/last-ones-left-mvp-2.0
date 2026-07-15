@@ -42,7 +42,7 @@ export default function AdminDashboard() {
   const [dealSearch, setDealSearch] = useState("");
   const [consumerSearch, setConsumerSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended" | "blocked">("all");
-  const [dealStatusFilter, setDealStatusFilter] = useState<"all" | "active" | "expired">("all");
+  const [dealStatusFilter, setDealStatusFilter] = useState<"all" | "active" | "expired" | "deleted">("all");
   const [dealTypeFilter, setDealTypeFilter] = useState<"all" | "real" | "teaser">("all");
 
   // Consumer date filter
@@ -226,7 +226,6 @@ export default function AdminDashboard() {
           "is_teaser, always_show, teaser_body, " +
           "merchants(company_name)"
         )
-        .is("deleted_at", null)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as any[];
@@ -259,7 +258,7 @@ export default function AdminDashboard() {
   };
 
   const deleteDeal = async (dealId: string) => {
-    // Soft-delete: rij blijft fysiek bestaan, herstel mogelijk via DB.
+    // Soft-delete: rij blijft fysiek bestaan, herstel mogelijk via "Verwijderd"-filter.
     const { error } = await supabase
       .from("deals")
       .update({ deleted_at: new Date().toISOString() })
@@ -278,7 +277,27 @@ export default function AdminDashboard() {
     }
   };
 
-  const activeDeals = deals?.filter((d) => new Date(d.expiry_time) > new Date()).length || 0;
+  const restoreDeal = async (dealId: string) => {
+    const { error } = await supabase
+      .from("deals")
+      .update({ deleted_at: null })
+      .eq("id", dealId);
+    if (error) {
+      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
+    } else {
+      void recordAdminAction({
+        action_type: "deal_restore",
+        target_type: "deal",
+        target_id: dealId,
+        reason: "Hersteld via dashboard",
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin-deals"] });
+      toast({ title: "Deal hersteld" });
+    }
+  };
+
+  const activeDealsList = deals?.filter((d) => !d.deleted_at) || [];
+  const activeDeals = activeDealsList.filter((d) => new Date(d.expiry_time) > new Date()).length;
   const blockedMerchants = merchants?.filter((m) => getMerchantEffectiveStatus(m as any) === "blocked").length || 0;
   const suspendedMerchants = merchants?.filter((m) => getMerchantEffectiveStatus(m as any) === "suspended").length || 0;
 
@@ -290,9 +309,15 @@ export default function AdminDashboard() {
   });
 
   const filteredDeals = deals?.filter((d) => {
+    const isDeleted = !!d.deleted_at;
     const isExpired = new Date(d.expiry_time) < new Date();
-    if (dealStatusFilter === "active" && isExpired) return false;
-    if (dealStatusFilter === "expired" && !isExpired) return false;
+    if (dealStatusFilter === "deleted") {
+      if (!isDeleted) return false;
+    } else {
+      if (isDeleted) return false;
+      if (dealStatusFilter === "active" && isExpired) return false;
+      if (dealStatusFilter === "expired" && !isExpired) return false;
+    }
     if (dealTypeFilter === "real" && d.is_teaser) return false;
     if (dealTypeFilter === "teaser" && !d.is_teaser) return false;
     return d.title.toLowerCase().includes(dealSearch.toLowerCase()) ||
@@ -300,8 +325,12 @@ export default function AdminDashboard() {
       (d.merchants as any)?.company_name?.toLowerCase().includes(dealSearch.toLowerCase());
   });
 
-  const activeDealsCount = deals?.filter((d) => new Date(d.expiry_time) > new Date()).length || 0;
-  const expiredDealsCount = (deals?.length || 0) - activeDealsCount;
+  const nonDeletedDeals = deals?.filter((d) => !d.deleted_at) || [];
+  const allDealsCount = nonDeletedDeals.length;
+  const activeDealsCount = nonDeletedDeals.filter((d) => new Date(d.expiry_time) > new Date()).length;
+  const expiredDealsCount = allDealsCount - activeDealsCount;
+  const deletedDealsCount = deals?.filter((d) => !!d.deleted_at).length || 0;
+
 
   return (
     <div className="container py-6 space-y-6">
@@ -321,7 +350,7 @@ export default function AdminDashboard() {
           <TabsList className="w-max flex-nowrap">
             <TabsTrigger value="merchants">Ondernemers ({merchants?.length || 0})</TabsTrigger>
             <TabsTrigger value="consumers">Consumenten ({consumers?.length || 0})</TabsTrigger>
-            <TabsTrigger value="deals">Deals ({deals?.length || 0})</TabsTrigger>
+            <TabsTrigger value="deals">Deals ({allDealsCount})</TabsTrigger>
             <TabsTrigger value="teaser" onClick={() => navigate("/admin/proefadvertentie/nieuw")}>Proefdeal</TabsTrigger>
             <TabsTrigger value="vouchers" onClick={() => navigate("/admin/kortingscodes")}>Kortingscodes</TabsTrigger>
             <TabsTrigger value="requests" className="gap-1"><Inbox className="h-3 w-3" />Voorkeuren</TabsTrigger>
@@ -540,9 +569,10 @@ export default function AdminDashboard() {
           </div>
           <div className="flex gap-2 flex-wrap">
             {([
-              { key: "all" as const, label: `Alles (${deals?.length || 0})` },
+              { key: "all" as const, label: `Alles (${allDealsCount})` },
               { key: "active" as const, label: `Actief (${activeDealsCount})` },
               { key: "expired" as const, label: `Verlopen (${expiredDealsCount})` },
+              { key: "deleted" as const, label: `Verwijderd (${deletedDealsCount})` },
             ]).map(s => (
               <Button
                 key={s.key}
@@ -585,19 +615,25 @@ export default function AdminDashboard() {
           {filteredDeals?.map((d) => {
             const isExpired = new Date(d.expiry_time) < new Date();
             const isTeaser = !!d.is_teaser;
+            const isDeleted = !!d.deleted_at;
             const rowHref = isTeaser ? `/admin/proefadvertentie/${d.id}` : `/admin/deals/${d.id}`;
             return (
-              <Card key={d.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(rowHref)}>
+              <Card key={d.id} className={`cursor-pointer hover:bg-accent/50 transition-colors ${isDeleted ? "opacity-70" : ""}`} onClick={() => !isDeleted && navigate(rowHref)}>
                 <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-display font-semibold">{d.title}</h3>
-                      {isTeaser ? (
+                      {isDeleted ? (
+                        <Badge variant="destructive" className="text-xs">Verwijderd</Badge>
+                      ) : isTeaser ? (
                         <Badge variant="outline" className="text-xs">Proef</Badge>
                       ) : (
                         <Badge variant={isExpired ? "secondary" : "default"} className="text-xs">
                           {isExpired ? "Verlopen" : "Actief"}
                         </Badge>
+                      )}
+                      {isDeleted && isTeaser && (
+                        <Badge variant="outline" className="text-xs">Proef</Badge>
                       )}
                       <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[d.category]}</Badge>
                       {isTeaser && d.always_show && (
@@ -606,33 +642,44 @@ export default function AdminDashboard() {
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {isTeaser
-                        ? `${(d.merchants as any)?.company_name || "Last Ones Left"} · ${d.city} · Proefadvertentie`
-                        : `${(d.merchants as any)?.company_name} · ${d.city} · -${d.discount_percentage}% · ${d.start_time ? format(new Date(d.start_time), "d MMM HH:mm", { locale: nl }) : "flexibel"} - ${format(new Date(d.expiry_time), "d MMM HH:mm", { locale: nl })}`}
+                        ? `${(d.merchants as any)?.company_name || "Last Ones Left"} · ${d.city} · Proefadvertentie${isDeleted && d.deleted_at ? ` · verwijderd op ${format(new Date(d.deleted_at), "d MMM yyyy HH:mm", { locale: nl })}` : ""}`
+                        : `${(d.merchants as any)?.company_name} · ${d.city} · -${d.discount_percentage}% · ${d.start_time ? format(new Date(d.start_time), "d MMM HH:mm", { locale: nl }) : "flexibel"} - ${format(new Date(d.expiry_time), "d MMM HH:mm", { locale: nl })}${isDeleted && d.deleted_at ? ` · verwijderd op ${format(new Date(d.deleted_at), "d MMM yyyy HH:mm", { locale: nl })}` : ""}`}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
-                          <Trash2 className="mr-1 h-4 w-4" />Verwijder
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Deal verwijderen?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Weet je zeker dat je "{d.title}" wilt verwijderen? Dit kan niet ongedaan worden gemaakt.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Annuleren</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => deleteDeal(d.id)}>
-                            Verwijderen
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    {isDeleted ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-green-700 hover:text-green-800"
+                        onClick={(e) => { e.stopPropagation(); restoreDeal(d.id); }}
+                      >
+                        Herstellen
+                      </Button>
+                    ) : (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
+                            <Trash2 className="mr-1 h-4 w-4" />Verwijder
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Deal verwijderen?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Weet je zeker dat je "{d.title}" wilt verwijderen? De deal blijft bewaard onder het filter "Verwijderd" en kan later hersteld worden.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Annuleren</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => deleteDeal(d.id)}>
+                              Verwijderen
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
+                    {!isDeleted && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
                   </div>
                 </CardContent>
               </Card>
