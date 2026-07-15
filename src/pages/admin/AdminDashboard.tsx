@@ -350,7 +350,7 @@ export default function AdminDashboard() {
           <TabsList className="w-max flex-nowrap">
             <TabsTrigger value="merchants">Ondernemers ({merchants?.length || 0})</TabsTrigger>
             <TabsTrigger value="consumers">Consumenten ({consumers?.length || 0})</TabsTrigger>
-            <TabsTrigger value="deals">Deals ({deals?.length || 0})</TabsTrigger>
+            <TabsTrigger value="deals">Deals ({allDealsCount})</TabsTrigger>
             <TabsTrigger value="teaser" onClick={() => navigate("/admin/proefadvertentie/nieuw")}>Proefdeal</TabsTrigger>
             <TabsTrigger value="vouchers" onClick={() => navigate("/admin/kortingscodes")}>Kortingscodes</TabsTrigger>
             <TabsTrigger value="requests" className="gap-1"><Inbox className="h-3 w-3" />Voorkeuren</TabsTrigger>
