@@ -569,9 +569,10 @@ export default function AdminDashboard() {
           </div>
           <div className="flex gap-2 flex-wrap">
             {([
-              { key: "all" as const, label: `Alles (${deals?.length || 0})` },
+              { key: "all" as const, label: `Alles (${allDealsCount})` },
               { key: "active" as const, label: `Actief (${activeDealsCount})` },
               { key: "expired" as const, label: `Verlopen (${expiredDealsCount})` },
+              { key: "deleted" as const, label: `Verwijderd (${deletedDealsCount})` },
             ]).map(s => (
               <Button
                 key={s.key}
