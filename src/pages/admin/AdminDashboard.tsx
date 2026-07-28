@@ -557,6 +557,15 @@ export default function AdminDashboard() {
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-display font-semibold">{c.full_name || "Geen naam"}</h3>
+                        {c.email_notifications_enabled ? (
+                          <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
+                            <Bell className="h-3 w-3 mr-1" /> Meldingen aan
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs text-muted-foreground">
+                            <BellOff className="h-3 w-3 mr-1" /> Meldingen uit
+                          </Badge>
+                        )}
                         {c.claimsCount > 0 && (
                           <Badge variant="secondary" className="text-xs">
                             <Ticket className="h-3 w-3 mr-1" />
