@@ -61,9 +61,13 @@ export function Header() {
           <span className="hidden sm:inline-block rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
             DEALS
           </span>
-          <Link to="/testversie" className="inline-flex items-center whitespace-nowrap rounded-full bg-success px-3 py-1 text-xs font-semibold text-success-foreground hover:opacity-80 transition-opacity">
-            Testversie – Lees meer!
-          </Link>
+          {user && !isMerchant && !isAdmin ? (
+            <NotificationBellToggle />
+          ) : (
+            <Link to="/testversie" className="inline-flex items-center whitespace-nowrap rounded-full bg-success px-3 py-1 text-xs font-semibold text-success-foreground hover:opacity-80 transition-opacity">
+              Testversie – Lees meer!
+            </Link>
+          )}
         </div>
 
         {/* Desktop nav */}
