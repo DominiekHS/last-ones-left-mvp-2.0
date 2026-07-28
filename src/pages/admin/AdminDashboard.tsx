@@ -453,7 +453,7 @@ export default function AdminDashboard() {
           </Card>
 
           {/* KPI cards — clickable to toggle list */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Card
               className={`cursor-pointer transition-colors ${consumerListMode === "all" ? "ring-2 ring-primary" : "hover:bg-accent/50"}`}
               onClick={() => setConsumerListMode("all")}
@@ -490,18 +490,60 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
+            <Card
+              className={`cursor-pointer transition-colors ${consumerListMode === "notifications" ? "ring-2 ring-primary" : "hover:bg-accent/50"}`}
+              onClick={() => { setConsumerListMode("notifications"); setNotificationsFilter("all"); }}
+            >
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="rounded-full p-2 bg-primary/10 text-primary"><Bell className="h-4 w-4" /></div>
+                <div>
+                  <p className="text-2xl font-bold">
+                    {notificationsOnCount}
+                    <span className="text-sm font-normal text-muted-foreground"> / {consumers?.length ?? 0}</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground">Meldingen aan</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {consumerListMode !== "claims" && (
             <>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Zoek op naam of e-mail..."
-                  value={consumerSearch}
-                  onChange={(e) => setConsumerSearch(e.target.value)}
-                  className="pl-9"
-                />
+              <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Zoek op naam of e-mail..."
+                    value={consumerSearch}
+                    onChange={(e) => setConsumerSearch(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                {consumerListMode !== "notifications" && (
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      variant={notificationsFilter === "all" ? "default" : "outline"}
+                      onClick={() => setNotificationsFilter("all")}
+                    >
+                      Alle
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={notificationsFilter === "on" ? "default" : "outline"}
+                      onClick={() => setNotificationsFilter("on")}
+                    >
+                      <Bell className="h-3.5 w-3.5 mr-1" /> Aan
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={notificationsFilter === "off" ? "default" : "outline"}
+                      onClick={() => setNotificationsFilter("off")}
+                    >
+                      <BellOff className="h-3.5 w-3.5 mr-1" /> Uit
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {searchedConsumers.length === 0 && (
