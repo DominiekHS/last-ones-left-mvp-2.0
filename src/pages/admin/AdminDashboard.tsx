@@ -22,7 +22,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket, CalendarDays, MapPin, Inbox, Settings, FileText, Share2 } from "lucide-react";
+import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket, CalendarDays, MapPin, Inbox, Settings, FileText, Share2, Bell, BellOff } from "lucide-react";
 import { ActivityRequestsTab } from "@/components/admin/ActivityRequestsTab";
 import { PlatformSettingsTab } from "@/components/admin/PlatformSettingsTab";
 import { EnvironmentStatusTab } from "@/components/admin/EnvironmentStatusTab";
@@ -181,13 +181,30 @@ export default function AdminDashboard() {
     }));
   }, [consumers, allClaims]);
 
-  const [consumerListMode, setConsumerListMode] = useState<"all" | "new" | "claims">("all");
-  const displayedConsumers = consumerListMode === "new" ? consumerStats.filtered : allConsumersEnriched;
+  const [consumerListMode, setConsumerListMode] = useState<"all" | "new" | "claims" | "notifications">("all");
+  const [notificationsFilter, setNotificationsFilter] = useState<"all" | "on" | "off">("all");
+  const displayedConsumers =
+    consumerListMode === "new"
+      ? consumerStats.filtered
+      : consumerListMode === "notifications"
+        ? allConsumersEnriched.filter((c) => c.email_notifications_enabled)
+        : allConsumersEnriched;
 
-  const searchedConsumers = displayedConsumers.filter((c) =>
-    c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
-    c.email.toLowerCase().includes(consumerSearch.toLowerCase())
+  const notificationsOnCount = useMemo(
+    () => (consumers ?? []).filter((c) => c.email_notifications_enabled).length,
+    [consumers]
   );
+
+  const searchedConsumers = displayedConsumers
+    .filter((c) => {
+      if (notificationsFilter === "on") return c.email_notifications_enabled;
+      if (notificationsFilter === "off") return !c.email_notifications_enabled;
+      return true;
+    })
+    .filter((c) =>
+      c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
+      c.email.toLowerCase().includes(consumerSearch.toLowerCase())
+    );
 
   // Claims filtered by period for the claims list view
   const filteredClaims = useMemo(() => {
@@ -436,7 +453,7 @@ export default function AdminDashboard() {
           </Card>
 
           {/* KPI cards — clickable to toggle list */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Card
               className={`cursor-pointer transition-colors ${consumerListMode === "all" ? "ring-2 ring-primary" : "hover:bg-accent/50"}`}
               onClick={() => setConsumerListMode("all")}
@@ -473,18 +490,60 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
+            <Card
+              className={`cursor-pointer transition-colors ${consumerListMode === "notifications" ? "ring-2 ring-primary" : "hover:bg-accent/50"}`}
+              onClick={() => { setConsumerListMode("notifications"); setNotificationsFilter("all"); }}
+            >
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="rounded-full p-2 bg-primary/10 text-primary"><Bell className="h-4 w-4" /></div>
+                <div>
+                  <p className="text-2xl font-bold">
+                    {notificationsOnCount}
+                    <span className="text-sm font-normal text-muted-foreground"> / {consumers?.length ?? 0}</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground">Meldingen aan</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {consumerListMode !== "claims" && (
             <>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Zoek op naam of e-mail..."
-                  value={consumerSearch}
-                  onChange={(e) => setConsumerSearch(e.target.value)}
-                  className="pl-9"
-                />
+              <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Zoek op naam of e-mail..."
+                    value={consumerSearch}
+                    onChange={(e) => setConsumerSearch(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                {consumerListMode !== "notifications" && (
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      variant={notificationsFilter === "all" ? "default" : "outline"}
+                      onClick={() => setNotificationsFilter("all")}
+                    >
+                      Alle
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={notificationsFilter === "on" ? "default" : "outline"}
+                      onClick={() => setNotificationsFilter("on")}
+                    >
+                      <Bell className="h-3.5 w-3.5 mr-1" /> Aan
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={notificationsFilter === "off" ? "default" : "outline"}
+                      onClick={() => setNotificationsFilter("off")}
+                    >
+                      <BellOff className="h-3.5 w-3.5 mr-1" /> Uit
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {searchedConsumers.length === 0 && (
@@ -498,6 +557,15 @@ export default function AdminDashboard() {
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-display font-semibold">{c.full_name || "Geen naam"}</h3>
+                        {c.email_notifications_enabled ? (
+                          <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
+                            <Bell className="h-3 w-3 mr-1" /> Meldingen aan
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs text-muted-foreground">
+                            <BellOff className="h-3 w-3 mr-1" /> Meldingen uit
+                          </Badge>
+                        )}
                         {c.claimsCount > 0 && (
                           <Badge variant="secondary" className="text-xs">
                             <Ticket className="h-3 w-3 mr-1" />
