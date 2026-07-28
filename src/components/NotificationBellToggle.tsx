@@ -50,11 +50,16 @@ export function NotificationBellToggle() {
           variant={enabled ? "ghost" : "outline"}
           size="sm"
           aria-label="Notificatie-instellingen"
-          className="relative gap-1.5"
+          className="relative gap-1 px-2 sm:gap-1.5 sm:px-3"
         >
-          <Bell className="h-4 w-4" />
+          <Bell className="h-4 w-4 shrink-0" />
           <span className="text-sm font-medium">
-            {enabled ? "Meldingen aan" : "Zet meldingen aan en mis niks"}
+            <span className="hidden sm:inline">
+              {enabled ? "Meldingen aan" : "Zet meldingen aan en mis niks"}
+            </span>
+            <span className="sm:hidden">
+              {enabled ? "Aan" : "Zet aan"}
+            </span>
           </span>
           {!enabled && (
             <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-primary" />
