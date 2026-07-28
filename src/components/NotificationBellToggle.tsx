@@ -47,14 +47,17 @@ export function NotificationBellToggle() {
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          variant="ghost"
-          size="icon"
+          variant={enabled ? "ghost" : "outline"}
+          size="sm"
           aria-label="Notificatie-instellingen"
-          className="relative"
+          className="relative gap-1.5"
         >
-          <Bell className="h-5 w-5" />
-          {enabled && (
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
+          <Bell className="h-4 w-4" />
+          <span className="text-sm font-medium">
+            {enabled ? "Meldingen aan" : "Zet meldingen aan en mis niks"}
+          </span>
+          {!enabled && (
+            <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-primary" />
           )}
         </Button>
       </PopoverTrigger>
