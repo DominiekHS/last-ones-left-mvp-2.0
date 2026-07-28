@@ -181,13 +181,30 @@ export default function AdminDashboard() {
     }));
   }, [consumers, allClaims]);
 
-  const [consumerListMode, setConsumerListMode] = useState<"all" | "new" | "claims">("all");
-  const displayedConsumers = consumerListMode === "new" ? consumerStats.filtered : allConsumersEnriched;
+  const [consumerListMode, setConsumerListMode] = useState<"all" | "new" | "claims" | "notifications">("all");
+  const [notificationsFilter, setNotificationsFilter] = useState<"all" | "on" | "off">("all");
+  const displayedConsumers =
+    consumerListMode === "new"
+      ? consumerStats.filtered
+      : consumerListMode === "notifications"
+        ? allConsumersEnriched.filter((c) => c.email_notifications_enabled)
+        : allConsumersEnriched;
 
-  const searchedConsumers = displayedConsumers.filter((c) =>
-    c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
-    c.email.toLowerCase().includes(consumerSearch.toLowerCase())
+  const notificationsOnCount = useMemo(
+    () => (consumers ?? []).filter((c) => c.email_notifications_enabled).length,
+    [consumers]
   );
+
+  const searchedConsumers = displayedConsumers
+    .filter((c) => {
+      if (notificationsFilter === "on") return c.email_notifications_enabled;
+      if (notificationsFilter === "off") return !c.email_notifications_enabled;
+      return true;
+    })
+    .filter((c) =>
+      c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
+      c.email.toLowerCase().includes(consumerSearch.toLowerCase())
+    );
 
   // Claims filtered by period for the claims list view
   const filteredClaims = useMemo(() => {
