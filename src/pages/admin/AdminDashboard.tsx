@@ -97,6 +97,16 @@ export default function AdminDashboard() {
     enabled: roles.includes("admin"),
   });
 
+  const { data: consumerEmailStatuses } = useQuery({
+    queryKey: ["admin-consumer-email-statuses"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("admin_get_consumer_email_statuses");
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: roles.includes("admin"),
+  });
+
   // Fetch all claim history for consumer stats (admin-only via RLS)
   const { data: allClaims } = useQuery({
     queryKey: ["admin-all-claims"],
