@@ -121,7 +121,7 @@ export default function AdminDashboard() {
     enabled: roles.includes("admin"),
   });
 
-  // Derived: filtered consumers + claim stats
+  // Derived: filtered consumers + claim stats + email verification status
   const consumerStats = useMemo(() => {
     if (!consumers || !allClaims) return { filtered: [], newCount: 0, totalClaims: 0, avgClaims: 0 };
 
@@ -156,11 +156,23 @@ export default function AdminDashboard() {
       }
     }
 
+    const emailStatusMap = new Map<string, { confirmationSentAt: string | null; emailConfirmedAt: string | null }>();
+    if (consumerEmailStatuses) {
+      for (const status of consumerEmailStatuses) {
+        emailStatusMap.set(status.user_id, {
+          confirmationSentAt: status.confirmation_sent_at,
+          emailConfirmedAt: status.email_confirmed_at,
+        });
+      }
+    }
+
     // Add claim stats to filtered consumers, then apply search
     const enriched = filtered.map((c) => ({
       ...c,
       claimsCount: claimsMap.get(c.user_id)?.count || 0,
       lastClaimedAt: claimsMap.get(c.user_id)?.lastClaimed || null,
+      confirmationSentAt: emailStatusMap.get(c.user_id)?.confirmationSentAt || null,
+      emailConfirmedAt: emailStatusMap.get(c.user_id)?.emailConfirmedAt || null,
     }));
 
     return {
@@ -169,7 +181,7 @@ export default function AdminDashboard() {
       totalClaims,
       avgClaims: filtered.length > 0 ? Math.round((totalClaims / filtered.length) * 10) / 10 : 0,
     };
-  }, [consumers, allClaims, consumerStartDate, consumerEndDate]);
+  }, [consumers, allClaims, consumerEmailStatuses, consumerStartDate, consumerEndDate]);
 
   // Build enriched list for "all" mode too (with claim stats for all consumers)
   const allConsumersEnriched = useMemo(() => {
