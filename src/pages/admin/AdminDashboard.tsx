@@ -173,23 +173,36 @@ export default function AdminDashboard() {
 
   // Build enriched list for "all" mode too (with claim stats for all consumers)
   const allConsumersEnriched = useMemo(() => {
-    if (!consumers || !allClaims) return [];
+    if (!consumers) return [];
     const claimsMap = new Map<string, { count: number; lastClaimed: string | null }>();
-    for (const claim of allClaims) {
-      const existing = claimsMap.get(claim.user_id);
-      if (existing) {
-        existing.count++;
-        if (!existing.lastClaimed || claim.claimed_at > existing.lastClaimed) existing.lastClaimed = claim.claimed_at;
-      } else {
-        claimsMap.set(claim.user_id, { count: 1, lastClaimed: claim.claimed_at });
+    if (allClaims) {
+      for (const claim of allClaims) {
+        const existing = claimsMap.get(claim.user_id);
+        if (existing) {
+          existing.count++;
+          if (!existing.lastClaimed || claim.claimed_at > existing.lastClaimed) existing.lastClaimed = claim.claimed_at;
+        } else {
+          claimsMap.set(claim.user_id, { count: 1, lastClaimed: claim.claimed_at });
+        }
+      }
+    }
+    const emailStatusMap = new Map<string, { confirmationSentAt: string | null; emailConfirmedAt: string | null }>();
+    if (consumerEmailStatuses) {
+      for (const status of consumerEmailStatuses) {
+        emailStatusMap.set(status.user_id, {
+          confirmationSentAt: status.confirmation_sent_at,
+          emailConfirmedAt: status.email_confirmed_at,
+        });
       }
     }
     return consumers.map((c) => ({
       ...c,
       claimsCount: claimsMap.get(c.user_id)?.count || 0,
       lastClaimedAt: claimsMap.get(c.user_id)?.lastClaimed || null,
+      confirmationSentAt: emailStatusMap.get(c.user_id)?.confirmationSentAt || null,
+      emailConfirmedAt: emailStatusMap.get(c.user_id)?.emailConfirmedAt || null,
     }));
-  }, [consumers, allClaims]);
+  }, [consumers, allClaims, consumerEmailStatuses]);
 
   const [consumerListMode, setConsumerListMode] = useState<"all" | "new" | "claims" | "notifications">("all");
   const [notificationsFilter, setNotificationsFilter] = useState<"all" | "on" | "off">("all");
