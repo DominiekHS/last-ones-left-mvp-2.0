@@ -585,6 +585,29 @@ export default function AdminDashboard() {
                     </Button>
                   </div>
                 )}
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant={emailConfirmedFilter === "all" ? "default" : "outline"}
+                    onClick={() => setEmailConfirmedFilter("all")}
+                  >
+                    Alle
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={emailConfirmedFilter === "confirmed" ? "default" : "outline"}
+                    onClick={() => setEmailConfirmedFilter("confirmed")}
+                  >
+                    <CheckCircle className="h-3.5 w-3.5 mr-1" /> Bevestigd
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={emailConfirmedFilter === "unconfirmed" ? "default" : "outline"}
+                    onClick={() => setEmailConfirmedFilter("unconfirmed")}
+                  >
+                    <MailWarning className="h-3.5 w-3.5 mr-1" /> Niet bevestigd
+                  </Button>
+                </div>
               </div>
 
               {searchedConsumers.length === 0 && (
