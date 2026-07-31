@@ -218,6 +218,7 @@ export default function AdminDashboard() {
 
   const [consumerListMode, setConsumerListMode] = useState<"all" | "new" | "claims" | "notifications">("all");
   const [notificationsFilter, setNotificationsFilter] = useState<"all" | "on" | "off">("all");
+  const [emailConfirmedFilter, setEmailConfirmedFilter] = useState<"all" | "confirmed" | "unconfirmed">("all");
   const displayedConsumers =
     consumerListMode === "new"
       ? consumerStats.filtered
