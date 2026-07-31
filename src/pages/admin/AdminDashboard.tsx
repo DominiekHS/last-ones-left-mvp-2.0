@@ -218,6 +218,7 @@ export default function AdminDashboard() {
 
   const [consumerListMode, setConsumerListMode] = useState<"all" | "new" | "claims" | "notifications">("all");
   const [notificationsFilter, setNotificationsFilter] = useState<"all" | "on" | "off">("all");
+  const [emailConfirmedFilter, setEmailConfirmedFilter] = useState<"all" | "confirmed" | "unconfirmed">("all");
   const displayedConsumers =
     consumerListMode === "new"
       ? consumerStats.filtered
@@ -234,6 +235,11 @@ export default function AdminDashboard() {
     .filter((c) => {
       if (notificationsFilter === "on") return c.email_notifications_enabled;
       if (notificationsFilter === "off") return !c.email_notifications_enabled;
+      return true;
+    })
+    .filter((c) => {
+      if (emailConfirmedFilter === "confirmed") return !!c.emailConfirmedAt;
+      if (emailConfirmedFilter === "unconfirmed") return !c.emailConfirmedAt;
       return true;
     })
     .filter((c) =>
@@ -579,6 +585,29 @@ export default function AdminDashboard() {
                     </Button>
                   </div>
                 )}
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant={emailConfirmedFilter === "all" ? "default" : "outline"}
+                    onClick={() => setEmailConfirmedFilter("all")}
+                  >
+                    Alle
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={emailConfirmedFilter === "confirmed" ? "default" : "outline"}
+                    onClick={() => setEmailConfirmedFilter("confirmed")}
+                  >
+                    <CheckCircle className="h-3.5 w-3.5 mr-1" /> Bevestigd
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={emailConfirmedFilter === "unconfirmed" ? "default" : "outline"}
+                    onClick={() => setEmailConfirmedFilter("unconfirmed")}
+                  >
+                    <MailWarning className="h-3.5 w-3.5 mr-1" /> Niet bevestigd
+                  </Button>
+                </div>
               </div>
 
               {searchedConsumers.length === 0 && (
