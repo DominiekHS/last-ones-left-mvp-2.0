@@ -237,6 +237,11 @@ export default function AdminDashboard() {
       if (notificationsFilter === "off") return !c.email_notifications_enabled;
       return true;
     })
+    .filter((c) => {
+      if (emailConfirmedFilter === "confirmed") return !!c.emailConfirmedAt;
+      if (emailConfirmedFilter === "unconfirmed") return !c.emailConfirmedAt;
+      return true;
+    })
     .filter((c) =>
       c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
       c.email.toLowerCase().includes(consumerSearch.toLowerCase())
