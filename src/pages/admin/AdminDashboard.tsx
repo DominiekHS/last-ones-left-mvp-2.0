@@ -607,6 +607,28 @@ export default function AdminDashboard() {
                             {c.claimsCount} claims
                           </Badge>
                         )}
+                        {c.confirmationSentAt ? (
+                          <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
+                            <MailCheck className="h-3 w-3 mr-1" />
+                            Mail verstuurd · {format(new Date(c.confirmationSentAt), "d MMM yyyy HH:mm", { locale: nl })}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs text-muted-foreground">
+                            <MailWarning className="h-3 w-3 mr-1" />
+                            Mail niet verstuurd
+                          </Badge>
+                        )}
+                        {c.emailConfirmedAt ? (
+                          <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Bevestigd · {format(new Date(c.emailConfirmedAt), "d MMM yyyy HH:mm", { locale: nl })}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs text-amber-700 border-amber-200 bg-amber-50">
+                            <MailWarning className="h-3 w-3 mr-1" />
+                            Niet bevestigd
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-xs text-muted-foreground">
                         {c.email} · Aangemaakt: {format(new Date(c.created_at), "d MMM yyyy", { locale: nl })}
