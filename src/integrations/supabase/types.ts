@@ -1055,6 +1055,14 @@ export type Database = {
       }
     }
     Functions: {
+      admin_get_consumer_email_statuses: {
+        Args: never
+        Returns: {
+          confirmation_sent_at: string
+          email_confirmed_at: string
+          user_id: string
+        }[]
+      }
       admin_get_merchant_moderation: {
         Args: { p_merchant_id: string }
         Returns: {

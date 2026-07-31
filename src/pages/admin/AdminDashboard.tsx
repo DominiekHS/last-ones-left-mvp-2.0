@@ -22,7 +22,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket, CalendarDays, MapPin, Inbox, Settings, FileText, Share2, Bell, BellOff } from "lucide-react";
+import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket, CalendarDays, MapPin, Inbox, Settings, FileText, Share2, Bell, BellOff, MailCheck, MailWarning } from "lucide-react";
 import { ActivityRequestsTab } from "@/components/admin/ActivityRequestsTab";
 import { PlatformSettingsTab } from "@/components/admin/PlatformSettingsTab";
 import { EnvironmentStatusTab } from "@/components/admin/EnvironmentStatusTab";
@@ -97,6 +97,16 @@ export default function AdminDashboard() {
     enabled: roles.includes("admin"),
   });
 
+  const { data: consumerEmailStatuses } = useQuery({
+    queryKey: ["admin-consumer-email-statuses"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("admin_get_consumer_email_statuses");
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: roles.includes("admin"),
+  });
+
   // Fetch all claim history for consumer stats (admin-only via RLS)
   const { data: allClaims } = useQuery({
     queryKey: ["admin-all-claims"],
@@ -111,7 +121,7 @@ export default function AdminDashboard() {
     enabled: roles.includes("admin"),
   });
 
-  // Derived: filtered consumers + claim stats
+  // Derived: filtered consumers + claim stats + email verification status
   const consumerStats = useMemo(() => {
     if (!consumers || !allClaims) return { filtered: [], newCount: 0, totalClaims: 0, avgClaims: 0 };
 
@@ -146,11 +156,23 @@ export default function AdminDashboard() {
       }
     }
 
+    const emailStatusMap = new Map<string, { confirmationSentAt: string | null; emailConfirmedAt: string | null }>();
+    if (consumerEmailStatuses) {
+      for (const status of consumerEmailStatuses) {
+        emailStatusMap.set(status.user_id, {
+          confirmationSentAt: status.confirmation_sent_at,
+          emailConfirmedAt: status.email_confirmed_at,
+        });
+      }
+    }
+
     // Add claim stats to filtered consumers, then apply search
     const enriched = filtered.map((c) => ({
       ...c,
       claimsCount: claimsMap.get(c.user_id)?.count || 0,
       lastClaimedAt: claimsMap.get(c.user_id)?.lastClaimed || null,
+      confirmationSentAt: emailStatusMap.get(c.user_id)?.confirmationSentAt || null,
+      emailConfirmedAt: emailStatusMap.get(c.user_id)?.emailConfirmedAt || null,
     }));
 
     return {
@@ -159,27 +181,40 @@ export default function AdminDashboard() {
       totalClaims,
       avgClaims: filtered.length > 0 ? Math.round((totalClaims / filtered.length) * 10) / 10 : 0,
     };
-  }, [consumers, allClaims, consumerStartDate, consumerEndDate]);
+  }, [consumers, allClaims, consumerEmailStatuses, consumerStartDate, consumerEndDate]);
 
   // Build enriched list for "all" mode too (with claim stats for all consumers)
   const allConsumersEnriched = useMemo(() => {
-    if (!consumers || !allClaims) return [];
+    if (!consumers) return [];
     const claimsMap = new Map<string, { count: number; lastClaimed: string | null }>();
-    for (const claim of allClaims) {
-      const existing = claimsMap.get(claim.user_id);
-      if (existing) {
-        existing.count++;
-        if (!existing.lastClaimed || claim.claimed_at > existing.lastClaimed) existing.lastClaimed = claim.claimed_at;
-      } else {
-        claimsMap.set(claim.user_id, { count: 1, lastClaimed: claim.claimed_at });
+    if (allClaims) {
+      for (const claim of allClaims) {
+        const existing = claimsMap.get(claim.user_id);
+        if (existing) {
+          existing.count++;
+          if (!existing.lastClaimed || claim.claimed_at > existing.lastClaimed) existing.lastClaimed = claim.claimed_at;
+        } else {
+          claimsMap.set(claim.user_id, { count: 1, lastClaimed: claim.claimed_at });
+        }
+      }
+    }
+    const emailStatusMap = new Map<string, { confirmationSentAt: string | null; emailConfirmedAt: string | null }>();
+    if (consumerEmailStatuses) {
+      for (const status of consumerEmailStatuses) {
+        emailStatusMap.set(status.user_id, {
+          confirmationSentAt: status.confirmation_sent_at,
+          emailConfirmedAt: status.email_confirmed_at,
+        });
       }
     }
     return consumers.map((c) => ({
       ...c,
       claimsCount: claimsMap.get(c.user_id)?.count || 0,
       lastClaimedAt: claimsMap.get(c.user_id)?.lastClaimed || null,
+      confirmationSentAt: emailStatusMap.get(c.user_id)?.confirmationSentAt || null,
+      emailConfirmedAt: emailStatusMap.get(c.user_id)?.emailConfirmedAt || null,
     }));
-  }, [consumers, allClaims]);
+  }, [consumers, allClaims, consumerEmailStatuses]);
 
   const [consumerListMode, setConsumerListMode] = useState<"all" | "new" | "claims" | "notifications">("all");
   const [notificationsFilter, setNotificationsFilter] = useState<"all" | "on" | "off">("all");
@@ -570,6 +605,28 @@ export default function AdminDashboard() {
                           <Badge variant="secondary" className="text-xs">
                             <Ticket className="h-3 w-3 mr-1" />
                             {c.claimsCount} claims
+                          </Badge>
+                        )}
+                        {c.confirmationSentAt ? (
+                          <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
+                            <MailCheck className="h-3 w-3 mr-1" />
+                            Mail verstuurd · {format(new Date(c.confirmationSentAt), "d MMM yyyy HH:mm", { locale: nl })}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs text-muted-foreground">
+                            <MailWarning className="h-3 w-3 mr-1" />
+                            Mail niet verstuurd
+                          </Badge>
+                        )}
+                        {c.emailConfirmedAt ? (
+                          <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Bevestigd · {format(new Date(c.emailConfirmedAt), "d MMM yyyy HH:mm", { locale: nl })}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs text-amber-700 border-amber-200 bg-amber-50">
+                            <MailWarning className="h-3 w-3 mr-1" />
+                            Niet bevestigd
                           </Badge>
                         )}
                       </div>
