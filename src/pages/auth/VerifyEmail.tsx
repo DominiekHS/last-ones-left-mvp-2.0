@@ -12,6 +12,7 @@ import { Mail, AlertTriangle } from "lucide-react";
 export default function VerifyEmail() {
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState(searchParams.get("email") ?? "");
   const reason = searchParams.get("reason");
   const linkFailed = reason === "expired" || reason === "unknown";
