@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { AuthRedirectErrorHandler } from "@/components/AuthRedirectErrorHandler";
 
 import Index from "./pages/Index";
 import DealDetail from "./pages/DealDetail";
@@ -55,6 +56,7 @@ const App = () => (
           }}
         >
           <AuthProvider>
+            <AuthRedirectErrorHandler />
             <Routes>
             <Route element={<AppLayout />}>
               <Route path="/" element={<Index />} />

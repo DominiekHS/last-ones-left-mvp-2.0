@@ -32,7 +32,11 @@ export default function Login() {
         reason: error.message?.slice(0, 100),
         email_length: email.length,
       });
+      const notConfirmed = /not confirmed|email_not_confirmed/i.test(error.message || "");
       toast({ title: "Inloggen mislukt", description: friendlyAuthError(error), variant: "destructive" });
+      if (notConfirmed) {
+        navigate(`/verify-email?reason=unconfirmed&email=${encodeURIComponent(email)}`);
+      }
     } else {
       // Use safe internal path only — en stuur nooit terug naar een auth-route,
       // anders blijf je in het inlogvenster hangen.
