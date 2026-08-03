@@ -12,17 +12,17 @@ import { Mail, AlertTriangle } from "lucide-react";
 export default function VerifyEmail() {
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
-  const [email, setEmail] = useState("");
-  const [searchParams] = useSearchParams();
+  const [email, setEmail] = useState(searchParams.get("email") ?? "");
   const reason = searchParams.get("reason");
   const linkFailed = reason === "expired" || reason === "unknown";
 
   // Vul het e-mailadres vast in als er al een (onbevestigde) sessie is.
   useEffect(() => {
+    if (searchParams.get("email")) return;
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.email) setEmail(session.user.email);
     });
-  }, []);
+  }, [searchParams]);
 
   const handleResend = async (e?: React.FormEvent) => {
     e?.preventDefault();
