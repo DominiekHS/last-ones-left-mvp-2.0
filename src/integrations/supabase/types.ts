@@ -439,6 +439,24 @@ export type Database = {
           },
         ]
       }
+      dummy_accounts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       help_articles: {
         Row: {
           answer: string
