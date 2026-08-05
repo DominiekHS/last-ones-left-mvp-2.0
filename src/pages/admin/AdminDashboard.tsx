@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -107,6 +109,33 @@ export default function AdminDashboard() {
     enabled: roles.includes("admin"),
   });
 
+  const { data: dummyRows } = useQuery({
+    queryKey: ["admin-dummy-accounts"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("dummy_accounts").select("user_id");
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: roles.includes("admin"),
+  });
+
+  const dummySet = useMemo(
+    () => new Set((dummyRows ?? []).map((d) => d.user_id)),
+    [dummyRows]
+  );
+
+  const toggleDummy = async (userId: string, value: boolean) => {
+    const { error } = value
+      ? await supabase.from("dummy_accounts").insert({ user_id: userId, created_by: user?.id })
+      : await supabase.from("dummy_accounts").delete().eq("user_id", userId);
+    if (error) {
+      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
+      return;
+    }
+    queryClient.invalidateQueries({ queryKey: ["admin-dummy-accounts"] });
+  };
+
+
   // Fetch all claim history for consumer stats (admin-only via RLS)
   const { data: allClaims } = useQuery({
     queryKey: ["admin-all-claims"],
@@ -173,6 +202,7 @@ export default function AdminDashboard() {
       lastClaimedAt: claimsMap.get(c.user_id)?.lastClaimed || null,
       confirmationSentAt: emailStatusMap.get(c.user_id)?.confirmationSentAt || null,
       emailConfirmedAt: emailStatusMap.get(c.user_id)?.emailConfirmedAt || null,
+      isDummy: dummySet.has(c.user_id),
     }));
 
     return {
@@ -181,7 +211,8 @@ export default function AdminDashboard() {
       totalClaims,
       avgClaims: filtered.length > 0 ? Math.round((totalClaims / filtered.length) * 10) / 10 : 0,
     };
-  }, [consumers, allClaims, consumerEmailStatuses, consumerStartDate, consumerEndDate]);
+  }, [consumers, allClaims, consumerEmailStatuses, dummySet, consumerStartDate, consumerEndDate]);
+
 
   // Build enriched list for "all" mode too (with claim stats for all consumers)
   const allConsumersEnriched = useMemo(() => {
@@ -213,12 +244,15 @@ export default function AdminDashboard() {
       lastClaimedAt: claimsMap.get(c.user_id)?.lastClaimed || null,
       confirmationSentAt: emailStatusMap.get(c.user_id)?.confirmationSentAt || null,
       emailConfirmedAt: emailStatusMap.get(c.user_id)?.emailConfirmedAt || null,
+      isDummy: dummySet.has(c.user_id),
     }));
-  }, [consumers, allClaims, consumerEmailStatuses]);
+  }, [consumers, allClaims, consumerEmailStatuses, dummySet]);
+
 
   const [consumerListMode, setConsumerListMode] = useState<"all" | "new" | "claims" | "notifications">("all");
   const [notificationsFilter, setNotificationsFilter] = useState<"all" | "on" | "off">("all");
   const [emailConfirmedFilter, setEmailConfirmedFilter] = useState<"all" | "confirmed" | "unconfirmed">("all");
+  const [dummyFilter, setDummyFilter] = useState<"all" | "real" | "dummy">("all");
   const displayedConsumers =
     consumerListMode === "new"
       ? consumerStats.filtered
@@ -231,6 +265,13 @@ export default function AdminDashboard() {
     [consumers]
   );
 
+  const dummyCount = useMemo(
+    () => (consumers ?? []).filter((c) => dummySet.has(c.user_id)).length,
+    [consumers, dummySet]
+  );
+  const realCount = (consumers?.length ?? 0) - dummyCount;
+
+
   const searchedConsumers = displayedConsumers
     .filter((c) => {
       if (notificationsFilter === "on") return c.email_notifications_enabled;
@@ -242,10 +283,16 @@ export default function AdminDashboard() {
       if (emailConfirmedFilter === "unconfirmed") return !c.emailConfirmedAt;
       return true;
     })
+    .filter((c) => {
+      if (dummyFilter === "dummy") return c.isDummy;
+      if (dummyFilter === "real") return !c.isDummy;
+      return true;
+    })
     .filter((c) =>
       c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
       c.email.toLowerCase().includes(consumerSearch.toLowerCase())
     );
+
 
   // Claims filtered by period for the claims list view
   const filteredClaims = useMemo(() => {
@@ -546,7 +593,32 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
+            <Card
+              className={`cursor-pointer transition-colors ${dummyFilter === "real" ? "ring-2 ring-primary" : "hover:bg-accent/50"}`}
+              onClick={() => { setConsumerListMode("all"); setDummyFilter("real"); }}
+            >
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="rounded-full p-2 bg-primary/10 text-primary"><Users className="h-4 w-4" /></div>
+                <div>
+                  <p className="text-2xl font-bold">{realCount}</p>
+                  <p className="text-xs text-muted-foreground">Echte accounts</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card
+              className={`cursor-pointer transition-colors ${dummyFilter === "dummy" ? "ring-2 ring-primary" : "hover:bg-accent/50"}`}
+              onClick={() => { setConsumerListMode("all"); setDummyFilter("dummy"); }}
+            >
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="rounded-full p-2 bg-muted text-muted-foreground"><Users className="h-4 w-4" /></div>
+                <div>
+                  <p className="text-2xl font-bold">{dummyCount}</p>
+                  <p className="text-xs text-muted-foreground">Dummy accounts</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
+
 
           {consumerListMode !== "claims" && (
             <>
@@ -608,7 +680,31 @@ export default function AdminDashboard() {
                     <MailWarning className="h-3.5 w-3.5 mr-1" /> Niet bevestigd
                   </Button>
                 </div>
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant={dummyFilter === "all" ? "default" : "outline"}
+                    onClick={() => setDummyFilter("all")}
+                  >
+                    Alle
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={dummyFilter === "real" ? "default" : "outline"}
+                    onClick={() => setDummyFilter("real")}
+                  >
+                    Echt
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={dummyFilter === "dummy" ? "default" : "outline"}
+                    onClick={() => setDummyFilter("dummy")}
+                  >
+                    Dummy
+                  </Button>
+                </div>
               </div>
+
 
               {searchedConsumers.length === 0 && (
                 <p className="text-sm text-muted-foreground text-center py-4">
@@ -618,8 +714,22 @@ export default function AdminDashboard() {
               {searchedConsumers.map((c) => (
                 <Card key={c.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/consumenten/${c.user_id}`)}>
                   <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div
+                      className="flex items-center gap-2 shrink-0"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Checkbox
+                        id={`dummy-${c.user_id}`}
+                        checked={c.isDummy}
+                        onCheckedChange={(v) => toggleDummy(c.user_id, v === true)}
+                      />
+                      <Label htmlFor={`dummy-${c.user_id}`} className="text-xs text-muted-foreground cursor-pointer">
+                        Dummy
+                      </Label>
+                    </div>
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
+
                         <h3 className="font-display font-semibold">{c.full_name || "Geen naam"}</h3>
                         {c.email_notifications_enabled ? (
                           <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
