@@ -618,8 +618,22 @@ export default function AdminDashboard() {
               {searchedConsumers.map((c) => (
                 <Card key={c.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/consumenten/${c.user_id}`)}>
                   <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div
+                      className="flex items-center gap-2 shrink-0"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Checkbox
+                        id={`dummy-${c.user_id}`}
+                        checked={c.isDummy}
+                        onCheckedChange={(v) => toggleDummy(c.user_id, v === true)}
+                      />
+                      <Label htmlFor={`dummy-${c.user_id}`} className="text-xs text-muted-foreground cursor-pointer">
+                        Dummy
+                      </Label>
+                    </div>
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
+
                         <h3 className="font-display font-semibold">{c.full_name || "Geen naam"}</h3>
                         {c.email_notifications_enabled ? (
                           <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
