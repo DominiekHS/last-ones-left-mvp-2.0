@@ -242,10 +242,16 @@ export default function AdminDashboard() {
       if (emailConfirmedFilter === "unconfirmed") return !c.emailConfirmedAt;
       return true;
     })
+    .filter((c) => {
+      if (dummyFilter === "dummy") return c.isDummy;
+      if (dummyFilter === "real") return !c.isDummy;
+      return true;
+    })
     .filter((c) =>
       c.full_name.toLowerCase().includes(consumerSearch.toLowerCase()) ||
       c.email.toLowerCase().includes(consumerSearch.toLowerCase())
     );
+
 
   // Claims filtered by period for the claims list view
   const filteredClaims = useMemo(() => {
