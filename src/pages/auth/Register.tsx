@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { friendlyAuthError } from "@/lib/friendly-errors";
+import { useAppSetting } from "@/hooks/useAppSettings";
 
 export default function Register() {
   const [fullName, setFullName] = useState("");
@@ -17,6 +18,9 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { data: verificationSetting } = useAppSetting("email_verification_required");
+  // Standaard veilig: verificatie vereist, tenzij expliciet uitgezet door een admin.
+  const verificationRequired = verificationSetting?.value !== false;
 
   // Pak referral-code uit ?ref= en bewaar in sessionStorage zodat hij blijft na navigatie.
   useEffect(() => {
@@ -35,6 +39,45 @@ export default function Register() {
     setLoading(true);
 
     const referralCode = sessionStorage.getItem("ll_referral_code") || undefined;
+
+    // Verificatie uitgeschakeld (bv. tijdens een markt): account direct actief aanmaken en inloggen.
+    if (!verificationRequired) {
+      const { data: fnData, error: fnError } = await supabase.functions.invoke("consumer-signup", {
+        body: {
+          email,
+          password,
+          full_name: fullName,
+          phone: phone || null,
+          date_of_birth: dob || null,
+          referral_code: referralCode || null,
+        },
+      });
+
+      const fnErrMessage = (fnData as any)?.error;
+      if (fnError || fnErrMessage) {
+        toast({
+          title: "Registratie mislukt",
+          description: fnErrMessage || fnError?.message || "Er ging iets mis.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) {
+        toast({ title: "Account aangemaakt", description: "Log in met je e-mailadres en wachtwoord." });
+        navigate("/login");
+        setLoading(false);
+        return;
+      }
+
+      toast({ title: "Account aangemaakt!", description: "Je bent direct ingelogd." });
+      navigate("/");
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -63,6 +106,7 @@ export default function Register() {
     navigate("/verify-email");
     setLoading(false);
   };
+
 
   return (
     <div className="container flex items-center justify-center py-12">
