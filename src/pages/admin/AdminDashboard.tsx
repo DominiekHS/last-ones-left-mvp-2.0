@@ -200,6 +200,7 @@ export default function AdminDashboard() {
       lastClaimedAt: claimsMap.get(c.user_id)?.lastClaimed || null,
       confirmationSentAt: emailStatusMap.get(c.user_id)?.confirmationSentAt || null,
       emailConfirmedAt: emailStatusMap.get(c.user_id)?.emailConfirmedAt || null,
+      isDummy: dummySet.has(c.user_id),
     }));
 
     return {
@@ -208,7 +209,8 @@ export default function AdminDashboard() {
       totalClaims,
       avgClaims: filtered.length > 0 ? Math.round((totalClaims / filtered.length) * 10) / 10 : 0,
     };
-  }, [consumers, allClaims, consumerEmailStatuses, consumerStartDate, consumerEndDate]);
+  }, [consumers, allClaims, consumerEmailStatuses, dummySet, consumerStartDate, consumerEndDate]);
+
 
   // Build enriched list for "all" mode too (with claim stats for all consumers)
   const allConsumersEnriched = useMemo(() => {
