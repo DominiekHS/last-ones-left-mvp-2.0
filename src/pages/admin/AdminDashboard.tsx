@@ -107,6 +107,33 @@ export default function AdminDashboard() {
     enabled: roles.includes("admin"),
   });
 
+  const { data: dummyRows } = useQuery({
+    queryKey: ["admin-dummy-accounts"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("dummy_accounts").select("user_id");
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: roles.includes("admin"),
+  });
+
+  const dummySet = useMemo(
+    () => new Set((dummyRows ?? []).map((d) => d.user_id)),
+    [dummyRows]
+  );
+
+  const toggleDummy = async (userId: string, value: boolean) => {
+    const { error } = value
+      ? await supabase.from("dummy_accounts").insert({ user_id: userId, created_by: user?.id })
+      : await supabase.from("dummy_accounts").delete().eq("user_id", userId);
+    if (error) {
+      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
+      return;
+    }
+    queryClient.invalidateQueries({ queryKey: ["admin-dummy-accounts"] });
+  };
+
+
   // Fetch all claim history for consumer stats (admin-only via RLS)
   const { data: allClaims } = useQuery({
     queryKey: ["admin-all-claims"],
