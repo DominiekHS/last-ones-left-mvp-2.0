@@ -261,8 +261,8 @@ export default function AdminDashboard() {
         : allConsumersEnriched;
 
   const notificationsOnCount = useMemo(
-    () => (consumers ?? []).filter((c) => c.email_notifications_enabled).length,
-    [consumers]
+    () => (consumers ?? []).filter((c) => c.email_notifications_enabled && !dummySet.has(c.user_id)).length,
+    [consumers, dummySet]
   );
 
   const dummyCount = useMemo(
