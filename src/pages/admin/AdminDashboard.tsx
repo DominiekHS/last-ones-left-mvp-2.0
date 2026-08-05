@@ -608,7 +608,31 @@ export default function AdminDashboard() {
                     <MailWarning className="h-3.5 w-3.5 mr-1" /> Niet bevestigd
                   </Button>
                 </div>
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant={dummyFilter === "all" ? "default" : "outline"}
+                    onClick={() => setDummyFilter("all")}
+                  >
+                    Alle
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={dummyFilter === "real" ? "default" : "outline"}
+                    onClick={() => setDummyFilter("real")}
+                  >
+                    Echt
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={dummyFilter === "dummy" ? "default" : "outline"}
+                    onClick={() => setDummyFilter("dummy")}
+                  >
+                    Dummy
+                  </Button>
+                </div>
               </div>
+
 
               {searchedConsumers.length === 0 && (
                 <p className="text-sm text-muted-foreground text-center py-4">
