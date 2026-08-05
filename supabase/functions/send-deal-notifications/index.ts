@@ -101,13 +101,17 @@ Deno.serve(async (req) => {
       .update({ notification_sent_at: new Date().toISOString() })
       .eq("id", dealId);
 
-    // Recipients: opted-in consumers
+    // Recipients: opted-in consumers (dummy/test accounts excluded)
     const { data: profiles } = await admin
       .from("profiles")
       .select("user_id, email, full_name")
       .eq("email_notifications_enabled", true);
 
-    const recipients = (profiles ?? []).filter((p) => p.email);
+    const { data: dummyRows } = await admin.from("dummy_accounts").select("user_id");
+    const dummyIds = new Set((dummyRows ?? []).map((d: { user_id: string }) => d.user_id));
+
+    const recipients = (profiles ?? []).filter((p) => p.email && !dummyIds.has(p.user_id));
+
     // Always link to the live production domain, regardless of where the deal was created from
     const origin = "https://lastonesleft.nl";
     const dealLinkBase = `${origin}/deal/${deal.id}`;
