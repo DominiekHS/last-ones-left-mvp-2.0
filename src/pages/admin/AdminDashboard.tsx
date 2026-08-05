@@ -246,6 +246,7 @@ export default function AdminDashboard() {
   const [consumerListMode, setConsumerListMode] = useState<"all" | "new" | "claims" | "notifications">("all");
   const [notificationsFilter, setNotificationsFilter] = useState<"all" | "on" | "off">("all");
   const [emailConfirmedFilter, setEmailConfirmedFilter] = useState<"all" | "confirmed" | "unconfirmed">("all");
+  const [dummyFilter, setDummyFilter] = useState<"all" | "real" | "dummy">("all");
   const displayedConsumers =
     consumerListMode === "new"
       ? consumerStats.filtered
@@ -257,6 +258,13 @@ export default function AdminDashboard() {
     () => (consumers ?? []).filter((c) => c.email_notifications_enabled).length,
     [consumers]
   );
+
+  const dummyCount = useMemo(
+    () => (consumers ?? []).filter((c) => dummySet.has(c.user_id)).length,
+    [consumers, dummySet]
+  );
+  const realCount = (consumers?.length ?? 0) - dummyCount;
+
 
   const searchedConsumers = displayedConsumers
     .filter((c) => {
