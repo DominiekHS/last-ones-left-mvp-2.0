@@ -587,7 +587,7 @@ export default function AdminDashboard() {
                 <div>
                   <p className="text-2xl font-bold">
                     {notificationsOnCount}
-                    <span className="text-sm font-normal text-muted-foreground"> / {consumers?.length ?? 0}</span>
+                    <span className="text-sm font-normal text-muted-foreground"> / {realCount}</span>
                   </p>
                   <p className="text-xs text-muted-foreground">Meldingen aan</p>
                 </div>
