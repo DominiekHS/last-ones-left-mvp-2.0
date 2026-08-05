@@ -546,7 +546,32 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
+            <Card
+              className={`cursor-pointer transition-colors ${dummyFilter === "real" ? "ring-2 ring-primary" : "hover:bg-accent/50"}`}
+              onClick={() => { setConsumerListMode("all"); setDummyFilter("real"); }}
+            >
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="rounded-full p-2 bg-primary/10 text-primary"><Users className="h-4 w-4" /></div>
+                <div>
+                  <p className="text-2xl font-bold">{realCount}</p>
+                  <p className="text-xs text-muted-foreground">Echte accounts</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card
+              className={`cursor-pointer transition-colors ${dummyFilter === "dummy" ? "ring-2 ring-primary" : "hover:bg-accent/50"}`}
+              onClick={() => { setConsumerListMode("all"); setDummyFilter("dummy"); }}
+            >
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="rounded-full p-2 bg-muted text-muted-foreground"><Users className="h-4 w-4" /></div>
+                <div>
+                  <p className="text-2xl font-bold">{dummyCount}</p>
+                  <p className="text-xs text-muted-foreground">Dummy accounts</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
+
 
           {consumerListMode !== "claims" && (
             <>
