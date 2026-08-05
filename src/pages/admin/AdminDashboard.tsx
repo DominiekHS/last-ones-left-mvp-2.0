@@ -240,8 +240,10 @@ export default function AdminDashboard() {
       lastClaimedAt: claimsMap.get(c.user_id)?.lastClaimed || null,
       confirmationSentAt: emailStatusMap.get(c.user_id)?.confirmationSentAt || null,
       emailConfirmedAt: emailStatusMap.get(c.user_id)?.emailConfirmedAt || null,
+      isDummy: dummySet.has(c.user_id),
     }));
-  }, [consumers, allClaims, consumerEmailStatuses]);
+  }, [consumers, allClaims, consumerEmailStatuses, dummySet]);
+
 
   const [consumerListMode, setConsumerListMode] = useState<"all" | "new" | "claims" | "notifications">("all");
   const [notificationsFilter, setNotificationsFilter] = useState<"all" | "on" | "off">("all");
