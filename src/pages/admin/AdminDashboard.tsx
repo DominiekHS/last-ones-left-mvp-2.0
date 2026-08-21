@@ -5,6 +5,7 @@ import { Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -88,13 +89,27 @@ export default function AdminDashboard() {
         )
       );
       if (!userIds.length) return [];
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*")
-        .in("user_id", userIds)
-        .order("created_at", { ascending: false });
-      if (profilesError) throw profilesError;
-      return profiles || [];
+      // Fetch profiles in chunks so the request URL stays short. With hundreds
+      // of accounts a single `.in()` produces a URL that exceeds the API limit
+      // and returns 400 Bad Request (which made the list appear empty).
+      const chunkSize = 100;
+      const chunks: string[][] = [];
+      for (let i = 0; i < userIds.length; i += chunkSize) {
+        chunks.push(userIds.slice(i, i + chunkSize));
+      }
+      const pages = await Promise.all(
+        chunks.map(async (chunk) => {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .in("user_id", chunk);
+          if (error) throw error;
+          return data ?? [];
+        })
+      );
+      return pages
+        .flat()
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     },
     enabled: roles.includes("admin"),
   });
