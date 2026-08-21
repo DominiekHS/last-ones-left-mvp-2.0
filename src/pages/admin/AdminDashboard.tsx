@@ -5,6 +5,7 @@ import { Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -88,13 +89,25 @@ export default function AdminDashboard() {
         )
       );
       if (!userIds.length) return [];
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*")
-        .in("user_id", userIds)
-        .order("created_at", { ascending: false });
-      if (profilesError) throw profilesError;
-      return profiles || [];
+      // Fetch profiles in chunks so the combined `IN (...)` filter stays small.
+      // With hundreds of accounts a single `.in()` builds a request URL that
+      // exceeds PostgREST's limit and returns 400 Bad Request.
+      const chunkSize = 100;
+      const results: NonNullable<typeof data>[] = [];
+      for (let i = 0; i < userIds.length; i += chunkSize) {
+        const chunk = userIds.slice(i, i + chunkSize);
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .in("user_id", chunk)
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        if (data) results.push(data);
+      }
+      // Flatten and sort by created_at descending (newest first)
+      return results.flat().sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
     },
     enabled: roles.includes("admin"),
   });
