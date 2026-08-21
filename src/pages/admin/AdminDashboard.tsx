@@ -89,25 +89,27 @@ export default function AdminDashboard() {
         )
       );
       if (!userIds.length) return [];
-      // Fetch profiles in chunks so the combined `IN (...)` filter stays small.
-      // With hundreds of accounts a single `.in()` builds a request URL that
-      // exceeds PostgREST's limit and returns 400 Bad Request.
+      // Fetch profiles in chunks so the request URL stays short. With hundreds
+      // of accounts a single `.in()` produces a URL that exceeds the API limit
+      // and returns 400 Bad Request (which made the list appear empty).
       const chunkSize = 100;
-      const results: NonNullable<typeof data>[] = [];
+      const chunks: string[][] = [];
       for (let i = 0; i < userIds.length; i += chunkSize) {
-        const chunk = userIds.slice(i, i + chunkSize);
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .in("user_id", chunk)
-          .order("created_at", { ascending: false });
-        if (error) throw error;
-        if (data) results.push(data);
+        chunks.push(userIds.slice(i, i + chunkSize));
       }
-      // Flatten and sort by created_at descending (newest first)
-      return results.flat().sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      const pages = await Promise.all(
+        chunks.map(async (chunk) => {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .in("user_id", chunk);
+          if (error) throw error;
+          return data ?? [];
+        })
       );
+      return pages
+        .flat()
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     },
     enabled: roles.includes("admin"),
   });
