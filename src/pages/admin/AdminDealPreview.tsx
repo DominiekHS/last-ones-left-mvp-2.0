@@ -67,13 +67,20 @@ export default function AdminDealPreview() {
     );
   }
 
-  if (!deal) {
+  if (error || !deal) {
     return (
       <div className="container py-6 space-y-4">
         <Button variant="ghost" asChild>
           <Link to={`/admin/deals/${dealId}`}><ArrowLeft className="mr-1 h-4 w-4" />Terug naar admin deal</Link>
         </Button>
-        <p className="text-muted-foreground">Deal niet gevonden.</p>
+        {error ? (
+          <div className="rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+            <p className="font-semibold">Fout bij ophalen deal:</p>
+            <p>{(error as Error).message}</p>
+          </div>
+        ) : (
+          <p className="text-muted-foreground">Deal niet gevonden.</p>
+        )}
       </div>
     );
   }
