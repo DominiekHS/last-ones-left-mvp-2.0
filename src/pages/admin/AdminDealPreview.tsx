@@ -18,12 +18,33 @@ export default function AdminDealPreview() {
   const { dealId } = useParams<{ dealId: string }>();
   const { user, roles, loading } = useAuth();
 
-  const { data: deal, isLoading } = useQuery({
+  const { data: deal, isLoading, error } = useQuery({
     queryKey: ["admin-deal-preview", dealId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("deals")
-        .select("*, merchants(company_name, city, address, description)")
+        .select(`
+          id,
+          title,
+          description,
+          image_url,
+          category,
+          city,
+          address,
+          postal_code,
+          original_price,
+          discount_percentage,
+          start_time,
+          expiry_time,
+          pricing_model,
+          price_per_person,
+          counter_discount_mode,
+          redemption_method,
+          redemption_instructions,
+          cancellation_policy,
+          terms_summary,
+          merchants(company_name, city, address, description)
+        `)
         .eq("id", dealId!)
         .maybeSingle();
       if (error) throw error;
@@ -46,13 +67,20 @@ export default function AdminDealPreview() {
     );
   }
 
-  if (!deal) {
+  if (error || !deal) {
     return (
       <div className="container py-6 space-y-4">
         <Button variant="ghost" asChild>
           <Link to={`/admin/deals/${dealId}`}><ArrowLeft className="mr-1 h-4 w-4" />Terug naar admin deal</Link>
         </Button>
-        <p className="text-muted-foreground">Deal niet gevonden.</p>
+        {error ? (
+          <div className="rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+            <p className="font-semibold">Fout bij ophalen deal:</p>
+            <p>{(error as Error).message}</p>
+          </div>
+        ) : (
+          <p className="text-muted-foreground">Deal niet gevonden.</p>
+        )}
       </div>
     );
   }
