@@ -18,12 +18,33 @@ export default function AdminDealPreview() {
   const { dealId } = useParams<{ dealId: string }>();
   const { user, roles, loading } = useAuth();
 
-  const { data: deal, isLoading } = useQuery({
+  const { data: deal, isLoading, error } = useQuery({
     queryKey: ["admin-deal-preview", dealId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("deals")
-        .select("*, merchants(company_name, city, address, description)")
+        .select(`
+          id,
+          title,
+          description,
+          image_url,
+          category,
+          city,
+          address,
+          postal_code,
+          original_price,
+          discount_percentage,
+          start_time,
+          expiry_time,
+          pricing_model,
+          price_per_person,
+          counter_discount_mode,
+          redemption_method,
+          redemption_instructions,
+          cancellation_policy,
+          terms_summary,
+          merchants(company_name, city, address, description)
+        `)
         .eq("id", dealId!)
         .maybeSingle();
       if (error) throw error;
