@@ -2,6 +2,7 @@ import { useParams, Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import PaymentStepsDisplay from "@/components/deals/PaymentStepsDisplay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -43,6 +44,7 @@ export default function AdminDealPreview() {
           redemption_instructions,
           cancellation_policy,
           terms_summary,
+          payment_steps,
           merchants(company_name, city, address, description)
         `)
         .eq("id", dealId!)
@@ -218,6 +220,10 @@ export default function AdminDealPreview() {
           </Accordion>
         </CardContent>
       </Card>
+
+      {(deal as any).payment_steps && Array.isArray((deal as any).payment_steps) && (deal as any).payment_steps.length > 0 && (
+        <PaymentStepsDisplay steps={(deal as any).payment_steps} />
+      )}
 
       {/* No claim CTA - admin preview */}
     </div>
