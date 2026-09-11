@@ -306,15 +306,14 @@ function DealRow({ deal, isExpired, merchantId, selected, onToggleSelect }: {
                 <AlertCircle className="mr-1 h-3 w-3" />Alle codes op
               </Badge>
             )}
-            {isExpired ? (
-              <Button size="sm" asChild onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                <Link to={`/merchant/ads/new?copyFrom=${deal.id}`}><Copy className="mr-1 h-3 w-3" />Kopieer</Link>
-              </Button>
-            ) : (
+            {!isExpired && (
               <Button variant="outline" size="sm" className="text-success border-success/50 hover:bg-success/10 hover:text-success" asChild onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                 <Link to={`/merchant/ads/${deal.id}/edit`}><Pencil className="h-3 w-3" /></Link>
               </Button>
             )}
+            <Button size="sm" asChild onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+              <Link to={`/merchant/ads/new?copyFrom=${deal.id}`}><Copy className="mr-1 h-3 w-3" />Kopieer</Link>
+            </Button>
           </div>
           <p className="text-xs text-muted-foreground">
             {deal.city}{deal.start_time ? ` · Start: ${format(new Date(deal.start_time), "d MMM HH:mm", { locale: nl })}` : ""} · Eind: {format(new Date(deal.expiry_time), "d MMM HH:mm", { locale: nl })} ·{" "}
