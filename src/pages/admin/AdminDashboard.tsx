@@ -69,6 +69,30 @@ export default function AdminDashboard() {
     enabled: roles.includes("admin"),
   });
 
+  const { data: testMerchantIds } = useQuery({
+    queryKey: ["admin-test-merchants"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("test_merchants").select("merchant_id");
+      if (error) throw error;
+      return new Set((data ?? []).map((r: { merchant_id: string }) => r.merchant_id));
+    },
+    enabled: roles.includes("admin"),
+  });
+
+  const toggleTestMerchant = async (merchantId: string, isTest: boolean) => {
+    const { error } = isTest
+      ? await supabase.from("test_merchants").insert({ merchant_id: merchantId, created_by: user?.id ?? null })
+      : await supabase.from("test_merchants").delete().eq("merchant_id", merchantId);
+    if (error) {
+      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
+      return;
+    }
+    queryClient.invalidateQueries({ queryKey: ["admin-test-merchants"] });
+    toast({ title: isTest ? "Gemarkeerd als testbedrijf" : "Testmarkering verwijderd" });
+  };
+
+
+
   const { data: consumers } = useQuery({
     queryKey: ["admin-consumers"],
     queryFn: async () => {
@@ -508,6 +532,7 @@ export default function AdminDashboard() {
           )}
           {filteredMerchants?.map((m) => {
             const es = getMerchantEffectiveStatus(m as any);
+            const isTest = testMerchantIds?.has(m.id) ?? false;
             return (
               <Card key={m.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/ondernemers/${m.id}`)}>
                 <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
@@ -516,14 +541,27 @@ export default function AdminDashboard() {
                       <h3 className="font-display font-semibold">{m.company_name}</h3>
                       <Badge variant={STATUS_VARIANTS[es]} className="text-xs">{STATUS_LABELS[es]}</Badge>
                       <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[m.venue_type] || m.venue_type}</Badge>
+                      {isTest && <Badge variant="secondary" className="text-xs">Test</Badge>}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {m.city} · {m.address} · Lid sinds {format(new Date(m.created_at), "d MMM yyyy", { locale: nl })}
                     </p>
                   </div>
+                  <div
+                    className="flex items-center gap-2"
+                    onClick={(e) => { e.stopPropagation(); }}
+                  >
+                    <Checkbox
+                      id={`test-${m.id}`}
+                      checked={isTest}
+                      onCheckedChange={(c) => toggleTestMerchant(m.id, !!c)}
+                    />
+                    <Label htmlFor={`test-${m.id}`} className="text-xs cursor-pointer">Testbedrijf (geen meldingen)</Label>
+                  </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </CardContent>
               </Card>
+
             );
           })}
         </TabsContent>

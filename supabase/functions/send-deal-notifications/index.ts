@@ -95,6 +95,26 @@ Deno.serve(async (req) => {
       );
     }
 
+    // 3b. Testbedrijf: advertentie blijft gewoon zichtbaar, maar geen meldingen versturen
+    const { data: testMerchant } = await admin
+      .from("test_merchants")
+      .select("merchant_id")
+      .eq("merchant_id", deal.merchant_id)
+      .maybeSingle();
+
+    if (testMerchant) {
+      await admin
+        .from("deals")
+        .update({ notification_sent_at: new Date().toISOString() })
+        .eq("id", dealId);
+      return new Response(
+        JSON.stringify({ skipped: true, reason: "test_merchant", sent: 0 }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+
+
     // Lock immediately
     await admin
       .from("deals")
