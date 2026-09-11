@@ -532,6 +532,7 @@ export default function AdminDashboard() {
           )}
           {filteredMerchants?.map((m) => {
             const es = getMerchantEffectiveStatus(m as any);
+            const isTest = testMerchantIds?.has(m.id) ?? false;
             return (
               <Card key={m.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/admin/ondernemers/${m.id}`)}>
                 <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
@@ -540,14 +541,27 @@ export default function AdminDashboard() {
                       <h3 className="font-display font-semibold">{m.company_name}</h3>
                       <Badge variant={STATUS_VARIANTS[es]} className="text-xs">{STATUS_LABELS[es]}</Badge>
                       <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[m.venue_type] || m.venue_type}</Badge>
+                      {isTest && <Badge variant="secondary" className="text-xs">Test</Badge>}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {m.city} · {m.address} · Lid sinds {format(new Date(m.created_at), "d MMM yyyy", { locale: nl })}
                     </p>
                   </div>
+                  <div
+                    className="flex items-center gap-2"
+                    onClick={(e) => { e.stopPropagation(); }}
+                  >
+                    <Checkbox
+                      id={`test-${m.id}`}
+                      checked={isTest}
+                      onCheckedChange={(c) => toggleTestMerchant(m.id, !!c)}
+                    />
+                    <Label htmlFor={`test-${m.id}`} className="text-xs cursor-pointer">Testbedrijf (geen meldingen)</Label>
+                  </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </CardContent>
               </Card>
+
             );
           })}
         </TabsContent>
