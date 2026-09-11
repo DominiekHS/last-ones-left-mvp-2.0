@@ -69,6 +69,30 @@ export default function AdminDashboard() {
     enabled: roles.includes("admin"),
   });
 
+  const { data: testMerchantIds } = useQuery({
+    queryKey: ["admin-test-merchants"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("test_merchants").select("merchant_id");
+      if (error) throw error;
+      return new Set((data ?? []).map((r: { merchant_id: string }) => r.merchant_id));
+    },
+    enabled: roles.includes("admin"),
+  });
+
+  const toggleTestMerchant = async (merchantId: string, isTest: boolean) => {
+    const { error } = isTest
+      ? await supabase.from("test_merchants").insert({ merchant_id: merchantId, created_by: user?.id ?? null })
+      : await supabase.from("test_merchants").delete().eq("merchant_id", merchantId);
+    if (error) {
+      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
+      return;
+    }
+    queryClient.invalidateQueries({ queryKey: ["admin-test-merchants"] });
+    toast({ title: isTest ? "Gemarkeerd als testbedrijf" : "Testmarkering verwijderd" });
+  };
+
+
+
   const { data: consumers } = useQuery({
     queryKey: ["admin-consumers"],
     queryFn: async () => {
