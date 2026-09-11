@@ -756,6 +756,39 @@ export type Database = {
         }
         Relationships: []
       }
+      test_merchants: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          merchant_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          merchant_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          merchant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_merchants_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: true
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_merchants_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: true
+            referencedRelation: "merchants_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       unique_codes: {
         Row: {
           assigned_at: string | null
