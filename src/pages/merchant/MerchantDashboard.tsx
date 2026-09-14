@@ -320,7 +320,16 @@ function DealRow({ deal, isExpired, merchantId, selected, onToggleSelect }: {
         <div className="flex-1 space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-display font-semibold">{deal.title}</h3>
-            <Badge variant={isExpired ? "secondary" : isScheduledDeal(deal as any) ? "outline" : "default"} className="text-xs">
+            <Badge
+              variant="outline"
+              className={`text-xs ${
+                isExpired
+                  ? "bg-destructive text-destructive-foreground border-destructive hover:bg-destructive/80"
+                  : isScheduledDeal(deal as any)
+                  ? "bg-warning text-warning-foreground border-warning hover:bg-warning/80"
+                  : "bg-success text-success-foreground border-success hover:bg-success/80"
+              }`}
+            >
               {isExpired ? "Verlopen" : isScheduledDeal(deal as any) ? "Ingepland" : "Actief"}
             </Badge>
             {!isExpired && isScheduledDeal(deal as any) && (
