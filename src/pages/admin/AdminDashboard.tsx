@@ -44,7 +44,7 @@ export default function AdminDashboard() {
   const [merchantSearch, setMerchantSearch] = useState("");
   const [dealSearch, setDealSearch] = useState("");
   const [consumerSearch, setConsumerSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended" | "blocked">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended" | "blocked" | "test">("all");
   const [dealStatusFilter, setDealStatusFilter] = useState<"all" | "active" | "scheduled" | "expired" | "deleted">("all");
   const [dealTypeFilter, setDealTypeFilter] = useState<"all" | "real" | "teaser">("all");
 
