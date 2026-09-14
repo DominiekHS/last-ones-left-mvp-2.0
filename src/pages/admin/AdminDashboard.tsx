@@ -367,7 +367,7 @@ export default function AdminDashboard() {
           "terms_summary, counter_discount_mode, postal_code, pricing_model, " +
           "indicative_price_from, price_per_person, start_time_mode, " +
           "payment_steps, notification_sent_at, deleted_at, " +
-          "is_teaser, always_show, teaser_body, " +
+          "is_teaser, always_show, teaser_body, publish_at, " +
           "merchants(company_name)"
         )
         .order("created_at", { ascending: false });
@@ -951,6 +951,11 @@ export default function AdminDashboard() {
                       )}
                       {isDeleted && isTeaser && (
                         <Badge variant="outline" className="text-xs">Proef</Badge>
+                      )}
+                      {!isDeleted && !isExpired && (d as any).publish_at && new Date((d as any).publish_at) > new Date() && (
+                        <Badge variant="outline" className="text-xs">
+                          Ingepland · {new Date((d as any).publish_at).toLocaleString("nl-NL", { dateStyle: "short", timeStyle: "short" })}
+                        </Badge>
                       )}
                       <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[d.category]}</Badge>
                       {isTeaser && d.always_show && (

@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.sync_deal_publication_job() FROM PUBLIC, anon, authenticated;

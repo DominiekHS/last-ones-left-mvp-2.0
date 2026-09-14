@@ -1,10 +1,6 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { corsHeaders, requireUser } from "../_shared/auth.ts";
 import { z, parseJsonBody } from "../_shared/validation.ts";
-
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/brevo";
-const FROM_EMAIL = "noreply@lastonesleft.nl";
-const FROM_NAME = "Last Ones Left";
+import { sendDealNotifications } from "../_shared/deal-mail.ts";
 
 const NotifySchema = z.object({
   dealId: z.string().uuid("dealId moet een geldige UUID zijn"),
@@ -26,17 +22,12 @@ Deno.serve(async (req) => {
 
   try {
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-    if (!BREVO_API_KEY) throw new Error("BREVO_API_KEY not configured");
-
     const admin = auth.admin;
 
     // 2. Authorization: gebruiker moet admin zijn OF eigenaar van de deal-merchant
     const { data: deal, error: dealErr } = await admin
       .from("deals")
-      .select("id, title, city, discount_percentage, expiry_time, notification_sent_at, merchant_id")
+      .select("id, title, city, discount_percentage, expiry_time, notification_sent_at, merchant_id, publish_at")
       .eq("id", dealId)
       .maybeSingle();
 
@@ -95,6 +86,14 @@ Deno.serve(async (req) => {
       );
     }
 
+    // 3a. Ingeplande advertentie: mail volgt automatisch op het publicatiemoment
+    if (deal.publish_at && new Date(deal.publish_at as string) > new Date()) {
+      return new Response(
+        JSON.stringify({ skipped: true, reason: "scheduled", sent: 0 }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     // 3b. Testbedrijf: advertentie blijft gewoon zichtbaar, maar geen meldingen versturen
     const { data: testMerchant } = await admin
       .from("test_merchants")
@@ -113,115 +112,17 @@ Deno.serve(async (req) => {
       );
     }
 
-
-
     // Lock immediately
     await admin
       .from("deals")
       .update({ notification_sent_at: new Date().toISOString() })
       .eq("id", dealId);
 
-    // Recipients: opted-in consumers (dummy/test accounts excluded)
-    const { data: profiles } = await admin
-      .from("profiles")
-      .select("user_id, email, full_name")
-      .eq("email_notifications_enabled", true);
-
-    const { data: dummyRows } = await admin.from("dummy_accounts").select("user_id");
-    const dummyIds = new Set((dummyRows ?? []).map((d: { user_id: string }) => d.user_id));
-
-    const recipients = (profiles ?? []).filter((p) => p.email && !dummyIds.has(p.user_id));
-
-    // Always link to the live production domain, regardless of where the deal was created from
-    const origin = "https://lastonesleft.nl";
-    const dealLinkBase = `${origin}/deal/${deal.id}`;
-    console.log("Deal notification link", { dealId: deal.id, dealLinkBase });
-    const expiry = new Date(deal.expiry_time).toLocaleString("nl-NL", {
-      timeZone: "Europe/Amsterdam",
-      dateStyle: "short",
-      timeStyle: "short",
-    });
-
-    let sent = 0;
-    let errors = 0;
-    const errorDetails: string[] = [];
-
-    // HTML-escape om injection via merchant/user/deal velden te voorkomen.
-    // Voorkomt dat een merchant met company_name "<script>..." of een user met
-    // full_name "<img onerror=...>" de e-mail kan kapen voor phishing.
-    const escapeHtml = (input: unknown): string =>
-      String(input ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-
-    const safeMerchantName = escapeHtml(merchantRow?.company_name ?? "een aanbieder");
-    const safeDealTitle = escapeHtml(deal.title);
-    const safeDealCity = escapeHtml(deal.city);
-    const safeExpiry = escapeHtml(expiry);
-    const safeDiscountPct = escapeHtml(deal.discount_percentage);
-
-    for (const r of recipients) {
-      const dealLink = dealLinkBase;
-      const safeFullName = escapeHtml(r.full_name || "daar");
-      const html = `
-        <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto;">
-          <h2 style="color:#111;">Nieuwe deal op Last Ones Left</h2>
-          <p>Hoi ${safeFullName},</p>
-          <p>Er is een nieuwe last-minute deal geplaatst door <strong>${safeMerchantName}</strong>.</p>
-          <ul>
-            <li><strong>Deal:</strong> ${safeDealTitle}</li>
-            <li><strong>Plaats:</strong> ${safeDealCity}</li>
-            <li><strong>Korting:</strong> ${safeDiscountPct}%</li>
-            <li><strong>Verloopt:</strong> ${safeExpiry}</li>
-          </ul>
-          <p style="margin: 24px 0;">
-            <a href="${dealLink}" style="background:#111;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;">Bekijk deal</a>
-          </p>
-          <hr/>
-          <p style="font-size:12px;color:#666;">
-            Je ontvangt deze mail omdat 'E-mail meldingen' aan staat.
-            <a href="${origin}/profiel">Meldingen uitzetten</a>.
-          </p>
-        </div>`;
-
-      try {
-        const res = await fetch(`${GATEWAY_URL}/smtp/email`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "X-Connection-Api-Key": BREVO_API_KEY,
-          },
-          body: JSON.stringify({
-            sender: { name: FROM_NAME, email: FROM_EMAIL },
-            to: [{ email: r.email }],
-            subject: `Nieuwe deal op Last Ones Left: ${deal.title}`,
-            htmlContent: html,
-          }),
-        });
-        if (!res.ok) {
-          errors++;
-          const body = await res.text();
-          errorDetails.push(`${r.email}: ${res.status} ${body.slice(0, 120)}`);
-        } else {
-          sent++;
-          await res.text();
-        }
-      } catch (e) {
-        errors++;
-        errorDetails.push(`${r.email}: ${(e as Error).message}`);
-      }
-    }
-
-    await admin.from("notification_log").insert({
-      deal_id: dealId,
-      sent_count: sent,
-      errors_count: errors,
-      error_details: errorDetails.slice(0, 20).join("\n") || null,
-    });
+    const { sent, errors } = await sendDealNotifications(
+      admin,
+      deal as never,
+      merchantRow?.company_name,
+    );
 
     return new Response(JSON.stringify({ sent, errors }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

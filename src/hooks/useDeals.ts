@@ -114,7 +114,7 @@ const MERCHANT_DEAL_COLUMNS =
   "discount_type, redemption_instructions, cancellation_policy, " +
   "terms_summary, counter_discount_mode, postal_code, pricing_model, " +
   "indicative_price_from, price_per_person, start_time_mode, " +
-  "payment_steps, notification_sent_at, deleted_at";
+  "payment_steps, notification_sent_at, deleted_at, publish_at";
 
 export function useMerchantDeal(id?: string) {
   return useQuery({

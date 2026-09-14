@@ -58,6 +58,8 @@ export default function AdForm() {
   const [discountPercentage, setDiscountPercentage] = useState("");
   const [startTime, setStartTime] = useState("");
   const [expiryTime, setExpiryTime] = useState("");
+  const [publishMode, setPublishMode] = useState<"now" | "scheduled">("now");
+  const [publishAt, setPublishAt] = useState("");
   const [checkoutLink, setCheckoutLink] = useState("");
   const [discountType, setDiscountType] = useState<"universal" | "unique">("universal");
   const [universalCode, setUniversalCode] = useState("");
@@ -90,7 +92,7 @@ export default function AdForm() {
           "checkout_link, address, redemption_method, discount_type, " +
           "redemption_instructions, cancellation_policy, terms_summary, " +
           "counter_discount_mode, postal_code, pricing_model, " +
-          "indicative_price_from, price_per_person, start_time_mode, payment_steps"
+          "indicative_price_from, price_per_person, start_time_mode, payment_steps, publish_at"
         )
         .eq("id", loadDealId)
         .maybeSingle()
@@ -141,6 +143,12 @@ export default function AdForm() {
             // Track if the deal was expired when editing started
             if (isEdit) {
               setWasExpired(new Date(data.expiry_time) < new Date());
+              // Publicatiemoment alleen overnemen bij bewerken (niet bij kopiëren)
+              const pa = (data as any).publish_at as string | null;
+              if (pa && new Date(pa) > new Date()) {
+                setPublishMode("scheduled");
+                setPublishAt(toLocalDatetimeString(pa));
+              }
             }
           }
         });
@@ -244,9 +252,32 @@ export default function AdForm() {
     const disc = parseInt(discountPercentage);
     if (isNaN(disc) || disc < 1 || disc > 100) e.discountPercentage = "Korting moet tussen 1 en 100 zijn";
 
-    const now = new Date();
+    const realNow = new Date();
     const expiry = new Date(expiryTime);
-    // End of overmorgen: midnight at the end of the day after tomorrow (today + 3 days at 00:00)
+
+    // Publicatiemoment valideren (max 4 weken vooruit)
+    const maxPublish = new Date(realNow);
+    maxPublish.setDate(maxPublish.getDate() + 28);
+    if (publishMode === "scheduled") {
+      if (!publishAt) {
+        e.publishAt = "Publicatiemoment is verplicht";
+      } else {
+        const pub = new Date(publishAt);
+        if (pub.getTime() < realNow.getTime() + 5 * 60 * 1000) {
+          e.publishAt = "Publicatiemoment moet minimaal 5 minuten in de toekomst liggen";
+        } else if (pub.getTime() > maxPublish.getTime()) {
+          e.publishAt = "Publicatiemoment mag maximaal 4 weken vooruit liggen";
+        }
+      }
+    }
+
+    // Alle timing-regels gelden relatief aan het publicatiemoment
+    const validPublish =
+      publishMode === "scheduled" && publishAt && !e.publishAt ? new Date(publishAt) : null;
+    const now = validPublish ?? realNow;
+    const dayLabel = validPublish ? "op de publicatiedag, de dag erna of de dag daarna" : "vandaag, morgen of overmorgen";
+    const lastLabel = validPublish ? "uiterlijk 2 dagen na publicatie om 23:59" : "uiterlijk overmorgen om 23:59";
+    // End of overmorgen: midnight at the end of the day after tomorrow (baseline + 3 days at 00:00)
     const endOfDayAfterTomorrow = new Date(now);
     endOfDayAfterTomorrow.setDate(endOfDayAfterTomorrow.getDate() + 3);
     endOfDayAfterTomorrow.setHours(0, 0, 0, 0);
@@ -256,17 +287,21 @@ export default function AdForm() {
       if (!startTime) {
         e.startTime = "Starttijd is verplicht";
       } else if (start.getTime() < now.getTime() + 5 * 60 * 1000) {
-        e.startTime = "Starttijd moet minimaal 5 minuten in de toekomst liggen";
+        e.startTime = validPublish
+          ? "Starttijd moet na het publicatiemoment liggen"
+          : "Starttijd moet minimaal 5 minuten in de toekomst liggen";
       } else if (start.getTime() > endOfDayAfterTomorrow.getTime()) {
-        e.startTime = "Starttijd moet vandaag, morgen of overmorgen zijn";
+        e.startTime = `Starttijd moet ${dayLabel} zijn`;
       }
 
       if (!expiryTime) {
         e.expiryTime = "Verwijdertijd is verplicht";
       } else if (expiry <= now) {
-        e.expiryTime = "Verwijdertijd moet in de toekomst liggen";
+        e.expiryTime = validPublish
+          ? "Verwijdertijd moet na het publicatiemoment liggen"
+          : "Verwijdertijd moet in de toekomst liggen";
       } else if (expiry.getTime() > endOfDayAfterTomorrow.getTime()) {
-        e.expiryTime = "Verwijdertijd moet uiterlijk overmorgen om 23:59 zijn";
+        e.expiryTime = `Verwijdertijd moet ${lastLabel} zijn`;
       } else if (startTime && expiry > new Date(startTime)) {
         e.expiryTime = "Verwijdertijd moet vóór de starttijd liggen";
       }
@@ -275,9 +310,11 @@ export default function AdForm() {
       if (!expiryTime) {
         e.expiryTime = "Verwijdertijd is verplicht";
       } else if (expiry <= now) {
-        e.expiryTime = "Verwijdertijd moet in de toekomst liggen";
+        e.expiryTime = validPublish
+          ? "Verwijdertijd moet na het publicatiemoment liggen"
+          : "Verwijdertijd moet in de toekomst liggen";
       } else if (expiry.getTime() > endOfDayAfterTomorrow.getTime()) {
-        e.expiryTime = "Verwijdertijd moet uiterlijk overmorgen om 23:59 zijn";
+        e.expiryTime = `Verwijdertijd moet ${lastLabel} zijn`;
       }
     }
 
@@ -386,6 +423,7 @@ export default function AdForm() {
       discount_percentage: parseInt(discountPercentage),
       start_time: startTimeMode === "fixed" ? new Date(startTime).toISOString() : null,
       expiry_time: new Date(expiryTime).toISOString(),
+      publish_at: publishMode === "scheduled" && publishAt ? new Date(publishAt).toISOString() : null,
       start_time_mode: startTimeMode,
       checkout_link: checkoutLink.trim(),
       discount_code: discountType === "universal" ? universalCode.trim() : "",
@@ -437,7 +475,17 @@ export default function AdForm() {
       }
     }
 
-    toast({ title: isEdit ? "Advertentie bijgewerkt!" : "Advertentie geplaatst!" });
+    const isScheduled = publishMode === "scheduled" && !!publishAt && new Date(publishAt) > new Date();
+    toast({
+      title: isEdit
+        ? "Advertentie bijgewerkt!"
+        : isScheduled
+          ? "Advertentie ingepland!"
+          : "Advertentie geplaatst!",
+      description: isScheduled
+        ? `Gaat online op ${new Date(publishAt).toLocaleString("nl-NL", { dateStyle: "long", timeStyle: "short" })}.`
+        : undefined,
+    });
     // Audit-event voor spike-detectie per merchant. Faalt silent.
     if (dealId && merchant) {
       void recordAuditEvent({
@@ -451,7 +499,9 @@ export default function AdForm() {
         },
       });
     }
-    if (!isEdit && dealId) {
+    // Bij een ingeplande advertentie gaat de meldingsmail automatisch op het
+    // publicatiemoment uit (achtergrondtaak), dus hier niet direct versturen.
+    if (!isEdit && dealId && !isScheduled) {
       supabase.functions
         .invoke("send-deal-notifications", { body: { dealId } })
         .catch(() => {
@@ -872,6 +922,53 @@ export default function AdForm() {
             <CardTitle className="font-display text-lg">Timing</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Publicatiemoment */}
+            <div className="space-y-2">
+              <Label>Wanneer komt de advertentie online? *</Label>
+              <div className="grid grid-cols-1 gap-3">
+                <button
+                  type="button"
+                  onClick={() => { setPublishMode("now"); setPublishAt(""); }}
+                  className={`rounded-lg border-2 p-4 text-left transition-colors ${
+                    publishMode === "now"
+                      ? "border-primary bg-primary/5"
+                      : "border-input hover:border-primary/30"
+                  }`}
+                >
+                  <p className="font-display font-semibold text-sm">Direct online</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">De advertentie is meteen zichtbaar en consumenten krijgen direct een melding.</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPublishMode("scheduled")}
+                  className={`rounded-lg border-2 p-4 text-left transition-colors ${
+                    publishMode === "scheduled"
+                      ? "border-primary bg-primary/5"
+                      : "border-input hover:border-primary/30"
+                  }`}
+                >
+                  <p className="font-display font-semibold text-sm">Inplannen voor later</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Tot maximaal 4 weken vooruit. De melding gaat uit zodra de advertentie online komt.</p>
+                </button>
+              </div>
+              {publishMode === "scheduled" && (
+                <div className="space-y-2 pt-1">
+                  <Label htmlFor="publishAt">Publicatiemoment *</Label>
+                  <Input
+                    id="publishAt"
+                    type="datetime-local"
+                    value={publishAt}
+                    onChange={(e) => setPublishAt(e.target.value)}
+                    onBlur={() => touch("publishAt")}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Starttijd en verwijdertijd worden getoetst aan dit moment: starttijd op de publicatiedag, de dag erna of de dag daarna; verwijderen uiterlijk 2 dagen na publicatie om 23:59.
+                  </p>
+                  {showError("publishAt") && <p className="text-xs text-destructive">{showError("publishAt")}</p>}
+                </div>
+              )}
+            </div>
+
             {/* Start time mode selection */}
             <div className="space-y-2">
               <Label>Starttijd activiteit *</Label>

@@ -25,3 +25,8 @@ verify_jwt = false
 # Geen JWT mogelijk; in-code event-whitelist + body-size cap + IP-hashing.
 [functions.log-auth-event]
 verify_jwt = false
+
+# Cron-only: beveiligd via x-cron-secret header. Publiceert ingeplande
+# advertenties en verstuurt de meldingsmail op het publicatiemoment.
+[functions.publish-scheduled-deals]
+verify_jwt = false
