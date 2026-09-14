@@ -447,6 +447,8 @@ export default function AdminDashboard() {
 
   const filteredMerchants = merchants?.filter((m) => {
     const effectiveStatus = getMerchantEffectiveStatus(m as any);
+    const isTest = testMerchantIds?.has(m.id) ?? false;
+    if (statusFilter === "test") return isTest;
     if (statusFilter !== "all" && effectiveStatus !== statusFilter) return false;
     return m.company_name.toLowerCase().includes(merchantSearch.toLowerCase()) ||
       m.city.toLowerCase().includes(merchantSearch.toLowerCase());
