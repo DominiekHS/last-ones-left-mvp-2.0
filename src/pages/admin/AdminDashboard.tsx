@@ -515,14 +515,14 @@ export default function AdminDashboard() {
 
         <TabsContent value="merchants" className="space-y-3 mt-4">
           <div className="flex gap-2 flex-wrap">
-            {(["all", "active", "suspended", "blocked"] as const).map(s => (
+            {(["all", "active", "suspended", "blocked", "test"] as const).map(s => (
               <Button
                 key={s}
                 variant={statusFilter === s ? "default" : "outline"}
                 size="sm"
                 onClick={() => setStatusFilter(s)}
               >
-                {s === "all" ? "Alle" : STATUS_LABELS[s]}
+                {s === "all" ? "Alle" : s === "test" ? "Test" : STATUS_LABELS[s]}
               </Button>
             ))}
           </div>
