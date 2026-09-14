@@ -79,6 +79,31 @@ export function ReferralsTab() {
     },
   });
 
+  // Totaal aantal echte consumentenaccounts (consumer-rol, geen merchant/admin, geen dummy)
+  const { data: realConsumerCount } = useQuery({
+    queryKey: ["admin-referrals-real-consumer-count"],
+    queryFn: async () => {
+      const { data: allRoles, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("user_id, role");
+      if (rolesError) throw rolesError;
+      const excluded = new Set(
+        (allRoles || []).filter((r) => r.role === "merchant" || r.role === "admin").map((r) => r.user_id)
+      );
+      const consumerIds = new Set(
+        (allRoles || [])
+          .filter((r) => r.role === "consumer" && !excluded.has(r.user_id))
+          .map((r) => r.user_id)
+      );
+      const { data: dummies, error: dummyError } = await supabase
+        .from("dummy_accounts")
+        .select("user_id");
+      if (dummyError) throw dummyError;
+      (dummies || []).forEach((d) => consumerIds.delete(d.user_id));
+      return consumerIds.size;
+    },
+  });
+
   const rows = useMemo(() => {
     if (!leaderboard) return [];
     if (!fromTs && !toTs) return leaderboard;
