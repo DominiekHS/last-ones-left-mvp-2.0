@@ -79,6 +79,31 @@ export function ReferralsTab() {
     },
   });
 
+  // Totaal aantal echte consumentenaccounts (consumer-rol, geen merchant/admin, geen dummy)
+  const { data: realConsumerCount } = useQuery({
+    queryKey: ["admin-referrals-real-consumer-count"],
+    queryFn: async () => {
+      const { data: allRoles, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("user_id, role");
+      if (rolesError) throw rolesError;
+      const excluded = new Set(
+        (allRoles || []).filter((r) => r.role === "merchant" || r.role === "admin").map((r) => r.user_id)
+      );
+      const consumerIds = new Set(
+        (allRoles || [])
+          .filter((r) => r.role === "consumer" && !excluded.has(r.user_id))
+          .map((r) => r.user_id)
+      );
+      const { data: dummies, error: dummyError } = await supabase
+        .from("dummy_accounts")
+        .select("user_id");
+      if (dummyError) throw dummyError;
+      (dummies || []).forEach((d) => consumerIds.delete(d.user_id));
+      return consumerIds.size;
+    },
+  });
+
   const rows = useMemo(() => {
     if (!leaderboard) return [];
     if (!fromTs && !toTs) return leaderboard;
@@ -102,8 +127,38 @@ export function ReferralsTab() {
     },
   });
 
+  const pct = (n: number) =>
+    realConsumerCount ? ((n / realConsumerCount) * 100).toFixed(1).replace(".", ",") : "0,0";
+  const referredTotal = rows.reduce((sum, r) => sum + r.total_verified, 0);
+  const organicCount = Math.max(0, (realConsumerCount ?? 0) - referredTotal);
+
   return (
     <div className="space-y-4 mt-4">
+      {realConsumerCount != null && (
+        <Card>
+          <CardContent className="p-4 space-y-2">
+            <p className="font-semibold">
+              Totaal echte consumentenaccounts: {realConsumerCount}
+            </p>
+            <div className="space-y-1 text-sm">
+              {rows.map((r) => (
+                <div key={r.referrer_user_id} className="flex justify-between gap-4">
+                  <span className="truncate">{r.full_name || r.email || "Onbekend"}</span>
+                  <span className="whitespace-nowrap text-muted-foreground">
+                    {r.total_verified} accounts ({pct(r.total_verified)}%)
+                  </span>
+                </div>
+              ))}
+              <div className="flex justify-between gap-4 border-t pt-1 mt-1">
+                <span>Resterend (organisch gegroeid)</span>
+                <span className="whitespace-nowrap text-muted-foreground">
+                  {organicCount} accounts ({pct(organicCount)}%)
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       <Card>
         <CardContent className="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
           <div className="space-y-2">
