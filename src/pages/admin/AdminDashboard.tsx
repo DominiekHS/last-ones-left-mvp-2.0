@@ -44,7 +44,7 @@ export default function AdminDashboard() {
   const [merchantSearch, setMerchantSearch] = useState("");
   const [dealSearch, setDealSearch] = useState("");
   const [consumerSearch, setConsumerSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended" | "blocked">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended" | "blocked" | "test">("all");
   const [dealStatusFilter, setDealStatusFilter] = useState<"all" | "active" | "scheduled" | "expired" | "deleted">("all");
   const [dealTypeFilter, setDealTypeFilter] = useState<"all" | "real" | "teaser">("all");
 
@@ -447,6 +447,8 @@ export default function AdminDashboard() {
 
   const filteredMerchants = merchants?.filter((m) => {
     const effectiveStatus = getMerchantEffectiveStatus(m as any);
+    const isTest = testMerchantIds?.has(m.id) ?? false;
+    if (statusFilter === "test") return isTest;
     if (statusFilter !== "all" && effectiveStatus !== statusFilter) return false;
     return m.company_name.toLowerCase().includes(merchantSearch.toLowerCase()) ||
       m.city.toLowerCase().includes(merchantSearch.toLowerCase());
@@ -513,14 +515,14 @@ export default function AdminDashboard() {
 
         <TabsContent value="merchants" className="space-y-3 mt-4">
           <div className="flex gap-2 flex-wrap">
-            {(["all", "active", "suspended", "blocked"] as const).map(s => (
+            {(["all", "active", "suspended", "blocked", "test"] as const).map(s => (
               <Button
                 key={s}
                 variant={statusFilter === s ? "default" : "outline"}
                 size="sm"
                 onClick={() => setStatusFilter(s)}
               >
-                {s === "all" ? "Alle" : STATUS_LABELS[s]}
+                {s === "all" ? "Alle" : s === "test" ? "Test" : STATUS_LABELS[s]}
               </Button>
             ))}
           </div>
