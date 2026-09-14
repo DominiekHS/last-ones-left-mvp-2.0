@@ -45,7 +45,7 @@ export default function AdminDashboard() {
   const [dealSearch, setDealSearch] = useState("");
   const [consumerSearch, setConsumerSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended" | "blocked">("all");
-  const [dealStatusFilter, setDealStatusFilter] = useState<"all" | "active" | "expired" | "deleted">("all");
+  const [dealStatusFilter, setDealStatusFilter] = useState<"all" | "active" | "scheduled" | "expired" | "deleted">("all");
   const [dealTypeFilter, setDealTypeFilter] = useState<"all" | "real" | "teaser">("all");
 
   // Consumer date filter
@@ -452,14 +452,19 @@ export default function AdminDashboard() {
       m.city.toLowerCase().includes(merchantSearch.toLowerCase());
   });
 
+  const isScheduledDeal = (d: any) =>
+    !!d.publish_at && new Date(d.publish_at) > new Date() && new Date(d.expiry_time) > new Date();
+
   const filteredDeals = deals?.filter((d) => {
     const isDeleted = !!d.deleted_at;
     const isExpired = new Date(d.expiry_time) < new Date();
+    const isScheduled = isScheduledDeal(d);
     if (dealStatusFilter === "deleted") {
       if (!isDeleted) return false;
     } else {
       if (isDeleted) return false;
-      if (dealStatusFilter === "active" && isExpired) return false;
+      if (dealStatusFilter === "active" && (isExpired || isScheduled)) return false;
+      if (dealStatusFilter === "scheduled" && !isScheduled) return false;
       if (dealStatusFilter === "expired" && !isExpired) return false;
     }
     if (dealTypeFilter === "real" && d.is_teaser) return false;
@@ -471,8 +476,9 @@ export default function AdminDashboard() {
 
   const nonDeletedDeals = deals?.filter((d) => !d.deleted_at) || [];
   const allDealsCount = nonDeletedDeals.length;
-  const activeDealsCount = nonDeletedDeals.filter((d) => new Date(d.expiry_time) > new Date()).length;
-  const expiredDealsCount = allDealsCount - activeDealsCount;
+  const scheduledDealsCount = nonDeletedDeals.filter((d) => isScheduledDeal(d)).length;
+  const activeDealsCount = nonDeletedDeals.filter((d) => new Date(d.expiry_time) > new Date() && !isScheduledDeal(d)).length;
+  const expiredDealsCount = allDealsCount - activeDealsCount - scheduledDealsCount;
   const deletedDealsCount = deals?.filter((d) => !!d.deleted_at).length || 0;
 
 
@@ -888,6 +894,7 @@ export default function AdminDashboard() {
             {([
               { key: "all" as const, label: `Alles (${allDealsCount})` },
               { key: "active" as const, label: `Actief (${activeDealsCount})` },
+              { key: "scheduled" as const, label: `Ingepland (${scheduledDealsCount})` },
               { key: "expired" as const, label: `Verlopen (${expiredDealsCount})` },
               { key: "deleted" as const, label: `Verwijderd (${deletedDealsCount})` },
             ]).map(s => (
@@ -944,6 +951,10 @@ export default function AdminDashboard() {
                         <Badge variant="destructive" className="text-xs">Verwijderd</Badge>
                       ) : isTeaser ? (
                         <Badge variant="outline" className="text-xs">Proef</Badge>
+                      ) : isScheduledDeal(d) ? (
+                        <Badge variant="outline" className="text-xs">
+                          Ingepland · {new Date((d as any).publish_at!).toLocaleString("nl-NL", { dateStyle: "short", timeStyle: "short" })}
+                        </Badge>
                       ) : (
                         <Badge variant={isExpired ? "secondary" : "default"} className="text-xs">
                           {isExpired ? "Verlopen" : "Actief"}
@@ -951,11 +962,6 @@ export default function AdminDashboard() {
                       )}
                       {isDeleted && isTeaser && (
                         <Badge variant="outline" className="text-xs">Proef</Badge>
-                      )}
-                      {!isDeleted && !isExpired && (d as any).publish_at && new Date((d as any).publish_at) > new Date() && (
-                        <Badge variant="outline" className="text-xs">
-                          Ingepland · {new Date((d as any).publish_at).toLocaleString("nl-NL", { dateStyle: "short", timeStyle: "short" })}
-                        </Badge>
                       )}
                       <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[d.category]}</Badge>
                       {isTeaser && d.always_show && (
