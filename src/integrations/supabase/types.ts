@@ -337,6 +337,7 @@ export type Database = {
           postal_code: string
           price_per_person: number | null
           pricing_model: string
+          publish_at: string | null
           redemption_instructions: string | null
           redemption_method: string
           start_time: string | null
@@ -374,6 +375,7 @@ export type Database = {
           postal_code?: string
           price_per_person?: number | null
           pricing_model?: string
+          publish_at?: string | null
           redemption_instructions?: string | null
           redemption_method?: string
           start_time?: string | null
@@ -411,6 +413,7 @@ export type Database = {
           postal_code?: string
           price_per_person?: number | null
           pricing_model?: string
+          publish_at?: string | null
           redemption_instructions?: string | null
           redemption_method?: string
           start_time?: string | null
@@ -1164,6 +1167,7 @@ export type Database = {
         Returns: boolean
       }
       is_merchant_active: { Args: { _merchant_id: string }; Returns: boolean }
+      run_deal_publication: { Args: { p_deal_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "consumer" | "merchant" | "admin"

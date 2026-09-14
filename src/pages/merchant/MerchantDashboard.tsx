@@ -17,7 +17,10 @@ import { toast } from "@/hooks/use-toast";
 import { friendlyDbError } from "@/lib/friendly-errors";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { getMerchantEffectiveStatus } from "@/lib/merchant-status";
-type DealFilter = "all" | "active" | "expired";
+type DealFilter = "all" | "active" | "scheduled" | "expired";
+
+const isScheduledDeal = (deal: { publish_at?: string | null }) =>
+  !!deal.publish_at && new Date(deal.publish_at) > new Date();
 
 export default function MerchantDashboard() {
   const { user, merchant, roles, loading } = useAuth();
@@ -56,7 +59,9 @@ export default function MerchantDashboard() {
 
   const filteredDeals = (deals || []).filter((deal) => {
     const isExpired = new Date(deal.expiry_time) < new Date();
-    if (filter === "active") return !isExpired;
+    const scheduled = isScheduledDeal(deal as any);
+    if (filter === "active") return !isExpired && !scheduled;
+    if (filter === "scheduled") return scheduled && !isExpired;
     if (filter === "expired") return isExpired;
     return true;
   });
@@ -135,14 +140,14 @@ export default function MerchantDashboard() {
       </div>
 
       <div className="flex gap-2 flex-wrap">
-        {(["all", "active", "expired"] as const).map((f) => (
+        {(["all", "active", "scheduled", "expired"] as const).map((f) => (
           <Button
             key={f}
             variant={filter === f ? "default" : "outline"}
             size="sm"
             onClick={() => setFilter(f)}
           >
-            {f === "all" ? "Alle" : f === "active" ? "Actief" : "Verlopen (kopieer hier je advertenties)"}
+            {f === "all" ? "Alle" : f === "active" ? "Actief" : f === "scheduled" ? "Ingepland" : "Verlopen (kopieer hier je advertenties)"}
           </Button>
         ))}
       </div>
@@ -297,9 +302,14 @@ function DealRow({ deal, isExpired, merchantId, selected, onToggleSelect }: {
         <div className="flex-1 space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-display font-semibold">{deal.title}</h3>
-            <Badge variant={isExpired ? "secondary" : "default"} className="text-xs">
-              {isExpired ? "Verlopen" : "Actief"}
+            <Badge variant={isExpired ? "secondary" : isScheduledDeal(deal as any) ? "outline" : "default"} className="text-xs">
+              {isExpired ? "Verlopen" : isScheduledDeal(deal as any) ? "Ingepland" : "Actief"}
             </Badge>
+            {!isExpired && isScheduledDeal(deal as any) && (
+              <span className="text-xs text-muted-foreground">
+                Online op {format(new Date((deal as any).publish_at), "d MMM HH:mm", { locale: nl })}
+              </span>
+            )}
             <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[deal.category]}</Badge>
             {allCodesUsed && (
               <Badge variant="destructive" className="text-xs">
