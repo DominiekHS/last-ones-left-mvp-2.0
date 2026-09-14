@@ -140,16 +140,34 @@ export default function MerchantDashboard() {
       </div>
 
       <div className="flex gap-2 flex-wrap">
-        {(["all", "active", "scheduled", "expired"] as const).map((f) => (
-          <Button
-            key={f}
-            variant={filter === f ? "default" : "outline"}
-            size="sm"
-            onClick={() => setFilter(f)}
-          >
-            {f === "all" ? "Alle" : f === "active" ? "Actief" : f === "scheduled" ? "Ingepland" : "Verlopen (kopieer hier je advertenties)"}
-          </Button>
-        ))}
+        {(["all", "active", "scheduled", "expired"] as const).map((f) => {
+          const isSelected = filter === f;
+          const colorClasses =
+            f === "active"
+              ? isSelected
+                ? "bg-success text-success-foreground border-success hover:bg-success/90"
+                : "border-success text-success hover:bg-success/10 hover:text-success"
+              : f === "scheduled"
+              ? isSelected
+                ? "bg-warning text-warning-foreground border-warning hover:bg-warning/90"
+                : "border-warning text-warning hover:bg-warning/10 hover:text-warning"
+              : f === "expired"
+              ? isSelected
+                ? "bg-destructive text-destructive-foreground border-destructive hover:bg-destructive/90"
+                : "border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive"
+              : "";
+          return (
+            <Button
+              key={f}
+              variant={isSelected && f === "all" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilter(f)}
+              className={colorClasses}
+            >
+              {f === "all" ? "Alle" : f === "active" ? "Actief" : f === "scheduled" ? "Ingepland" : "Verlopen (kopieer hier je advertenties)"}
+            </Button>
+          );
+        })}
       </div>
 
       {filteredDeals.length > 0 && (
