@@ -476,8 +476,9 @@ export default function AdminDashboard() {
 
   const nonDeletedDeals = deals?.filter((d) => !d.deleted_at) || [];
   const allDealsCount = nonDeletedDeals.length;
-  const activeDealsCount = nonDeletedDeals.filter((d) => new Date(d.expiry_time) > new Date()).length;
-  const expiredDealsCount = allDealsCount - activeDealsCount;
+  const scheduledDealsCount = nonDeletedDeals.filter((d) => isScheduledDeal(d)).length;
+  const activeDealsCount = nonDeletedDeals.filter((d) => new Date(d.expiry_time) > new Date() && !isScheduledDeal(d)).length;
+  const expiredDealsCount = allDealsCount - activeDealsCount - scheduledDealsCount;
   const deletedDealsCount = deals?.filter((d) => !!d.deleted_at).length || 0;
 
 
@@ -893,6 +894,7 @@ export default function AdminDashboard() {
             {([
               { key: "all" as const, label: `Alles (${allDealsCount})` },
               { key: "active" as const, label: `Actief (${activeDealsCount})` },
+              { key: "scheduled" as const, label: `Ingepland (${scheduledDealsCount})` },
               { key: "expired" as const, label: `Verlopen (${expiredDealsCount})` },
               { key: "deleted" as const, label: `Verwijderd (${deletedDealsCount})` },
             ]).map(s => (
