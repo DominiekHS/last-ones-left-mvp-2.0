@@ -164,7 +164,7 @@ export default function MerchantDashboard() {
               onClick={() => setFilter(f)}
               className={colorClasses}
             >
-              {f === "all" ? "Alle" : f === "active" ? "Actief" : f === "scheduled" ? "Ingepland" : "Verlopen (kopieer hier je advertenties)"}
+              {f === "all" ? "Alle" : f === "active" ? "Actief" : f === "scheduled" ? "Ingepland" : "Verlopen"}
             </Button>
           );
         })}
