@@ -951,6 +951,10 @@ export default function AdminDashboard() {
                         <Badge variant="destructive" className="text-xs">Verwijderd</Badge>
                       ) : isTeaser ? (
                         <Badge variant="outline" className="text-xs">Proef</Badge>
+                      ) : isScheduledDeal(d) ? (
+                        <Badge variant="outline" className="text-xs">
+                          Ingepland · {new Date((d as any).publish_at!).toLocaleString("nl-NL", { dateStyle: "short", timeStyle: "short" })}
+                        </Badge>
                       ) : (
                         <Badge variant={isExpired ? "secondary" : "default"} className="text-xs">
                           {isExpired ? "Verlopen" : "Actief"}
@@ -958,11 +962,6 @@ export default function AdminDashboard() {
                       )}
                       {isDeleted && isTeaser && (
                         <Badge variant="outline" className="text-xs">Proef</Badge>
-                      )}
-                      {!isDeleted && !isExpired && (d as any).publish_at && new Date((d as any).publish_at) > new Date() && (
-                        <Badge variant="outline" className="text-xs">
-                          Ingepland · {new Date((d as any).publish_at).toLocaleString("nl-NL", { dateStyle: "short", timeStyle: "short" })}
-                        </Badge>
                       )}
                       <Badge variant="outline" className="text-xs">{CATEGORY_LABELS[d.category]}</Badge>
                       {isTeaser && d.always_show && (
