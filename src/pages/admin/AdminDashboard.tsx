@@ -45,7 +45,7 @@ export default function AdminDashboard() {
   const [dealSearch, setDealSearch] = useState("");
   const [consumerSearch, setConsumerSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended" | "blocked">("all");
-  const [dealStatusFilter, setDealStatusFilter] = useState<"all" | "active" | "expired" | "deleted">("all");
+  const [dealStatusFilter, setDealStatusFilter] = useState<"all" | "active" | "scheduled" | "expired" | "deleted">("all");
   const [dealTypeFilter, setDealTypeFilter] = useState<"all" | "real" | "teaser">("all");
 
   // Consumer date filter
@@ -452,14 +452,19 @@ export default function AdminDashboard() {
       m.city.toLowerCase().includes(merchantSearch.toLowerCase());
   });
 
+  const isScheduledDeal = (d: any) =>
+    !!d.publish_at && new Date(d.publish_at) > new Date() && new Date(d.expiry_time) > new Date();
+
   const filteredDeals = deals?.filter((d) => {
     const isDeleted = !!d.deleted_at;
     const isExpired = new Date(d.expiry_time) < new Date();
+    const isScheduled = isScheduledDeal(d);
     if (dealStatusFilter === "deleted") {
       if (!isDeleted) return false;
     } else {
       if (isDeleted) return false;
-      if (dealStatusFilter === "active" && isExpired) return false;
+      if (dealStatusFilter === "active" && (isExpired || isScheduled)) return false;
+      if (dealStatusFilter === "scheduled" && !isScheduled) return false;
       if (dealStatusFilter === "expired" && !isExpired) return false;
     }
     if (dealTypeFilter === "real" && d.is_teaser) return false;
