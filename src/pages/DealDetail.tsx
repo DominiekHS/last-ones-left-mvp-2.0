@@ -388,7 +388,9 @@ export default function DealDetail() {
                     </a>
                   </Button>
                 ) : ctaLabel ? (
-                  <p className="text-sm font-medium">{ctaLabel}</p>
+                  <div className="flex items-center justify-center w-full h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium">
+                    {ctaLabel}
+                  </div>
                 ) : null}
               </>
             ) : isExpired ? (
