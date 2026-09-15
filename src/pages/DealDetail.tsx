@@ -119,6 +119,7 @@ export default function DealDetail() {
   const startDate = hasFixedStart ? new Date(deal.start_time) : null;
   const expiryDate = new Date(deal.expiry_time);
   const isExpired = expiryDate < new Date();
+  const ctaLabel = ((deal as any).cta_label || "").trim();
 
   return (
     <div className="container py-4 max-w-2xl space-y-4">
@@ -346,38 +347,44 @@ export default function DealDetail() {
                 {deal.redemption_method === "at_counter" ? (
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">📍 Toon deze code bij de kassa om je {deal.discount_percentage}% korting te ontvangen.</p>
-                    {deal.checkout_link && (
+                    {deal.checkout_link ? (
                       <Button asChild variant="outline" className="w-full" onClick={() => {
                         supabase.from("deal_events").insert({ deal_id: deal.id, event_type: "checkout_click", user_id: user?.id || null }).then();
                       }}>
                         <a href={deal.checkout_link} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="mr-1 h-4 w-4" />Tickets kopen / Reserveren
+                          <ExternalLink className="mr-1 h-4 w-4" />{ctaLabel || "Tickets kopen / Reserveren"}
                         </a>
                       </Button>
-                    )}
+                    ) : ctaLabel ? (
+                      <p className="text-sm font-medium">{ctaLabel}</p>
+                    ) : null}
                   </div>
                 ) : deal.redemption_method === "online_pay_pos_refund" ? (
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground font-medium">📍 Toon deze code bij de kassa om je korting terug te krijgen.</p>
                     <p className="text-xs text-muted-foreground">Je hebt al online betaald; deze code is alleen voor de kassa.</p>
-                    {deal.checkout_link && (
+                    {deal.checkout_link ? (
                       <Button asChild className="w-full" onClick={() => {
                         supabase.from("deal_events").insert({ deal_id: deal.id, event_type: "checkout_click", user_id: user?.id || null }).then();
                       }}>
                         <a href={deal.checkout_link} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="mr-1 h-4 w-4" />Reserveer online
+                          <ExternalLink className="mr-1 h-4 w-4" />{ctaLabel || "Reserveer online"}
                         </a>
                       </Button>
-                    )}
+                    ) : ctaLabel ? (
+                      <p className="text-sm font-medium">{ctaLabel}</p>
+                    ) : null}
                   </div>
                 ) : deal.checkout_link ? (
                   <Button asChild className="w-full" onClick={() => {
                     supabase.from("deal_events").insert({ deal_id: deal.id, event_type: "checkout_click", user_id: user?.id || null }).then();
                   }}>
                     <a href={deal.checkout_link} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="mr-1 h-4 w-4" />Naar afrekenen
+                      <ExternalLink className="mr-1 h-4 w-4" />{ctaLabel || "Naar afrekenen"}
                     </a>
                   </Button>
+                ) : ctaLabel ? (
+                  <p className="text-sm font-medium">{ctaLabel}</p>
                 ) : null}
               </>
             ) : isExpired ? (
