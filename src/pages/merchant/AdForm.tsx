@@ -61,6 +61,7 @@ export default function AdForm() {
   const [publishMode, setPublishMode] = useState<"now" | "scheduled">("now");
   const [publishAt, setPublishAt] = useState("");
   const [checkoutLink, setCheckoutLink] = useState("");
+  const [ctaLabel, setCtaLabel] = useState("");
   const [discountType, setDiscountType] = useState<"universal" | "unique">("universal");
   const [universalCode, setUniversalCode] = useState("");
   const [uniqueCodeCount, setUniqueCodeCount] = useState("");

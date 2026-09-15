@@ -25,7 +25,7 @@ export default function Vouchers() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("vouchers")
-        .select("*, deals(title, city, start_time, expiry_time, checkout_link, discount_percentage, original_price, redemption_method, pricing_model, price_per_person, payment_steps, id, merchants(company_name))")
+        .select("*, deals(title, city, start_time, expiry_time, checkout_link, cta_label, discount_percentage, original_price, redemption_method, pricing_model, price_per_person, payment_steps, id, merchants(company_name))")
         .eq("user_id", user!.id)
         .is("deleted_at", null)
         .in("status", ["active", "inactive"])
@@ -149,7 +149,7 @@ export default function Vouchers() {
                     <Button variant="outline" size="sm" asChild className="w-full">
                       <a href={deal.checkout_link} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="mr-1 h-4 w-4" />
-                        {deal?.redemption_method === "online_pay_pos_refund" ? "Reserveer online" : "Naar afrekenen"}
+                        {(deal as any)?.cta_label?.trim() || (deal?.redemption_method === "online_pay_pos_refund" ? "Reserveer online" : "Naar afrekenen")}
                       </a>
                     </Button>
                   )}
