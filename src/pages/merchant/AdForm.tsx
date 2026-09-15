@@ -1052,7 +1052,7 @@ export default function AdForm() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="checkout">Checkout link {redemptionMethod === "at_counter" ? "(optioneel)" : "*"}</Label>
+              <Label htmlFor="checkout">Checkout link {redemptionMethod === "online_checkout" ? "*" : "(optioneel)"}</Label>
               <Input
                 id="checkout"
                 type="url"
@@ -1065,11 +1065,26 @@ export default function AdForm() {
                 {redemptionMethod === "at_counter"
                   ? "Optioneel: Voeg een link toe waar klanten hun ticket(s) kunnen kopen of reserveren. De korting wordt aan de kassa toegepast."
                   : redemptionMethod === "online_pay_pos_refund"
-                  ? "Klanten reserveren/betalen hier online het volledige bedrag. De kortingscode wordt op locatie getoond."
+                  ? "Optioneel: klanten reserveren/betalen hier online het volledige bedrag. Laat leeg als reserveren bijvoorbeeld telefonisch gaat — dan tonen we geen knop."
                   : "De link waar klanten hun tickets kunnen kopen"}
               </p>
               {showError("checkoutLink") && <p className="text-xs text-destructive">{showError("checkoutLink")}</p>}
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ctaLabel">Tekst op de knop (optioneel)</Label>
+              <Input
+                id="ctaLabel"
+                value={ctaLabel}
+                onChange={(e) => setCtaLabel(e.target.value.slice(0, 40))}
+                placeholder="Bijv. Bel ons op 12 34 56 78"
+                maxLength={40}
+              />
+              <p className="text-xs text-muted-foreground">
+                Laat leeg voor de standaardtekst (zoals "Reserveer online"). Vul je hier iets in zonder link, dan tonen we deze tekst als melding bij de kortingscode.
+              </p>
+            </div>
+
 
             <div className="space-y-2">
               <Label>Type kortingscode *</Label>
