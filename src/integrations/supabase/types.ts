@@ -952,6 +952,7 @@ export type Database = {
           city: string | null
           counter_discount_mode: string | null
           created_at: string | null
+          cta_label: string | null
           description: string | null
           discount_percentage: number | null
           discount_type: string | null
@@ -986,6 +987,7 @@ export type Database = {
           city?: string | null
           counter_discount_mode?: string | null
           created_at?: string | null
+          cta_label?: string | null
           description?: string | null
           discount_percentage?: number | null
           discount_type?: string | null
@@ -1020,6 +1022,7 @@ export type Database = {
           city?: string | null
           counter_discount_mode?: string | null
           created_at?: string | null
+          cta_label?: string | null
           description?: string | null
           discount_percentage?: number | null
           discount_type?: string | null
