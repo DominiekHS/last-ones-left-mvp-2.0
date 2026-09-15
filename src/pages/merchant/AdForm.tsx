@@ -79,7 +79,14 @@ export default function AdForm() {
 
   // Load existing deal for edit OR copy
   const loadDealId = isEdit ? id : copyFromId;
+  // Eenmalige prefill: voorkomt dat het formulier wordt overschreven wanneer
+  // de sessie/merchant opnieuw wordt opgehaald (bijv. bij terugkeren naar tab).
+  const prefilledRef = useRef<string | null>(null);
   useEffect(() => {
+    const prefillKey = loadDealId ?? "new";
+    if (prefilledRef.current === prefillKey) return;
+    if (!loadDealId && !merchant) return;
+    prefilledRef.current = prefillKey;
     if (loadDealId) {
       // Let op: NIET `select("*")` — column-level SELECT op `discount_code`
       // is ingetrokken voor de `authenticated` role, dus `*` faalt met
