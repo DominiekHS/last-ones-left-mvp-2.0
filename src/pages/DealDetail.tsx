@@ -119,6 +119,7 @@ export default function DealDetail() {
   const startDate = hasFixedStart ? new Date(deal.start_time) : null;
   const expiryDate = new Date(deal.expiry_time);
   const isExpired = expiryDate < new Date();
+  const ctaLabel = ((deal as any).cta_label || "").trim();
 
   return (
     <div className="container py-4 max-w-2xl space-y-4">
