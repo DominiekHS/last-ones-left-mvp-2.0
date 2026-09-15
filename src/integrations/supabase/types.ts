@@ -320,6 +320,7 @@ export type Database = {
           city: string
           counter_discount_mode: string
           created_at: string
+          cta_label: string | null
           deleted_at: string | null
           description: string
           discount_code: string
@@ -358,6 +359,7 @@ export type Database = {
           city?: string
           counter_discount_mode?: string
           created_at?: string
+          cta_label?: string | null
           deleted_at?: string | null
           description?: string
           discount_code?: string
@@ -396,6 +398,7 @@ export type Database = {
           city?: string
           counter_discount_mode?: string
           created_at?: string
+          cta_label?: string | null
           deleted_at?: string | null
           description?: string
           discount_code?: string
