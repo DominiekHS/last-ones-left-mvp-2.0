@@ -216,7 +216,7 @@ export default function DealDetail() {
             )}
             {deal.redemption_method === "at_counter" && (
               <>
-                <p className="text-sm font-medium">Online reserveren - afrekenen op locatie - korting aan kassa terug</p>
+                <p className="text-sm font-medium">Online / Telefonisch reserveren - afrekenen op locatie - korting aan kassa terug</p>
                 <p className="text-xs text-muted-foreground">Klant hoeft online niet te betalen, maar betaalt pas op locatie. Op locatie toon je de kortingscode en krijg je de korting terug/verrekend.</p>
               </>
             )}

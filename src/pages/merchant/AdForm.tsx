@@ -616,7 +616,7 @@ export default function AdForm() {
                     : "border-input hover:border-primary/30"
                 }`}
               >
-                <p className="font-display font-semibold text-sm">Online reserveren - afrekenen op locatie - korting aan kassa terug</p>
+                <p className="font-display font-semibold text-sm">Online / Telefonisch reserveren - afrekenen op locatie - korting aan kassa terug</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Klant hoeft online niet te betalen, maar betaalt pas op locatie. Op locatie tonen ze de kortingscode en krijgen ze de korting terug/verrekend.
                 </p>
