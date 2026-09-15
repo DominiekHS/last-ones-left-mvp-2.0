@@ -100,7 +100,7 @@ export default function AdForm() {
           "checkout_link, address, redemption_method, discount_type, " +
           "redemption_instructions, cancellation_policy, terms_summary, " +
           "counter_discount_mode, postal_code, pricing_model, " +
-          "indicative_price_from, price_per_person, start_time_mode, payment_steps, publish_at"
+          "indicative_price_from, price_per_person, start_time_mode, payment_steps, publish_at, cta_label"
         )
         .eq("id", loadDealId)
         .maybeSingle()
@@ -122,6 +122,7 @@ export default function AdForm() {
               setExpiryTime(toLocalDatetimeString(data.expiry_time));
             }
             setCheckoutLink(data.checkout_link);
+            setCtaLabel((data as any).cta_label || "");
             setExistingImageUrl(data.image_url);
             setRedemptionMethod(((data as any).redemption_method as "online_checkout" | "at_counter" | "online_pay_pos_refund") || "online_checkout");
             setCounterDiscountMode(((data as any).counter_discount_mode as "fixed_price" | "variable_amount") || "fixed_price");
@@ -326,8 +327,10 @@ export default function AdForm() {
       }
     }
 
-    // Checkout link required for online_checkout and online_pay_pos_refund, optional for at_counter
-    const checkoutRequired = redemptionMethod !== "at_counter";
+    // Checkout link alleen verplicht bij online afrekenen met kortingscode.
+    // Bij afrekenen op locatie (kassa/terugbetaling) mag de link leeg blijven,
+    // bijvoorbeeld als er telefonisch gereserveerd wordt.
+    const checkoutRequired = redemptionMethod === "online_checkout";
     if (checkoutRequired) {
       if (!checkoutLink.trim()) e.checkoutLink = "Checkout link is verplicht";
       else {
@@ -434,6 +437,7 @@ export default function AdForm() {
       publish_at: publishMode === "scheduled" && publishAt ? new Date(publishAt).toISOString() : null,
       start_time_mode: startTimeMode,
       checkout_link: checkoutLink.trim(),
+      cta_label: ctaLabel.trim() || null,
       discount_code: discountType === "universal" ? universalCode.trim() : "",
       image_url: imageUrl,
       redemption_method: redemptionMethod,
