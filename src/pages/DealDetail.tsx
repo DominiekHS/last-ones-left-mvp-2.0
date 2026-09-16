@@ -120,6 +120,14 @@ export default function DealDetail() {
   const expiryDate = new Date(deal.expiry_time);
   const isExpired = expiryDate < new Date();
   const ctaLabel = ((deal as any).cta_label || "").trim();
+  // Haal eventueel een telefoonnummer uit de knoptekst voor een tel:-link (belknop).
+  const telHref = (() => {
+    if (!ctaLabel) return null;
+    const match = ctaLabel.match(/\+?\d[\d\s\-()./]{5,}\d/);
+    if (!match) return null;
+    const digits = match[0].replace(/[^\d+]/g, "");
+    return digits.replace(/\D/g, "").length >= 6 ? `tel:${digits}` : null;
+  })();
 
   return (
     <div className="container py-4 max-w-2xl space-y-4">
@@ -356,9 +364,15 @@ export default function DealDetail() {
                         </a>
                       </Button>
                     ) : ctaLabel ? (
-                      <div className="flex items-center justify-center w-full h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium">
-                        {ctaLabel}
-                      </div>
+                      telHref ? (
+                        <a href={telHref} className="flex items-center justify-center w-full h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90">
+                          {ctaLabel}
+                        </a>
+                      ) : (
+                        <div className="flex items-center justify-center w-full h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium">
+                          {ctaLabel}
+                        </div>
+                      )
                     ) : null}
                   </div>
                 ) : deal.redemption_method === "online_pay_pos_refund" ? (
@@ -374,9 +388,15 @@ export default function DealDetail() {
                         </a>
                       </Button>
                     ) : ctaLabel ? (
-                      <div className="flex items-center justify-center w-full h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium">
-                        {ctaLabel}
-                      </div>
+                      telHref ? (
+                        <a href={telHref} className="flex items-center justify-center w-full h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90">
+                          {ctaLabel}
+                        </a>
+                      ) : (
+                        <div className="flex items-center justify-center w-full h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium">
+                          {ctaLabel}
+                        </div>
+                      )
                     ) : null}
                   </div>
                 ) : deal.checkout_link ? (
@@ -388,9 +408,15 @@ export default function DealDetail() {
                     </a>
                   </Button>
                 ) : ctaLabel ? (
-                  <div className="flex items-center justify-center w-full h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium">
-                    {ctaLabel}
-                  </div>
+                  telHref ? (
+                    <a href={telHref} className="flex items-center justify-center w-full h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90">
+                      {ctaLabel}
+                    </a>
+                  ) : (
+                    <div className="flex items-center justify-center w-full h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium">
+                      {ctaLabel}
+                    </div>
+                  )
                 ) : null}
               </>
             ) : isExpired ? (
