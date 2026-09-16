@@ -388,9 +388,15 @@ export default function DealDetail() {
                         </a>
                       </Button>
                     ) : ctaLabel ? (
-                      <div className="flex items-center justify-center w-full h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium">
-                        {ctaLabel}
-                      </div>
+                      telHref ? (
+                        <a href={telHref} className="flex items-center justify-center w-full h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90">
+                          {ctaLabel}
+                        </a>
+                      ) : (
+                        <div className="flex items-center justify-center w-full h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium">
+                          {ctaLabel}
+                        </div>
+                      )
                     ) : null}
                   </div>
                 ) : deal.checkout_link ? (
