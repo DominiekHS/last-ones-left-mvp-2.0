@@ -120,6 +120,14 @@ export default function DealDetail() {
   const expiryDate = new Date(deal.expiry_time);
   const isExpired = expiryDate < new Date();
   const ctaLabel = ((deal as any).cta_label || "").trim();
+  // Haal eventueel een telefoonnummer uit de knoptekst voor een tel:-link (belknop).
+  const telHref = (() => {
+    if (!ctaLabel) return null;
+    const match = ctaLabel.match(/\+?\d[\d\s\-()./]{5,}\d/);
+    if (!match) return null;
+    const digits = match[0].replace(/[^\d+]/g, "");
+    return digits.replace(/\D/g, "").length >= 6 ? `tel:${digits}` : null;
+  })();
 
   return (
     <div className="container py-4 max-w-2xl space-y-4">
