@@ -89,8 +89,8 @@ export default function DealAnalytics() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <KPICard icon={<Eye className="h-4 w-4" />} label="Views" value={kpis.views} tooltip="Aantal keer dat de advertentie is bekeken" />
-          <KPICard icon={<MousePointerClick className="h-4 w-4" />} label="Kliks-naar-website" value={kpis.websiteClicks} tooltip="Aantal keer dat er naar de website is doorgeklikt" />
-          <KPICard icon={<TrendingUp className="h-4 w-4" />} label="Conversie" value={`${kpis.conversion.toFixed(1)}%`} tooltip="Kliks-naar-website / Views" />
+          <KPICard icon={<Ticket className="h-4 w-4" />} label="Aantal keer codes geclaimd" value={kpis.websiteClicks} tooltip="Aantal keer dat consumenten de kortingscode van deze advertentie hebben geclaimd" />
+          <KPICard icon={<TrendingUp className="h-4 w-4" />} label="Conversie" value={`${kpis.conversion.toFixed(1)}%`} tooltip="Codes geclaimd / Views" />
         </div>
       )}
 
