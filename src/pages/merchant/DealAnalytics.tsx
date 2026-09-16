@@ -10,7 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ArrowLeft, Info, Eye, MousePointerClick, TrendingUp } from "lucide-react";
+import { ArrowLeft, Info, Eye, Ticket, TrendingUp } from "lucide-react";
 import { useDealEvents } from "@/hooks/useDealAnalytics";
 import { useMemo } from "react";
 
