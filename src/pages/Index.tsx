@@ -5,6 +5,7 @@ import { useActiveDeals } from "@/hooks/useDeals";
 import { DealCard } from "@/components/deals/DealCard";
 import { DealFilters } from "@/components/deals/DealFilters";
 import { ActivityRequestDialog } from "@/components/deals/ActivityRequestDialog";
+import { TeaserActions } from "@/components/deals/TeaserActions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Ticket } from "lucide-react";
 
@@ -50,7 +51,7 @@ const Index = () => {
         categoryCounts={categoryCounts}
       />
 
-      <section className="container py-6">
+      <section className="container py-6 pb-0">
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -80,8 +81,10 @@ const Index = () => {
               />
             </div>
           </div>
-        )}
+          )}
       </section>
+
+      {filteredDeals && filteredDeals.some((deal) => (deal as any).is_teaser) && <TeaserActions />}
     </>
   );
 };
