@@ -89,7 +89,8 @@ export default function AdminDealPreview() {
   }
 
   const discountedPrice = deal.original_price * (1 - deal.discount_percentage / 100);
-  const startDate = new Date(deal.start_time);
+  const hasFixedStart = (deal as any).start_time_mode !== "flexible" && !!deal.start_time;
+  const startDate = deal.start_time ? new Date(deal.start_time) : null;
   const expiryDate = new Date(deal.expiry_time);
   const isExpired = expiryDate < new Date();
 
