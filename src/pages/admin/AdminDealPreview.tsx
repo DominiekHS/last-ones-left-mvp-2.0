@@ -36,6 +36,7 @@ export default function AdminDealPreview() {
           original_price,
           discount_percentage,
           start_time,
+          start_time_mode,
           expiry_time,
           pricing_model,
           price_per_person,
@@ -88,7 +89,8 @@ export default function AdminDealPreview() {
   }
 
   const discountedPrice = deal.original_price * (1 - deal.discount_percentage / 100);
-  const startDate = new Date(deal.start_time);
+  const hasFixedStart = (deal as any).start_time_mode !== "flexible" && !!deal.start_time;
+  const startDate = deal.start_time ? new Date(deal.start_time) : null;
   const expiryDate = new Date(deal.expiry_time);
   const isExpired = expiryDate < new Date();
 
@@ -126,7 +128,11 @@ export default function AdminDealPreview() {
 
         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{deal.city}{deal.postal_code ? `, ${deal.postal_code}` : ""}</span>
-          <span className="flex items-center gap-1"><Clock className="h-4 w-4" />Start: {format(startDate, "d MMM HH:mm", { locale: nl })}</span>
+          {hasFixedStart && startDate ? (
+            <span className="flex items-center gap-1"><Clock className="h-4 w-4" />Start activiteit: {format(startDate, "d MMM HH:mm", { locale: nl })}</span>
+          ) : (deal as any).start_time_mode === "flexible" ? (
+            <span className="flex items-center gap-1"><Clock className="h-4 w-4" />Starttijd: kies je op de reserveringspagina</span>
+          ) : null}
           <span>Verloopt {formatDistanceToNow(expiryDate, { locale: nl, addSuffix: true })}</span>
         </div>
 
