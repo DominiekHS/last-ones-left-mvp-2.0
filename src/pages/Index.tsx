@@ -81,8 +81,10 @@ const Index = () => {
               />
             </div>
           </div>
-        )}
+          )}
       </section>
+
+      {filteredDeals && filteredDeals.some((deal) => (deal as any).is_teaser) && <TeaserActions />}
     </>
   );
 };
