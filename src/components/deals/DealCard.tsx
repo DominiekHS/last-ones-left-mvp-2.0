@@ -37,14 +37,11 @@ export function DealCard({ deal }: { deal: Deal }) {
           )}
           <div className="absolute top-2 left-2 flex gap-1 flex-wrap">
             {isTeaser ? (
-              <Badge variant="secondary" className="font-bold text-xs">?%</Badge>
+              <Badge className="bg-primary text-primary-foreground font-bold text-[10px]">Binnenkort</Badge>
             ) : (
               <Badge className="bg-primary text-primary-foreground font-bold text-xs">
                 -{deal.discount_percentage}%
               </Badge>
-            )}
-            {isTeaser && (
-              <Badge variant="outline" className="bg-card/90 text-[10px]">Binnenkort</Badge>
             )}
           </div>
           <Badge variant="outline" className="absolute top-2 right-2 bg-card/90 text-xs">
@@ -89,12 +86,7 @@ export function DealCard({ deal }: { deal: Deal }) {
               <span className="flex items-center gap-1 text-muted-foreground/70">Verloopt: {format(expiryDate, "HH:mm", { locale: nl })}</span>
             )}
           </div>
-          {isTeaser ? (
-            <div className="space-y-0.5">
-              <span className="font-display font-bold text-lg">€ ?</span>
-              <p className="text-xs text-muted-foreground">Nog geen prijs bekend</p>
-            </div>
-          ) : (deal as any).pricing_model === "per_person_variable" ? (
+          {isTeaser ? null : (deal as any).pricing_model === "per_person_variable" ? (
             <div className="space-y-0.5">
               <div className="flex items-baseline gap-2 flex-wrap">
                 {(deal as any).price_per_person ? (
