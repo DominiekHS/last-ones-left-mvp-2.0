@@ -36,6 +36,7 @@ export default function AdminDealPreview() {
           original_price,
           discount_percentage,
           start_time,
+          start_time_mode,
           expiry_time,
           pricing_model,
           price_per_person,
