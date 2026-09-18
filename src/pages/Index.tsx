@@ -5,7 +5,7 @@ import { useActiveDeals } from "@/hooks/useDeals";
 import { DealCard } from "@/components/deals/DealCard";
 import { DealFilters } from "@/components/deals/DealFilters";
 import { ActivityRequestDialog } from "@/components/deals/ActivityRequestDialog";
-import { TeaserActions } from "@/components/deals/TeaserActions";
+import { TeaserActionsRow } from "@/components/deals/TeaserActions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Ticket } from "lucide-react";
 
@@ -60,9 +60,16 @@ const Index = () => {
           </div>
         ) : filteredDeals && filteredDeals.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredDeals.map((deal) => (
-              <DealCard key={deal.id} deal={deal} />
-            ))}
+            {filteredDeals.map((deal) =>
+              (deal as any).is_teaser ? (
+                <div key={deal.id} className="flex flex-col">
+                  <DealCard deal={deal} />
+                  <TeaserActionsRow />
+                </div>
+              ) : (
+                <DealCard key={deal.id} deal={deal} />
+              )
+            )}
           </div>
         ) : (
           <div className="text-center py-16 space-y-4 max-w-md mx-auto">
@@ -83,8 +90,6 @@ const Index = () => {
           </div>
           )}
       </section>
-
-      {filteredDeals && filteredDeals.some((deal) => (deal as any).is_teaser) && <TeaserActions />}
     </>
   );
 };
