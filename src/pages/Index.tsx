@@ -5,6 +5,7 @@ import { useActiveDeals } from "@/hooks/useDeals";
 import { DealCard } from "@/components/deals/DealCard";
 import { DealFilters } from "@/components/deals/DealFilters";
 import { ActivityRequestDialog } from "@/components/deals/ActivityRequestDialog";
+import { TeaserActions } from "@/components/deals/TeaserActions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Ticket } from "lucide-react";
 
