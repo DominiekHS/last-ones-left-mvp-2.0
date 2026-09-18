@@ -47,25 +47,54 @@ export function TeaserActionsRow() {
     }
   };
 
+  const copyToClipboard = async (text: string): Promise<boolean> => {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Klembord-API geweigerd of onbeschikbaar: fallback via tijdelijk tekstveld.
+      try {
+        const el = document.createElement("textarea");
+        el.value = text;
+        el.setAttribute("readonly", "");
+        el.style.position = "fixed";
+        el.style.opacity = "0";
+        document.body.appendChild(el);
+        el.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(el);
+        return ok;
+      } catch {
+        return false;
+      }
+    }
+  };
+
   const handleShare = async () => {
     if (!user) {
       navigate("/registreren");
       return;
     }
-    try {
-      if (navigator.share) {
+    // Eerst het native deelvenster (mobiel); op desktop bestaat het vaak ook,
+    // maar als het failt vallen we altijd terug op kopiëren.
+    if (navigator.share) {
+      try {
         await navigator.share({
           title: "Last Ones Left",
           text: "Ontdek last-minute deals bij jou in de buurt!",
           url: shareUrl,
         });
         return;
+      } catch (err) {
+        // Een afgebroken native share-venster is geen fout.
+        if ((err as DOMException)?.name === "AbortError") return;
+        // Alles anders: gewoon verder met kopiëren.
       }
-      await navigator.clipboard.writeText(shareUrl);
+    }
+    const copied = await copyToClipboard(shareUrl);
+    if (copied) {
       toast({ title: "Link gekopieerd!", description: "Plak hem in een bericht aan je vrienden." });
-    } catch (err) {
-      // Een afgebroken native share-venster is geen fout.
-      if ((err as DOMException)?.name === "AbortError") return;
+    } else {
       toast({ title: "Delen mislukt", description: "Probeer het nog eens.", variant: "destructive" });
     }
   };
