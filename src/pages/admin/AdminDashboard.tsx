@@ -491,7 +491,7 @@ export default function AdminDashboard() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <StatCard icon={<Store className="h-4 w-4" />} label="Ondernemers" value={merchants?.length || 0} />
-        <StatCard icon={<Users className="h-4 w-4" />} label="Consumenten" value={consumers?.length ?? 0} />
+        <StatCard icon={<Users className="h-4 w-4" />} label="Consumenten" value={realCount} />
         <StatCard icon={<ShieldAlert className="h-4 w-4" />} label="Geschorst" value={suspendedMerchants} variant="warning" />
         <StatCard icon={<Ban className="h-4 w-4" />} label="Geblokkeerd" value={blockedMerchants} variant="destructive" />
         <StatCard icon={<Tag className="h-4 w-4" />} label="Actieve deals" value={activeDeals} variant="success" />
@@ -501,7 +501,7 @@ export default function AdminDashboard() {
         <div className="w-full overflow-x-auto -mx-1 px-1">
           <TabsList className="w-max flex-nowrap">
             <TabsTrigger value="merchants">Ondernemers ({merchants?.length || 0})</TabsTrigger>
-            <TabsTrigger value="consumers">Consumenten ({consumers?.length || 0})</TabsTrigger>
+            <TabsTrigger value="consumers">Consumenten ({realCount})</TabsTrigger>
             <TabsTrigger value="deals">Deals ({allDealsCount})</TabsTrigger>
             <TabsTrigger value="teaser" onClick={() => navigate("/admin/proefadvertentie/nieuw")}>Proefdeal</TabsTrigger>
             <TabsTrigger value="vouchers" onClick={() => navigate("/admin/kortingscodes")}>Kortingscodes</TabsTrigger>
