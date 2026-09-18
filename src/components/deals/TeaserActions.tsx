@@ -6,13 +6,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 /**
- * Twee actieknoppen onder de voorbeeldadvertenties op de homepage:
+ * Twee actieknoppen onder élke voorbeeldadvertentie op de homepage:
  * 1. "Zet meldingen aan" — zet e-mailmeldingen direct aan voor ingelogde
  *    consumenten; stuurt niet-ingelogde bezoekers naar registratie.
  * 2. "Deel met vrienden" — deelt de persoonlijke referral-link (native share
  *    op mobiel, anders kopiëren naar klembord).
  */
-export function TeaserActions() {
+export function TeaserActionsRow() {
   const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
@@ -71,17 +71,15 @@ export function TeaserActions() {
   };
 
   return (
-    <div className="container pb-8">
-      <div className="mx-auto max-w-md grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <Button onClick={handleNotifications} className="h-11 gap-2 text-sm font-semibold">
-          <Bell className="h-4 w-4 shrink-0" />
-          Zet meldingen aan
-        </Button>
-        <Button onClick={handleShare} variant="outline" className="h-11 gap-2 text-sm font-semibold">
-          <Share2 className="h-4 w-4 shrink-0" />
-          Deel met vrienden
-        </Button>
-      </div>
+    <div className="grid grid-cols-2 gap-2 pt-1">
+      <Button onClick={handleNotifications} className="h-10 gap-1.5 text-xs sm:text-sm font-semibold px-2">
+        <Bell className="h-4 w-4 shrink-0" />
+        Zet meldingen aan
+      </Button>
+      <Button onClick={handleShare} variant="outline" className="h-10 gap-1.5 text-xs sm:text-sm font-semibold px-2">
+        <Share2 className="h-4 w-4 shrink-0" />
+        Deel met vrienden
+      </Button>
     </div>
   );
 }
