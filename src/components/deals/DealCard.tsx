@@ -39,11 +39,9 @@ export function DealCard({ deal }: { deal: Deal }) {
             {isTeaser ? (
               <Badge className="bg-primary text-primary-foreground font-bold text-[10px]">Binnenkort</Badge>
             ) : (
-              <>
-                <Badge className="bg-primary text-primary-foreground font-bold text-xs">
-                  -{deal.discount_percentage}%
-                </Badge>
-              </>
+              <Badge className="bg-primary text-primary-foreground font-bold text-xs">
+                -{deal.discount_percentage}%
+              </Badge>
             )}
           </div>
           <Badge variant="outline" className="absolute top-2 right-2 bg-card/90 text-xs">
