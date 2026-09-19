@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 
-import lolLogo from "@/assets/lol-logo.png";
+import logoZwartAsset from "@/assets/logo-zwart.png.asset.json";
 import { useActiveDeals } from "@/hooks/useDeals";
 import { DealCard } from "@/components/deals/DealCard";
 import { DealFilters } from "@/components/deals/DealFilters";
