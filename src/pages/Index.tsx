@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 
-import lolLogo from "@/assets/lol-logo.png";
+import logoZwartAsset from "@/assets/logo-zwart.png.asset.json";
 import { useActiveDeals } from "@/hooks/useDeals";
 import { DealCard } from "@/components/deals/DealCard";
 import { DealFilters } from "@/components/deals/DealFilters";
@@ -33,7 +33,7 @@ const Index = () => {
     <>
       <section className="bg-primary text-primary-foreground py-8 sm:py-12">
         <div className="container relative text-center space-y-3">
-          <img src={lolLogo} alt="Last Ones Left logo" className="absolute left-1/2 -translate-x-[calc(50%+22rem)] sm:-translate-x-[calc(50%+24rem)] top-1/2 -translate-y-1/2 h-20 w-20 sm:h-24 sm:w-24 rounded-full hidden sm:block" />
+          <img src={logoZwartAsset.url} alt="Last Ones Left logo" className="absolute left-1/2 -translate-x-[calc(50%+22rem)] sm:-translate-x-[calc(50%+24rem)] top-1/2 -translate-y-1/2 h-24 w-auto hidden sm:block" />
           <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">
             Bezoek. Beleef. Bespaar.
           </h1>
