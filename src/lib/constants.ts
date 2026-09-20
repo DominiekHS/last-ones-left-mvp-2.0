@@ -24,7 +24,7 @@ export const CATEGORIES = [
   { value: "pitch_putt", label: "Pitch & Putt" },
   { value: "pool", label: "Pool" },
   { value: "rondvaart", label: "Rondvaart" },
-  { value: "shuffleboard", label: "Shuffleboard" },
+  { value: "simracen", label: "Simracen" },
   { value: "sport", label: "Sport" },
   { value: "tennis", label: "Tennis" },
   { value: "theater", label: "Theater" },
