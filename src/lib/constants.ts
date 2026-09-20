@@ -20,6 +20,7 @@ export const CATEGORIES = [
   { value: "overig", label: "Overig" },
   { value: "padel", label: "Padel" },
   { value: "paintball", label: "Paintball" },
+  { value: "pickleball", label: "Pickleball" },
   { value: "pitch_putt", label: "Pitch & Putt" },
   { value: "pool", label: "Pool" },
   { value: "rondvaart", label: "Rondvaart" },
