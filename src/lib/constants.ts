@@ -25,6 +25,7 @@ export const CATEGORIES = [
   { value: "pool", label: "Pool" },
   { value: "rondvaart", label: "Rondvaart" },
   { value: "shuffleboard", label: "Shuffleboard" },
+  { value: "simracen", label: "Simracen" },
   { value: "sport", label: "Sport" },
   { value: "tennis", label: "Tennis" },
   { value: "theater", label: "Theater" },
@@ -68,6 +69,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   workshop: "Workshop",
   cocktail_walk: "Cocktail Walk",
   bierproeverij: "Bierproeverij",
+  simracen: "Simracen",
   indoor_golf: "Indoor Golf",
   overig: "Overig",
 };
