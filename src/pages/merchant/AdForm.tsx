@@ -557,21 +557,6 @@ export default function AdForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="container max-w-lg py-6 space-y-5">
-        {/* Warning banner */}
-        {startTimeMode === "fixed" && (
-          <Card className="border-primary/30 bg-primary/5">
-            <CardContent className="p-4 flex gap-3">
-              <AlertTriangle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <div>
-                <p className="font-display font-semibold text-sm">Let op: Starttijd moet vandaag, morgen of overmorgen zijn</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Dit is een last-minute marketplace. Activiteiten die later starten kunnen niet worden geplaatst.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Section 1: Korting verzilveren */}
         <Card>
           <CardHeader className="pb-3">
