@@ -31,32 +31,6 @@ export default function MerchantDashboard() {
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  if (!loading && (!user || !roles.includes("merchant"))) {
-    return <Navigate to="/login" />;
-  }
-
-  if (!merchant) {
-    return (
-      <div className="container py-12 text-center">
-        <p className="text-muted-foreground">Merchant profiel laden...</p>
-      </div>
-    );
-  }
-
-  const merchantStatus = getMerchantEffectiveStatus(merchant as any);
-
-  // Blocked merchants see a full block screen
-  if (merchantStatus === "blocked") {
-    return (
-      <div className="container py-16 text-center space-y-4">
-        <Ban className="h-12 w-12 text-destructive mx-auto" />
-        <h2 className="font-display text-xl font-semibold">Account geblokkeerd</h2>
-        <p className="text-muted-foreground">Je account is geblokkeerd. Neem contact op met ons support team voor meer informatie.</p>
-        <Button asChild variant="outline"><Link to="/contact">Contact opnemen</Link></Button>
-      </div>
-    );
-  }
-
   const counts = useMemo(() => {
     const all = deals || [];
     const active = all.filter((deal) => {
@@ -121,6 +95,32 @@ export default function MerchantDashboard() {
       setBulkDeleteOpen(false);
     }
   };
+
+  if (!loading && (!user || !roles.includes("merchant"))) {
+    return <Navigate to="/login" />;
+  }
+
+  if (!merchant) {
+    return (
+      <div className="container py-12 text-center">
+        <p className="text-muted-foreground">Merchant profiel laden...</p>
+      </div>
+    );
+  }
+
+  const merchantStatus = getMerchantEffectiveStatus(merchant as any);
+
+  // Blocked merchants see a full block screen
+  if (merchantStatus === "blocked") {
+    return (
+      <div className="container py-16 text-center space-y-4">
+        <Ban className="h-12 w-12 text-destructive mx-auto" />
+        <h2 className="font-display text-xl font-semibold">Account geblokkeerd</h2>
+        <p className="text-muted-foreground">Je account is geblokkeerd. Neem contact op met ons support team voor meer informatie.</p>
+        <Button asChild variant="outline"><Link to="/contact">Contact opnemen</Link></Button>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-6 space-y-6">
