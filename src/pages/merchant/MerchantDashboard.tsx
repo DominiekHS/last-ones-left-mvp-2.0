@@ -57,6 +57,21 @@ export default function MerchantDashboard() {
     );
   }
 
+  const counts = useMemo(() => {
+    const all = deals || [];
+    const active = all.filter((deal) => {
+      const isExpired = new Date(deal.expiry_time) < new Date();
+      return !isExpired && !isScheduledDeal(deal as any);
+    }).length;
+    const scheduled = all.filter(
+      (deal) =>
+        isScheduledDeal(deal as any) && new Date(deal.expiry_time) >= new Date()
+    ).length;
+    const expired = all.filter((deal) => new Date(deal.expiry_time) < new Date())
+      .length;
+    return { all: all.length, active, scheduled, expired };
+  }, [deals]);
+
   const filteredDeals = (deals || []).filter((deal) => {
     const isExpired = new Date(deal.expiry_time) < new Date();
     const scheduled = isScheduledDeal(deal as any);
@@ -164,7 +179,13 @@ export default function MerchantDashboard() {
               onClick={() => setFilter(f)}
               className={colorClasses}
             >
-              {f === "all" ? "Alle" : f === "active" ? "Actief" : f === "scheduled" ? "Ingepland" : "Verlopen"}
+              {f === "all"
+                ? `Alle (${counts.all})`
+                : f === "active"
+                ? `Actief (${counts.active})`
+                : f === "scheduled"
+                ? `Ingepland (${counts.scheduled})`
+                : `Verlopen (${counts.expired})`}
             </Button>
           );
         })}
