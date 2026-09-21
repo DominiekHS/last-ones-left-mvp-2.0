@@ -179,7 +179,13 @@ export default function MerchantDashboard() {
               onClick={() => setFilter(f)}
               className={colorClasses}
             >
-              {f === "all" ? "Alle" : f === "active" ? "Actief" : f === "scheduled" ? "Ingepland" : "Verlopen"}
+              {f === "all"
+                ? `Alle (${counts.all})`
+                : f === "active"
+                ? `Actief (${counts.active})`
+                : f === "scheduled"
+                ? `Ingepland (${counts.scheduled})`
+                : `Verlopen (${counts.expired})`}
             </Button>
           );
         })}
