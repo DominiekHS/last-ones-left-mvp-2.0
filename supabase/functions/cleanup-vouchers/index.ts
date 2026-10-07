@@ -7,7 +7,7 @@ Deno.serve(async (req) => {
   }
 
   // Cron-only: alleen scheduled jobs met juiste secret mogen dit triggeren
-  const cronCheck = requireCronSecret(req);
+  const cronCheck = await requireCronSecret(req);
   if (cronCheck) return cronCheck;
 
   try {

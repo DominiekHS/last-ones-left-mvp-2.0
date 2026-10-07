@@ -11,7 +11,7 @@
  *   const adminCheck = await requireRole(req, "admin");
  *   if (adminCheck instanceof Response) return adminCheck;
  *
- *   const cronCheck = requireCronSecret(req);
+ *   const cronCheck = await requireCronSecret(req);
  *   if (cronCheck) return cronCheck; // 401 als header niet klopt
  */
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -101,13 +101,26 @@ export async function requireRole(
  *
  * Returnt undefined als check slaagt, anders een 401 Response.
  */
-export function requireCronSecret(req: Request): Response | undefined {
-  const expected = Deno.env.get("CRON_SECRET");
-  if (!expected) {
-    return jsonResponse(500, { error: "CRON_SECRET niet geconfigureerd" });
-  }
+let cachedCronSecret: string | null = null;
+
+export async function requireCronSecret(req: Request): Promise<Response | undefined> {
   const provided = req.headers.get("x-cron-secret");
-  if (!provided || provided !== expected) {
+  if (!provided) return jsonResponse(401, { error: "Ongeldig cron-secret" });
+
+  if (!cachedCronSecret) {
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!SUPABASE_URL || !SERVICE_KEY) {
+      return jsonResponse(500, { error: "Server config fout" });
+    }
+    const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+    const { data, error } = await admin.rpc("get_cron_secret");
+    if (error || typeof data !== "string" || !data) {
+      return jsonResponse(500, { error: "Cron-secret niet geconfigureerd" });
+    }
+    cachedCronSecret = data;
+  }
+  if (provided !== cachedCronSecret) {
     return jsonResponse(401, { error: "Ongeldig cron-secret" });
   }
   return undefined;

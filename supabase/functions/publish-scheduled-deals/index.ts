@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const cronCheck = requireCronSecret(req);
+  const cronCheck = await requireCronSecret(req);
   if (cronCheck) return cronCheck;
 
   try {
