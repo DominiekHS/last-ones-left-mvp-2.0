@@ -18,10 +18,11 @@ const SUPABASE_URL = "https://otosschuqvmgymmdnawm.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90b3NzY2h1cXZtZ3ltbWRuYXdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0MDk5MjQsImV4cCI6MjA4NTk4NTkyNH0.97Bhm_iwhVZnnfUDwUVZzuCpJu9NRWyPwgEo4vpsjpw";
 
-const CONSUMER_EMAIL = "consumer@test.nl";
-const CONSUMER_PASSWORD = "Test1234!";
+const CONSUMER_EMAIL = process.env.TEST_CONSUMER_EMAIL ?? "";
+const CONSUMER_PASSWORD = process.env.TEST_CONSUMER_PASSWORD ?? "";
 
-const skipLive = process.env.SKIP_LIVE_SUPABASE_TESTS === "1";
+const skipLive =
+  process.env.SKIP_LIVE_SUPABASE_TESTS === "1" || !CONSUMER_EMAIL || !CONSUMER_PASSWORD;
 const d = skipLive ? describe.skip : describe;
 
 function makeAnon(): SupabaseClient {
