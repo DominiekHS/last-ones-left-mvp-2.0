@@ -1150,6 +1150,10 @@ export type Database = {
           total_verified: number
         }[]
       }
+      call_cron_function: {
+        Args: { p_body?: Json; p_function: string }
+        Returns: number
+      }
       claim_deal: {
         Args: { p_deal_id: string; p_user_id: string }
         Returns: {
@@ -1159,6 +1163,7 @@ export type Database = {
       }
       confirm_my_referral: { Args: never; Returns: undefined }
       generate_referral_code: { Args: never; Returns: string }
+      get_cron_secret: { Args: never; Returns: string }
       get_my_deal_code: { Args: { p_deal_id: string }; Returns: string }
       get_my_referral_count: { Args: never; Returns: number }
       has_role: {
