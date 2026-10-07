@@ -1,0 +1,2 @@
+- Scheduled-job auth: the cron key lives only in private.internal_keys, read via service-role RPC get_cron_secret and sent by public.call_cron_function; never hardcode it in SQL or code (it leaked once).
+- Live tests read test-account credentials from env (TEST_CONSUMER_EMAIL/PASSWORD) and skip when absent; never commit passwords.
