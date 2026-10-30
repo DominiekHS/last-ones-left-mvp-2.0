@@ -1,3 +1,4 @@
+import { fetchAllRows } from "@/lib/fetch-all";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,10 +84,9 @@ export function ReferralsTab() {
   const { data: realConsumerCount } = useQuery({
     queryKey: ["admin-referrals-real-consumer-count"],
     queryFn: async () => {
-      const { data: allRoles, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("user_id, role");
-      if (rolesError) throw rolesError;
+      const allRoles = await fetchAllRows((from, to) =>
+        supabase.from("user_roles").select("user_id, role").order("id").range(from, to)
+      );
       const excluded = new Set(
         (allRoles || []).filter((r) => r.role === "merchant" || r.role === "admin").map((r) => r.user_id)
       );

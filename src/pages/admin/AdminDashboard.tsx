@@ -1,3 +1,4 @@
+import { fetchAllRows } from "@/lib/fetch-all";
 import { useState, useMemo } from "react";
 import { friendlyDbError } from "@/lib/friendly-errors";
 import { useAuth } from "@/hooks/useAuth";
