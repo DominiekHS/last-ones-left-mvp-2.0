@@ -1,3 +1,4 @@
+import { fetchAllRows } from "@/lib/fetch-all";
 import { useState, useMemo } from "react";
 import { friendlyDbError } from "@/lib/friendly-errors";
 import { useAuth } from "@/hooks/useAuth";
@@ -96,11 +97,10 @@ export default function AdminDashboard() {
   const { data: consumers } = useQuery({
     queryKey: ["admin-consumers"],
     queryFn: async () => {
-      const { data: allRoles, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("user_id, role");
-      if (rolesError) throw rolesError;
-      if (!allRoles?.length) return [];
+      const allRoles = await fetchAllRows((from, to) =>
+        supabase.from("user_roles").select("user_id, role").order("id").range(from, to)
+      );
+      if (!allRoles.length) return [];
       // Exclude users that also have merchant or admin role
       const excluded = new Set(
         allRoles.filter((r) => r.role === "merchant" || r.role === "admin").map((r) => r.user_id)
@@ -140,21 +140,19 @@ export default function AdminDashboard() {
 
   const { data: consumerEmailStatuses } = useQuery({
     queryKey: ["admin-consumer-email-statuses"],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("admin_get_consumer_email_statuses");
-      if (error) throw error;
-      return data || [];
-    },
+    queryFn: async () =>
+      fetchAllRows((from, to) =>
+        supabase.rpc("admin_get_consumer_email_statuses").order("user_id").range(from, to)
+      ),
     enabled: roles.includes("admin"),
   });
 
   const { data: dummyRows } = useQuery({
     queryKey: ["admin-dummy-accounts"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("dummy_accounts").select("user_id");
-      if (error) throw error;
-      return data || [];
-    },
+    queryFn: async () =>
+      fetchAllRows((from, to) =>
+        supabase.from("dummy_accounts").select("user_id").order("user_id").range(from, to)
+      ),
     enabled: roles.includes("admin"),
   });
 
@@ -178,14 +176,15 @@ export default function AdminDashboard() {
   // Fetch all claim history for consumer stats (admin-only via RLS)
   const { data: allClaims } = useQuery({
     queryKey: ["admin-all-claims"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("claim_history")
-        .select("*")
-        .order("claimed_at", { ascending: false });
-      if (error) throw error;
-      return data || [];
-    },
+    queryFn: async () =>
+      fetchAllRows((from, to) =>
+        supabase
+          .from("claim_history")
+          .select("*")
+          .order("claimed_at", { ascending: false })
+          .order("id")
+          .range(from, to)
+      ),
     enabled: roles.includes("admin"),
   });
 
@@ -358,7 +357,7 @@ export default function AdminDashboard() {
       // (security hardening). Een `select("*")` zou daarom 0 rijen teruggeven
       // met een "permission denied for column discount_code"-fout. Daarom
       // expliciet kolommen opsommen zonder `discount_code`.
-      const { data, error } = await (supabase.from("deals") as any)
+      return fetchAllRows<any>((from, to) => (supabase.from("deals") as any)
         .select(
           "id, merchant_id, title, description, image_url, category, city, " +
           "original_price, discount_percentage, start_time, expiry_time, " +
@@ -370,9 +369,9 @@ export default function AdminDashboard() {
           "is_teaser, always_show, teaser_body, publish_at, " +
           "merchants(company_name)"
         )
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data as any[];
+        .order("created_at", { ascending: false })
+        .order("id")
+        .range(from, to));
     },
     enabled: roles.includes("admin"),
   });
