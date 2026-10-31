@@ -14,6 +14,7 @@ import { toast } from "@/hooks/use-toast";
 import { Link, Navigate } from "react-router-dom";
 import { useState } from "react";
 import PaymentStepsDisplay from "@/components/deals/PaymentStepsDisplay";
+import { isNoCodeCheckout, NO_CODE_MESSAGE } from "@/lib/redemption";
 
 export default function Vouchers() {
   const { user, roles, loading } = useAuth();
@@ -23,10 +24,11 @@ export default function Vouchers() {
   const { data: vouchers, isLoading } = useQuery({
     queryKey: ["vouchers", user?.id, showInactive],
     queryFn: async () => {
+      if (!user) return [];
       const { data, error } = await supabase
         .from("vouchers")
         .select("*, deals(title, city, start_time, expiry_time, checkout_link, cta_label, discount_percentage, original_price, redemption_method, pricing_model, price_per_person, payment_steps, id, merchants(company_name))")
-        .eq("user_id", user!.id)
+        .eq("user_id", user.id)
         .is("deleted_at", null)
         .in("status", ["active", "inactive"])
         .order("claimed_at", { ascending: false });
@@ -87,6 +89,7 @@ export default function Vouchers() {
           {displayVouchers.map((v) => {
             const deal = v.deals as any;
             const isActive = deal && new Date(deal.expiry_time) >= now && !v.became_inactive_at;
+            const noCodeCheckout = isNoCodeCheckout(v.redemption_method ?? deal?.redemption_method);
             const discountedPrice = deal ? deal.original_price * (1 - deal.discount_percentage / 100) : 0;
 
             return (
@@ -117,10 +120,12 @@ export default function Vouchers() {
                   ))}
 
                   <div className="flex items-center gap-2 bg-muted p-2 rounded-md">
-                    <code className="font-mono font-bold flex-1">
+                    {noCodeCheckout ? (
+                      <p className="font-semibold text-sm flex-1 min-w-0 break-words">{NO_CODE_MESSAGE}</p>
+                    ) : <code className="font-mono font-bold flex-1 min-w-0 break-all">
                       {v.discount_code || "Code niet beschikbaar"}
-                    </code>
-                    {v.discount_code && (
+                    </code>}
+                    {!noCodeCheckout && v.discount_code && (
                       <Button
                         variant="ghost"
                         size="icon"

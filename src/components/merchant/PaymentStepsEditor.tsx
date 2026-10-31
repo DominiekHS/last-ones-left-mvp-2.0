@@ -19,6 +19,8 @@ interface Props {
   onChange: (steps: PaymentStep[]) => void;
   dealId?: string;
   userId?: string;
+  required?: boolean;
+  noCodeCheckout?: boolean;
 }
 
 const MAX_STEPS = 8;
@@ -30,7 +32,7 @@ const EXAMPLE_STEPS: PaymentStep[] = [
   { text: "Je ontvangt een bevestiging per e-mail. Neem deze mee naar de locatie.", order: 4 },
 ];
 
-export default function PaymentStepsEditor({ steps, onChange, dealId, userId }: Props) {
+export default function PaymentStepsEditor({ steps, onChange, dealId, userId, required = false, noCodeCheckout = false }: Props) {
   const [uploading, setUploading] = useState<number | null>(null);
 
   const addStep = () => {
@@ -88,13 +90,15 @@ export default function PaymentStepsEditor({ steps, onChange, dealId, userId }: 
   };
 
   const fillExamples = () => {
-    onChange(EXAMPLE_STEPS);
+    onChange(EXAMPLE_STEPS.map(step => noCodeCheckout && step.order === 3
+      ? { ...step, text: "Vul je gegevens in en betaal het bedrag. De korting is al verwerkt; je hoeft geen kortingscode in te vullen." }
+      : { ...step }));
   };
 
   return (
     <Card>
       <div className="p-6 pb-3">
-        <h3 className="font-display text-lg font-semibold">Stappenplan betalen (optioneel)</h3>
+        <h3 className="font-display text-lg font-semibold">Stappenplan betalen {required ? "*" : "(optioneel)"}</h3>
         <p className="text-xs text-muted-foreground mt-1">
           Leg stap voor stap uit hoe klanten kunnen reserveren/betalen. Dit wordt getoond op de dealpagina.
         </p>
