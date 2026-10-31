@@ -21,13 +21,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import PaymentStepsDisplay from "@/components/deals/PaymentStepsDisplay";
+import { isNoCodeCheckout, NO_CODE_MESSAGE } from "@/lib/redemption";
 
 export default function DealDetail() {
   const { id } = useParams<{ id: string }>();
-  const { data: deal, isLoading } = useDeal(id!);
+  const { data: deal, isLoading } = useDeal(id);
   const { user, merchant, roles, loading: authLoading } = useAuth();
   const [claimed, setClaimed] = useState(false);
   const [claimedCode, setClaimedCode] = useState<string | null>(null);
+  const [claimedMethod, setClaimedMethod] = useState<string | null>(null);
   const [claiming, setClaiming] = useState(false);
 
   const isMerchantOwner = merchant && deal && deal.merchant_id === merchant.id;
@@ -46,7 +48,7 @@ export default function DealDetail() {
     if (user && id && isConsumer) {
       supabase
         .from("vouchers")
-        .select("discount_code")
+        .select("discount_code, redemption_method")
         .eq("user_id", user.id)
         .eq("deal_id", id)
         .maybeSingle()
@@ -54,6 +56,7 @@ export default function DealDetail() {
           if (data) {
             setClaimed(true);
             setClaimedCode(data.discount_code);
+            setClaimedMethod(data.redemption_method);
           }
         });
     }
@@ -77,7 +80,8 @@ export default function DealDetail() {
       const result = data?.[0];
       setClaimed(true);
       setClaimedCode(result?.discount_code || "");
-      toast({ title: "Gelukt!", description: "Je kortingscode is opgeslagen." });
+      setClaimedMethod(deal.redemption_method);
+      toast({ title: "Gelukt!", description: isNoCodeCheckout(deal.redemption_method) ? "Je deal is opgeslagen." : "Je kortingscode is opgeslagen." });
     }
     setClaiming(false);
   };
@@ -119,6 +123,8 @@ export default function DealDetail() {
   const startDate = hasFixedStart ? new Date(deal.start_time) : null;
   const expiryDate = new Date(deal.expiry_time);
   const isExpired = expiryDate < new Date();
+  const noCodeCheckout = isNoCodeCheckout(deal.redemption_method);
+  const claimedWithoutCode = isNoCodeCheckout(claimedMethod ?? deal.redemption_method);
   const ctaLabel = ((deal as any).cta_label || "").trim();
   // Haal eventueel een telefoonnummer uit de knoptekst voor een tel:-link (belknop).
   const telHref = (() => {
@@ -216,6 +222,12 @@ export default function DealDetail() {
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="p-4 space-y-1">
             <h3 className="font-display font-semibold text-sm">Hoe wordt de korting verzilverd?</h3>
+            {noCodeCheckout && (
+              <>
+                <p className="text-sm font-medium">Online afrekenen zonder kortingscode</p>
+                <p className="text-xs text-muted-foreground">De korting is op de betaalpagina al verwerkt. Je hoeft geen kortingscode te gebruiken; volg het stappenplan.</p>
+              </>
+            )}
             {deal.redemption_method === "online_checkout" && (
               <>
                 <p className="text-sm font-medium">Online afrekenen met kortingscode</p>
@@ -264,7 +276,7 @@ export default function DealDetail() {
               <h4 className="font-semibold text-sm mb-1">📋 Inwisselinstructies</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {(deal as any).redemption_instructions || (
-                  (deal as any).counter_discount_mode === "variable_amount"
+                  noCodeCheckout ? NO_CODE_MESSAGE : (deal as any).counter_discount_mode === "variable_amount"
                     ? "Toon je voucher aan de kassa. De korting wordt verrekend op het bedrag op jouw kassabon."
                     : "Je ontvangt na claimen een kortingscode. Gebruik deze op de betaalpagina van de aanbieder, of toon je voucher als dat bij deze deal geldt."
                 )}
@@ -340,8 +352,10 @@ export default function DealDetail() {
               <>
                 <p className="text-sm font-semibold text-success">✅ Deal geclaimd!</p>
                 <div className="flex items-center gap-2 bg-muted p-3 rounded-md">
-                  <code className="font-mono font-bold text-lg flex-1">{claimedCode}</code>
-                  <Button
+                  {claimedWithoutCode ? (
+                    <p className="font-semibold text-sm flex-1 min-w-0 break-words">{NO_CODE_MESSAGE}</p>
+                  ) : <code className="font-mono font-bold text-lg flex-1 min-w-0 break-all">{claimedCode}</code>}
+                  {!claimedWithoutCode && <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => {
@@ -350,7 +364,7 @@ export default function DealDetail() {
                     }}
                   >
                     <Copy className="h-4 w-4" />
-                  </Button>
+                  </Button>}
                 </div>
                 {deal.redemption_method === "at_counter" ? (
                   <div className="space-y-2">

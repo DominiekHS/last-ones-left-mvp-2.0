@@ -875,6 +875,7 @@ export type Database = {
           deleted_at: string | null
           discount_code: string
           id: string
+          redemption_method: string | null
           status: string
           user_id: string
         }
@@ -887,6 +888,7 @@ export type Database = {
           deleted_at?: string | null
           discount_code: string
           id?: string
+          redemption_method?: string | null
           status?: string
           user_id: string
         }
@@ -899,6 +901,7 @@ export type Database = {
           deleted_at?: string | null
           discount_code?: string
           id?: string
+          redemption_method?: string | null
           status?: string
           user_id?: string
         }

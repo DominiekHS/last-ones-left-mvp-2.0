@@ -24,6 +24,7 @@ import { AlertTriangle, Plus, Upload, ArrowLeft } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 import PaymentStepsEditor, { type PaymentStep } from "@/components/merchant/PaymentStepsEditor";
 import { recordAuditEvent } from "@/lib/audit";
+import { codePayload, hasRequiredPaymentSteps, isNoCodeCheckout, NO_CODE_DESCRIPTION, NO_CODE_MESSAGE, requiresCheckoutLink, type RedemptionMethod } from "@/lib/redemption";
 
 type VenueCategory = Database["public"]["Enums"]["venue_category"];
 
@@ -40,7 +41,7 @@ export default function AdForm() {
   const navigate = useNavigate();
 
   // Form state
-  const [redemptionMethod, setRedemptionMethod] = useState<"online_checkout" | "at_counter" | "online_pay_pos_refund">("online_checkout");
+  const [redemptionMethod, setRedemptionMethod] = useState<RedemptionMethod>("online_checkout");
   const [counterDiscountMode, setCounterDiscountMode] = useState<"fixed_price" | "variable_amount">("fixed_price");
   const [pricingModel, setPricingModel] = useState<"fixed" | "per_person_variable">("fixed");
   const [pricePerPerson, setPricePerPerson] = useState("");
@@ -124,11 +125,11 @@ export default function AdForm() {
             setCheckoutLink(data.checkout_link);
             setCtaLabel((data as any).cta_label || "");
             setExistingImageUrl(data.image_url);
-            setRedemptionMethod(((data as any).redemption_method as "online_checkout" | "at_counter" | "online_pay_pos_refund") || "online_checkout");
+            setRedemptionMethod(((data as any).redemption_method as RedemptionMethod) || "online_checkout");
             setCounterDiscountMode(((data as any).counter_discount_mode as "fixed_price" | "variable_amount") || "fixed_price");
             setPricingModel(((data as any).pricing_model as "fixed" | "per_person_variable") || "fixed");
             setPricePerPerson((data as any).price_per_person ? String((data as any).price_per_person) : ((data as any).indicative_price_from ? String((data as any).indicative_price_from) : ""));
-            setDiscountType(((data as any).discount_type as "universal" | "unique") || "universal");
+            setDiscountType(data.discount_type === "unique" ? "unique" : "universal");
             setRedemptionInstructions((data as any).redemption_instructions || "");
             setCancellationPolicy((data as any).cancellation_policy || "");
             setTermsSummary((data as any).terms_summary || "");
@@ -140,7 +141,7 @@ export default function AdForm() {
                 if (Array.isArray(ps)) setPaymentSteps(ps);
               } catch {}
             }
-            if ((data as any).discount_type !== "unique") {
+            if (!isNoCodeCheckout(data.redemption_method) && data.discount_type !== "unique") {
               // discount_code is niet meer leesbaar via een gewone SELECT;
               // haal hem op via de SECURITY DEFINER RPC voor de eigenaar.
               supabase
@@ -170,7 +171,6 @@ export default function AdForm() {
           .eq("deal_id", loadDealId)
           .then(({ data }: any) => {
             if (data && data.length > 0) {
-              setDiscountType("unique");
               setUniqueCodeCount(String(data.length));
               setUniqueCodesText(data.map((c: any) => c.code).join("\n"));
             }
@@ -196,6 +196,16 @@ export default function AdForm() {
     }
     setImagePreview(null);
   }, [imageFile]);
+
+  const noCodeCheckout = isNoCodeCheckout(redemptionMethod);
+  const selectRedemptionMethod = (method: RedemptionMethod) => {
+    setRedemptionMethod(method);
+    setRedemptionInstructions(current => {
+      if (isNoCodeCheckout(method) && current === DEFAULT_REDEMPTION_INSTRUCTIONS) return NO_CODE_MESSAGE;
+      if (!isNoCodeCheckout(method) && current === NO_CODE_MESSAGE) return DEFAULT_REDEMPTION_INSTRUCTIONS;
+      return current;
+    });
+  };
 
   // Computed
   const discountedPrice = useMemo(() => {
@@ -330,7 +340,7 @@ export default function AdForm() {
     // Checkout link alleen verplicht bij online afrekenen met kortingscode.
     // Bij afrekenen op locatie (kassa/terugbetaling) mag de link leeg blijven,
     // bijvoorbeeld als er telefonisch gereserveerd wordt.
-    const checkoutRequired = redemptionMethod === "online_checkout";
+    const checkoutRequired = requiresCheckoutLink(redemptionMethod);
     if (checkoutRequired) {
       if (!checkoutLink.trim()) e.checkoutLink = "Checkout link is verplicht";
       else {
@@ -348,9 +358,9 @@ export default function AdForm() {
       }
     }
 
-    if (discountType === "universal") {
+    if (!noCodeCheckout && discountType === "universal") {
       if (!universalCode.trim()) e.universalCode = "Kortingscode is verplicht";
-    } else {
+    } else if (!noCodeCheckout) {
       const count = parseInt(uniqueCodeCount);
       if (isNaN(count) || count < 1) {
         e.uniqueCodeCount = "Voer het aantal codes in";
@@ -362,6 +372,9 @@ export default function AdForm() {
           e.uniqueCodes = "Er staan dubbele codes in de lijst";
         }
       }
+    }
+    if (!hasRequiredPaymentSteps(redemptionMethod, paymentSteps)) {
+      e.paymentSteps = "Vul minimaal één volledige stap in voor afrekenen zonder kortingscode";
     }
     // Validate payment steps
     for (let i = 0; i < paymentSteps.length; i++) {
@@ -438,11 +451,10 @@ export default function AdForm() {
       start_time_mode: startTimeMode,
       checkout_link: checkoutLink.trim(),
       cta_label: ctaLabel.trim() || null,
-      discount_code: discountType === "universal" ? universalCode.trim() : "",
+      ...codePayload(redemptionMethod, discountType, universalCode),
       image_url: imageUrl,
       redemption_method: redemptionMethod,
-      discount_type: discountType,
-      redemption_instructions: redemptionInstructions.trim(),
+      redemption_instructions: noCodeCheckout && redemptionInstructions === DEFAULT_REDEMPTION_INSTRUCTIONS ? NO_CODE_MESSAGE : redemptionInstructions.trim(),
       cancellation_policy: cancellationPolicy.trim(),
       terms_summary: termsSummary.trim(),
       payment_steps: paymentSteps.length > 0 ? paymentSteps.filter(s => s.text.trim()) : null,
@@ -451,8 +463,8 @@ export default function AdForm() {
     let dealId = id;
     let error;
 
-    if (isEdit) {
-      ({ error } = await supabase.from("deals").update(dealData).eq("id", id!));
+    if (isEdit && id) {
+      ({ error } = await supabase.from("deals").update(dealData).eq("id", id));
     } else {
       const res = await supabase.from("deals").insert(dealData).select("id").single();
       error = res.error;
@@ -471,13 +483,13 @@ export default function AdForm() {
     }
 
     // Handle unique codes
-    if (discountType === "unique" && dealId) {
+    if (!noCodeCheckout && discountType === "unique" && dealId) {
       // Delete existing codes on edit
       if (isEdit) {
         await (supabase.from("unique_codes" as any) as any).delete().eq("deal_id", dealId);
       }
       const codes = parsedUniqueCodes.map((code) => ({
-        deal_id: dealId!,
+        deal_id: dealId,
         code,
         status: "available",
       }));
@@ -566,7 +578,7 @@ export default function AdForm() {
             <div className="grid grid-cols-1 gap-3">
               <button
                 type="button"
-                onClick={() => setRedemptionMethod("online_checkout")}
+                onClick={() => selectRedemptionMethod("online_checkout")}
                 className={`rounded-lg border-2 p-4 text-left transition-colors ${
                   redemptionMethod === "online_checkout"
                     ? "border-primary bg-primary/5"
@@ -580,7 +592,7 @@ export default function AdForm() {
               </button>
               <button
                 type="button"
-                onClick={() => setRedemptionMethod("online_pay_pos_refund")}
+                onClick={() => selectRedemptionMethod("online_pay_pos_refund")}
                 className={`rounded-lg border-2 p-4 text-left transition-colors ${
                   redemptionMethod === "online_pay_pos_refund"
                     ? "border-primary bg-primary/5"
@@ -594,7 +606,7 @@ export default function AdForm() {
               </button>
               <button
                 type="button"
-                onClick={() => setRedemptionMethod("at_counter")}
+                onClick={() => selectRedemptionMethod("at_counter")}
                 className={`rounded-lg border-2 p-4 text-left transition-colors ${
                   redemptionMethod === "at_counter"
                     ? "border-primary bg-primary/5"
@@ -606,6 +618,16 @@ export default function AdForm() {
                   Klant hoeft online niet te betalen, maar betaalt pas op locatie. Op locatie tonen ze de kortingscode en krijgen ze de korting terug/verrekend.
                 </p>
               </button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => selectRedemptionMethod("online_checkout_no_code")}
+                aria-pressed={noCodeCheckout}
+                className={`h-auto whitespace-normal rounded-lg border-2 p-4 text-left flex flex-col items-start ${noCodeCheckout ? "border-primary bg-primary/5" : "border-input hover:border-primary/30"}`}
+              >
+                <span className="font-display font-semibold text-sm">Online afrekenen zonder kortingscode</span>
+                <span className="text-xs text-muted-foreground mt-0.5 font-normal">{NO_CODE_DESCRIPTION}</span>
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -1033,11 +1055,11 @@ export default function AdForm() {
         {/* Section 7: Checkout & Kortingscode */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="font-display text-lg">Checkout & Kortingscode</CardTitle>
+            <CardTitle className="font-display text-lg">{noCodeCheckout ? "Checkout" : "Checkout & Kortingscode"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="checkout">Checkout link {redemptionMethod === "online_checkout" ? "*" : "(optioneel)"}</Label>
+              <Label htmlFor="checkout">Checkout link {requiresCheckoutLink(redemptionMethod) ? "*" : "(optioneel)"}</Label>
               <Input
                 id="checkout"
                 type="url"
@@ -1071,6 +1093,7 @@ export default function AdForm() {
             </div>
 
 
+            {!noCodeCheckout && <>
             <div className="space-y-2">
               <Label>Type kortingscode *</Label>
               <div className="grid grid-cols-2 gap-3">
@@ -1199,6 +1222,7 @@ export default function AdForm() {
                 )}
               </div>
             )}
+            </>}
           </CardContent>
         </Card>
 
@@ -1208,7 +1232,12 @@ export default function AdForm() {
           onChange={setPaymentSteps}
           dealId={id}
           userId={user?.id}
+          required={noCodeCheckout}
+          noCodeCheckout={noCodeCheckout}
         />
+        {noCodeCheckout && !hasRequiredPaymentSteps(redemptionMethod, paymentSteps) && (
+          <p className="text-sm text-destructive">Vul minimaal één volledige stap in voor afrekenen zonder kortingscode.</p>
+        )}
 
         {/* Section 9: Kleine lettertjes */}
         <Card>
