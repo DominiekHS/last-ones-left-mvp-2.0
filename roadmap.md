@@ -1,5 +1,5 @@
 # Afrekenen zonder kortingscode
-- [ ] Vierde verzilveroptie opslaan en claimen zonder kortingscode.
-- [ ] Bedrijfsformulier aanpassen met verplicht stappenplan.
-- [ ] Consumentenmelding en relevante advertentieweergaven aanpassen.
-- [ ] Regeltests en schermcontroles uitvoeren.
+- [x] Vierde verzilveroptie opslaan en claimen zonder kortingscode.
+- [x] Bedrijfsformulier aanpassen met verplicht stappenplan.
+- [x] Consumentenmelding en relevante advertentieweergaven aanpassen.
+- [x] Regeltests en schermcontroles uitvoeren; tijdelijke testadvertentie en claim verwijderd.
