@@ -16,6 +16,7 @@ import { ArrowLeft, Pencil, Trash2, ExternalLink, Eye, MousePointerClick, BarCha
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DangerConfirmDialog } from "@/components/admin/DangerConfirmDialog";
 import { useState } from "react";
+import { isNoCodeCheckout, NO_CODE_MESSAGE } from "@/lib/redemption";
 
 export default function MerchantDealDetail() {
   const { dealId } = useParams<{ dealId: string }>();
@@ -68,7 +69,7 @@ export default function MerchantDealDetail() {
       if (error) return null;
       return typeof data === "string" ? data : null;
     },
-    enabled: !!dealId && !!deal && deal.discount_type !== "unique",
+    enabled: !!dealId && !!deal && deal.discount_type === "universal",
   });
 
   if (!authLoading && (!user || !roles.includes("merchant"))) {
@@ -118,9 +119,10 @@ export default function MerchantDealDetail() {
   const discountFactor = 1 - deal.discount_percentage / 100;
   const discountedPrice = originalPrice * discountFactor;
   const discountedPricePerPerson = pricePerPerson * discountFactor;
-  const hasCheckoutLink = deal.redemption_method === "online_checkout" || deal.redemption_method === "online_pay_pos_refund";
+  const noCodeCheckout = isNoCodeCheckout(deal.redemption_method);
+  const hasCheckoutLink = noCodeCheckout || deal.redemption_method === "online_checkout" || deal.redemption_method === "online_pay_pos_refund";
   const methodLabel =
-    deal.redemption_method === "online_checkout"
+    noCodeCheckout ? "Online afrekenen zonder kortingscode" : deal.redemption_method === "online_checkout"
       ? "Online (checkout link)"
       : deal.redemption_method === "online_pay_pos_refund"
       ? "Online betalen, korting aan kassa"
@@ -285,6 +287,7 @@ export default function MerchantDealDetail() {
                 <p className="text-sm">n.v.t.</p>
               )}
             </div>
+            {noCodeCheckout ? <p className="text-sm">{NO_CODE_MESSAGE}</p> : <>
             <InfoRow
               label="Kortingstype"
               value={deal.discount_type === "unique" ? "Unieke codes" : "Universele code"}
@@ -305,6 +308,7 @@ export default function MerchantDealDetail() {
                 <code className="text-sm font-mono bg-muted px-2 py-1 rounded">{universalCode || "—"}</code>
               )}
             </div>
+            </>}
           </CardContent>
         </Card>
         </div>

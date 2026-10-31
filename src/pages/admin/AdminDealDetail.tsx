@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { recordAdminAction } from "@/lib/audit";
+import { isNoCodeCheckout, NO_CODE_MESSAGE } from "@/lib/redemption";
 
 export default function AdminDealDetail() {
   const { dealId } = useParams<{ dealId: string }>();
@@ -190,7 +191,7 @@ export default function AdminDealDetail() {
           <CardContent className="space-y-2 text-sm">
             <InfoRow
               label="Methode"
-              value={deal.redemption_method === "online_checkout" ? "Online (checkout link)" : "Korting aan de kassa"}
+              value={isNoCodeCheckout(deal.redemption_method) ? "Online afrekenen zonder kortingscode" : deal.redemption_method === "online_checkout" ? "Online (checkout link)" : "Korting aan de kassa"}
             />
             {deal.checkout_link && (
               <div className="flex items-center gap-2">
@@ -200,7 +201,7 @@ export default function AdminDealDetail() {
                 </a>
               </div>
             )}
-            <InfoRow label="Kortingstype" value={deal.discount_type === "unique" ? "Unieke codes" : "Universele code"} />
+            {isNoCodeCheckout(deal.redemption_method) ? <p>{NO_CODE_MESSAGE}</p> : <InfoRow label="Kortingstype" value={deal.discount_type === "unique" ? "Unieke codes" : "Universele code"} />}
             {deal.discount_type === "universal" && discountCode && (
               <InfoRow label="Kortingscode" value={discountCode} />
             )}

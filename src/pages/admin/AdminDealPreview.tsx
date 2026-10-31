@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CATEGORY_LABELS } from "@/lib/constants";
+import { isNoCodeCheckout, NO_CODE_MESSAGE } from "@/lib/redemption";
 import { MapPin, Clock, ArrowLeft, Share2, FileText, Info } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { nl } from "date-fns/locale";
@@ -195,7 +196,7 @@ export default function AdminDealPreview() {
                     <h4 className="font-semibold text-sm mb-1">📋 Inwisselinstructies</h4>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       {deal.redemption_instructions || (
-                        deal.counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter"
+                        isNoCodeCheckout(deal.redemption_method) ? NO_CODE_MESSAGE : deal.counter_discount_mode === "variable_amount" && deal.redemption_method === "at_counter"
                           ? "Toon je voucher aan de kassa. De korting wordt verrekend op het bedrag op jouw kassabon."
                           : "Je ontvangt na claimen een kortingscode. Gebruik deze op de betaalpagina van de aanbieder, of toon je voucher als dat bij deze deal geldt."
                       )}

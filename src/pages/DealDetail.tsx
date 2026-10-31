@@ -508,8 +508,6 @@ function TeaserView({ deal }: { deal: any }) {
     return () => { document.head.removeChild(meta); };
   }, []);
 
-  const noCodeCheckout = isNoCodeCheckout(deal.redemption_method);
-  const claimedWithoutCode = isNoCodeCheckout(claimedMethod ?? deal.redemption_method);
   const ctaLabel = deal.teaser_cta_label || "Deel met vrienden";
   const ctaUrl = deal.teaser_cta_url || null;
 
