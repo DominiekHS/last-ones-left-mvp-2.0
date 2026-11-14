@@ -1,6 +1,6 @@
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Check } from "lucide-react";
 import { useNotificationChoices } from "@/hooks/useNotificationChoices";
 import { cn } from "@/lib/utils";
 import type { NotificationChoice } from "@/lib/notification-preferences";
@@ -71,17 +71,35 @@ export function NotificationPreferenceFields({ choice, categories, merchants, on
         const rows = available.filter(c => c.kind === kind);
         const selected = kind === "category" ? categories : merchants;
         const onChange = kind === "category" ? onCategories : onMerchants;
-        return <fieldset key={kind} disabled={disabled} className="space-y-2">
-          <legend className="font-semibold text-sm mb-2">{kind === "category" ? "Activiteiten" : "Bedrijven"}</legend>
+        return <div key={kind} className="space-y-2" role="group" aria-labelledby={`pref-${kind}-title`}>
+          <div className="flex items-baseline justify-between gap-2">
+            <p id={`pref-${kind}-title`} className="font-semibold text-sm">{kind === "category" ? "Favoriete activiteiten" : "Favoriete bedrijven"}</p>
+            <span className="text-xs text-muted-foreground">{selected.length} geselecteerd</span>
+          </div>
           {!rows.length && <p className="text-sm text-muted-foreground">Nog geen {kind === "category" ? "activiteiten" : "bedrijven"} beschikbaar.</p>}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {rows.map(c => <div key={c.key} className="flex items-start gap-2 min-w-0">
-              <Checkbox id={`pref-${kind}-${c.key}`} checked={selected.includes(c.key)} disabled={disabled} onCheckedChange={checked => onChange(checked ? [...selected, c.key] : selected.filter(v => v !== c.key))} className="mt-0.5 shrink-0" />
-              <Label htmlFor={`pref-${kind}-${c.key}`} className="leading-5 cursor-pointer break-words min-w-0">{c.label}</Label>
-            </div>)}
+          <div className="flex flex-wrap gap-2">
+            {rows.map(c => {
+              const isOn = selected.includes(c.key);
+              return <button
+                key={c.key}
+                type="button"
+                aria-pressed={isOn}
+                disabled={disabled}
+                onClick={() => onChange(isOn ? selected.filter(v => v !== c.key) : [...selected, c.key])}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm leading-5 transition-colors",
+                  isOn
+                    ? "border-primary bg-recommended font-semibold text-foreground ring-1 ring-primary"
+                    : "border-border bg-card text-foreground hover:border-muted-foreground/40",
+                )}
+              >
+                {isOn && <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
+                <span className="min-w-0 break-words">{c.label}</span>
+              </button>;
+            })}
           </div>
           {selected.some(key => !rows.some(c => c.key === key)) && <p className="text-xs text-muted-foreground">Eerdere keuzes die tijdelijk niet beschikbaar zijn, blijven bewaard.</p>}
-        </fieldset>;
+        </div>;
       })}
     </div>}
   </div>;
