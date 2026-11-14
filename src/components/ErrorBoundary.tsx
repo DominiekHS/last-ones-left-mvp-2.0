@@ -11,6 +11,42 @@ interface State {
 }
 
 /**
+ * Herkent de fout die ontstaat wanneer de browser een verouderde versie van de
+ * gebundelde modules heeft (bijv. na een wijziging in de bouwconfiguratie): dan
+ * wijzen React's interne waarden in die modules naar null en crasht de pagina.
+ */
+const STALE_BUNDLE_PATTERNS = [
+  /Cannot read properties of null \(reading '(useRef|useState|useEffect|useMemo|useCallback|useContext|createRef)'\)/,
+  /Failed to fetch dynamically imported module/,
+  /Importing a module script failed/,
+  /error loading dynamically imported module/i,
+];
+
+export function isStaleBundleError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  return STALE_BUNDLE_PATTERNS.some(pattern => pattern.test(message));
+}
+
+// Eén automatische herlaadbeurt per browsersessie, zodat een echte fout nooit in een loop belandt.
+const RELOAD_FLAG = "lastonesleft:stale-bundle-reloaded";
+
+function hasReloadedThisSession(): boolean {
+  try {
+    return window.sessionStorage.getItem(RELOAD_FLAG) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function markReloadedThisSession(): void {
+  try {
+    window.sessionStorage.setItem(RELOAD_FLAG, "1");
+  } catch {
+    /* opslag niet beschikbaar: geen automatische herlaadbeurt */
+  }
+}
+
+/**
  * App-level error boundary. Vangt runtime crashes in de React-tree zodat
  * gebruikers geen blank screen zien, maar een nette fallback met retry-knop.
  *
@@ -28,6 +64,12 @@ export class ErrorBoundary extends Component<Props, State> {
     // Geen secrets/tokens in de error tree verwacht; alleen voor debugging.
     // eslint-disable-next-line no-console
     console.error("[ErrorBoundary]", error, info.componentStack);
+
+    // Verouderde bundel: de pagina kan zich pas herstellen met een verse load.
+    if (isStaleBundleError(error) && !hasReloadedThisSession()) {
+      markReloadedThisSession();
+      window.location.reload();
+    }
   }
 
   private handleReset = () => {

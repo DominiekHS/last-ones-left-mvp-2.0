@@ -48,13 +48,16 @@ export function NotificationPreferenceFields({ choice, categories, merchants, on
         key={o.value}
         htmlFor={`notification-${o.value}`}
         className={cn(
-          "flex cursor-pointer items-start gap-3 rounded-xl border bg-card p-4 transition-colors",
-          choice === o.value ? "border-primary ring-1 ring-primary" : "border-border hover:border-muted-foreground/40",
+          "flex cursor-pointer items-start gap-3 rounded-xl p-4 transition-colors",
+          o.recommended
+            ? "border-2 border-primary bg-recommended"
+            : "border border-border bg-card hover:border-muted-foreground/40",
+          choice === o.value && "ring-1 ring-primary",
         )}
       >
         <RadioGroupItem value={o.value} id={`notification-${o.value}`} className="mt-1 shrink-0" />
         <span className="min-w-0">
-          {o.recommended && <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Aanbevolen</span>}
+          {o.recommended && <span className="mb-1.5 inline-block rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">Aanbevolen</span>}
           <span className="block font-semibold leading-5 text-foreground">{o.label}</span>
           <span className="block text-sm leading-5 text-muted-foreground">{o.description}</span>
         </span>
