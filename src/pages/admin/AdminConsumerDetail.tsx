@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Ticket, Store, MapPin, CalendarDays } from "lucide-react";
+import { ArrowLeft, Ticket, Store, MapPin, CalendarDays, Bell, BellOff } from "lucide-react";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { nl } from "date-fns/locale";
+import { CATEGORY_LABELS } from "@/lib/constants";
 
 export default function AdminConsumerDetail() {
   const { userId } = useParams<{ userId: string }>();
