@@ -34,8 +34,11 @@ const Index = () => {
       <section className="bg-primary text-primary-foreground py-8 sm:py-12">
         <div className="container relative text-center space-y-3">
           <img src={logoZwartAsset.url} alt="Last Ones Left logo" className="absolute left-1/2 -translate-x-[calc(50%+22rem)] sm:-translate-x-[calc(50%+24rem)] top-1/2 -translate-y-1/2 h-24 w-auto hidden sm:block" />
-          <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">
+          <p className="font-display text-sm sm:text-base font-semibold uppercase tracking-wider text-primary-foreground/70">
             Bezoek. Beleef. Bespaar.
+          </p>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">
+            Last-minute activiteiten met korting in Groningen
           </h1>
           <p className="text-primary-foreground/70 text-lg max-w-lg mx-auto">
             Ontdek last-minute deals bij jou in de buurt! Wat ga jij doen vandaag?
