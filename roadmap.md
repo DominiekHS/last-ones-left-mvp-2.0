@@ -5,7 +5,8 @@
 - [x] Regeltests en schermcontroles uitvoeren; tijdelijke testadvertentie en claim verwijderd.
 
 # Persoonlijke meldingen
-- [ ] Voorkeuren, openbare keuzes en beveiligde adminselectie opslaan.
-- [ ] Registratie, consumententab en bestaande meldingenknoppen aansluiten.
-- [ ] Persoonlijke ontvangersselectie en verzendlog aansluiten.
-- [ ] Regeltests, toegangscontroles en volledige schermflow controleren.
+- [x] Voorkeuren, openbare keuzes en beveiligde adminselectie opslaan.
+- [x] Registratie, consumententab en bestaande meldingenknoppen aansluiten.
+- [x] Persoonlijke ontvangersselectie en verzendlog aansluiten.
+- [x] Regeltests en desktop/mobiele registratie-profiel-flow controleren; consument kan adminkeuzes en ontvangers niet benaderen. Testaccount en testselectie verwijderd.
+- [ ] Gecontroleerde daadwerkelijke mailverzending en registratie zonder verificatie volledig controleren: vereist gecontroleerd ontvangstadres/testcredentials en een veilige testomgeving voor de globale verificatie-instelling; productie-instelling niet gewijzigd.
