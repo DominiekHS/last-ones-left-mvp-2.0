@@ -64,8 +64,8 @@ export function Header() {
           {user && !isMerchant && !isAdmin ? (
             <NotificationBellToggle />
           ) : (
-            <Link to="/testversie" className="inline-flex items-center whitespace-nowrap rounded-full bg-success px-3 py-1 text-xs font-semibold text-success-foreground hover:opacity-80 transition-opacity">
-              Testversie – Lees meer!
+            <Link to="/testversie" className="inline-flex items-center whitespace-nowrap rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted transition-colors">
+              Over ons
             </Link>
           )}
         </div>
