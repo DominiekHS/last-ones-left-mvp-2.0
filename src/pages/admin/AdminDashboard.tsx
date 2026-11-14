@@ -841,6 +841,16 @@ export default function AdminDashboard() {
                           <> · Laatste claim: {format(new Date(c.lastClaimedAt), "d MMM yyyy HH:mm", { locale: nl })}</>
                         )}
                       </p>
+                      {c.email_notifications_enabled && (c as any).notification_mode === "personal" && (
+                        <p className="text-xs text-muted-foreground">
+                          Activiteiten:{" "}
+                          {Array.isArray((c as any).notification_categories) && (c as any).notification_categories.length > 0
+                            ? (c as any).notification_categories
+                                .map((key: string) => (CATEGORY_LABELS as Record<string, string>)[key] || key)
+                                .join(", ")
+                            : "geen gekozen"}
+                        </p>
+                      )}
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </CardContent>
