@@ -9,8 +9,15 @@ import { toast } from "@/hooks/use-toast";
 import { friendlyAuthError } from "@/lib/friendly-errors";
 import { useAppSetting } from "@/hooks/useAppSettings";
 import { Eye, EyeOff } from "lucide-react";
+import { NotificationPreferenceFields } from "@/components/consumer/NotificationPreferenceFields";
+import { useNotificationChoices } from "@/hooks/useNotificationChoices";
+import { hasAvailablePreference, type NotificationChoice } from "@/lib/notification-preferences";
 
 export default function Register() {
+  const [notificationChoice, setNotificationChoice] = useState<NotificationChoice | "">("");
+  const [notificationCategories, setNotificationCategories] = useState<string[]>([]);
+  const [notificationMerchants, setNotificationMerchants] = useState<string[]>([]);
+  const { data: notificationChoices } = useNotificationChoices();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,6 +45,15 @@ export default function Register() {
       toast({ title: "Registratie mislukt", description: "Wachtwoord is te zwak. Gebruik minimaal 8 tekens.", variant: "destructive" });
       return;
     }
+    if (!notificationChoice || (notificationChoice === "personal" && !hasAvailablePreference({ notification_categories: notificationCategories, notification_merchants: notificationMerchants }, notificationChoices || []))) {
+      toast({ title: "Kies je meldingsvoorkeur", description: "Kies bij persoonlijke meldingen minimaal één beschikbare activiteit of één bedrijf.", variant: "destructive" });
+      return;
+    }
+    const notificationMetadata = {
+      notification_choice: notificationChoice,
+      notification_categories: notificationCategories,
+      notification_merchants: notificationMerchants,
+    };
     setLoading(true);
 
     const referralCode = sessionStorage.getItem("ll_referral_code") || undefined;
@@ -46,6 +62,7 @@ export default function Register() {
     if (!verificationRequired) {
       const { data: fnData, error: fnError } = await supabase.functions.invoke("consumer-signup", {
         body: {
+          ...notificationMetadata,
           email,
           password,
           full_name: fullName,
@@ -85,7 +102,7 @@ export default function Register() {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: fullName, phone, role: "consumer", referral_code: referralCode },
+        data: { ...notificationMetadata, full_name: fullName, phone, role: "consumer", referral_code: referralCode, date_of_birth: dob || null },
       },
     });
 
@@ -96,10 +113,7 @@ export default function Register() {
     }
 
     // Rol wordt automatisch toegekend via de handle_new_user DB-trigger.
-    // Profiel-DOB hier nog updaten (niet in metadata opgenomen).
-    if (data.user && dob) {
-      await supabase.from("profiles").update({ date_of_birth: dob }).eq("user_id", data.user.id);
-    }
+
 
     toast({
       title: "Account aangemaakt!",
@@ -159,6 +173,10 @@ export default function Register() {
                 </button>
               </div>
             </div>
+            <fieldset className="space-y-3 border-t pt-4" disabled={loading}>
+              <legend className="font-semibold pt-4">Meldingsvoorkeuren *</legend>
+              <NotificationPreferenceFields registration choice={notificationChoice} categories={notificationCategories} merchants={notificationMerchants} onChoice={setNotificationChoice} onCategories={setNotificationCategories} onMerchants={setNotificationMerchants} disabled={loading} />
+            </fieldset>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Bezig..." : "Registreren"}
             </Button>

@@ -28,6 +28,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket, CalendarDays, MapPin, Inbox, Settings, FileText, Share2, Bell, BellOff, MailCheck, MailWarning } from "lucide-react";
 import { ActivityRequestsTab } from "@/components/admin/ActivityRequestsTab";
+import { NotificationChoicesTab } from "@/components/admin/NotificationChoicesTab";
 import { PlatformSettingsTab } from "@/components/admin/PlatformSettingsTab";
 import { EnvironmentStatusTab } from "@/components/admin/EnvironmentStatusTab";
 import { ReferralsTab } from "@/components/admin/ReferralsTab";
@@ -506,6 +507,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="vouchers" onClick={() => navigate("/admin/kortingscodes")}>Kortingscodes</TabsTrigger>
             <TabsTrigger value="requests" className="gap-1"><Inbox className="h-3 w-3" />Voorkeuren</TabsTrigger>
             <TabsTrigger value="referrals" className="gap-1"><Share2 className="h-3 w-3" />Referrals</TabsTrigger>
+            <TabsTrigger value="notification-choices" className="gap-1"><Bell className="h-3 w-3" />Meldingskeuzes</TabsTrigger>
             <TabsTrigger value="settings" className="gap-1"><Settings className="h-3 w-3" />Instellingen</TabsTrigger>
             <TabsTrigger value="system" className="gap-1"><ShieldAlert className="h-3 w-3" />Systeem</TabsTrigger>
             <TabsTrigger value="audit" className="gap-1" onClick={() => navigate("/admin/audit-log")}><FileText className="h-3 w-3" />Audit log</TabsTrigger>
@@ -1019,6 +1021,8 @@ export default function AdminDashboard() {
         <TabsContent value="requests" className="space-y-3 mt-4">
           <ActivityRequestsTab />
         </TabsContent>
+
+        <TabsContent value="notification-choices"><NotificationChoicesTab /></TabsContent>
 
         <TabsContent value="settings">
           <PlatformSettingsTab />

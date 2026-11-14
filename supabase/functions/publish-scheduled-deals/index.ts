@@ -20,8 +20,9 @@ Deno.serve(async (req) => {
   if (cronCheck) return cronCheck;
 
   try {
-    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-    const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!SUPABASE_URL || !SERVICE_KEY) throw new Error("Missing settings");
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
     let dealId: string | undefined;
@@ -35,7 +36,7 @@ Deno.serve(async (req) => {
     const nowIso = new Date().toISOString();
     let query = admin
       .from("deals")
-      .select("id, title, city, discount_percentage, expiry_time, merchant_id, publish_at, notification_sent_at, deleted_at, is_teaser")
+      .select("id, title, city, category, discount_percentage, expiry_time, merchant_id, publish_at, notification_sent_at, deleted_at, is_teaser")
       .is("deleted_at", null)
       .is("notification_sent_at", null)
       .not("publish_at", "is", null)
@@ -95,7 +96,7 @@ Deno.serve(async (req) => {
 
       const { sent, errors } = await sendDealNotifications(
         admin,
-        deal as never,
+        deal,
         merchantRow.company_name,
       );
       results.push({ dealId: deal.id, sent, errors });

@@ -5,11 +5,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { setNotifications } from "@/lib/set-notifications";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
 export function NotificationBellToggle() {
   const { user, profile, refreshProfile } = useAuth();
+  const navigate = useNavigate();
   const [enabled, setEnabled] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -26,15 +28,10 @@ export function NotificationBellToggle() {
   const handleToggle = async (checked: boolean) => {
     setEnabled(checked);
     setSaving(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        email_notifications_enabled: checked,
-        email_notifications_updated_at: new Date().toISOString(),
-      } as never)
-      .eq("user_id", user.id);
+    const error = await setNotifications(user.id, checked);
     if (error) {
       setEnabled(!checked);
+      if (checked) navigate("/profiel?tab=meldingen");
       toast({ title: "Fout", description: error.message, variant: "destructive" });
     } else {
       await refreshProfile();
@@ -73,7 +70,7 @@ export function NotificationBellToggle() {
               E-mail meldingen ontvangen
             </Label>
             <p className="text-xs text-muted-foreground">
-              Ontvang een mail wanneer er een nieuwe last-minute deal is.
+              Ontvang nieuwe deals volgens je meldingsvoorkeuren.
             </p>
           </div>
           <Switch
@@ -83,6 +80,7 @@ export function NotificationBellToggle() {
             disabled={saving}
           />
         </div>
+        <Button variant="link" asChild className="mt-3 px-0"><Link to="/profiel?tab=meldingen">Meldingsvoorkeuren aanpassen</Link></Button>
       </PopoverContent>
     </Popover>
   );

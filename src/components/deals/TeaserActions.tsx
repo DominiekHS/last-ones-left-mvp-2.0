@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Bell, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { setNotifications } from "@/lib/set-notifications";
 import { toast } from "@/hooks/use-toast";
 
 /**
@@ -32,18 +32,13 @@ export function TeaserActionsRow() {
       toast({ title: "Je meldingen staan al aan" });
       return;
     }
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        email_notifications_enabled: true,
-        email_notifications_updated_at: new Date().toISOString(),
-      } as never)
-      .eq("user_id", user.id);
+    const error = await setNotifications(user.id, true);
     if (error) {
+      navigate("/profiel?tab=meldingen");
       toast({ title: "Fout", description: error.message, variant: "destructive" });
     } else {
       await refreshProfile();
-      toast({ title: "Meldingen aan!", description: "Je ontvangt een mail bij nieuwe last-minute deals." });
+      toast({ title: "Meldingen aan!", description: "Je ontvangt nieuwe deals volgens je meldingsvoorkeuren." });
     }
   };
 
