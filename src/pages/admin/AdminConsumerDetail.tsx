@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Ticket, Store, MapPin, CalendarDays } from "lucide-react";
+import { ArrowLeft, Ticket, Store, MapPin, CalendarDays, Bell, BellOff } from "lucide-react";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { nl } from "date-fns/locale";
+import { CATEGORY_LABELS } from "@/lib/constants";
 
 export default function AdminConsumerDetail() {
   const { userId } = useParams<{ userId: string }>();
@@ -75,6 +76,39 @@ export default function AdminConsumerDetail() {
             {profile.email} · Lid sinds {format(new Date(profile.created_at), "d MMM yyyy", { locale: nl })}
           </p>
         </div>
+      )}
+
+      {profile && (
+        <Card>
+          <CardContent className="p-4 space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="font-display text-lg font-semibold">Meldingsvoorkeuren</h2>
+              {!profile.email_notifications_enabled || (profile as any).notification_mode === "off" ? (
+                <Badge variant="outline" className="text-xs text-muted-foreground">
+                  <BellOff className="h-3 w-3 mr-1" /> Meldingen uit
+                </Badge>
+              ) : (profile as any).notification_mode === "personal" ? (
+                <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
+                  <Bell className="h-3 w-3 mr-1" /> Persoonlijk
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
+                  <Bell className="h-3 w-3 mr-1" /> Alle deals
+                </Badge>
+              )}
+            </div>
+            {profile.email_notifications_enabled && (profile as any).notification_mode === "personal" && (
+              <p className="text-sm text-muted-foreground">
+                Activiteiten:{" "}
+                {Array.isArray((profile as any).notification_categories) && (profile as any).notification_categories.length > 0
+                  ? (profile as any).notification_categories
+                      .map((key: string) => (CATEGORY_LABELS as Record<string, string>)[key] || key)
+                      .join(", ")
+                  : "geen gekozen"}
+              </p>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       <div>
