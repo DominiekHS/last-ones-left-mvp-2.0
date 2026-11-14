@@ -16,7 +16,7 @@ const SignupSchema = z.object({
   referral_code: z.string().trim().max(20).optional().nullable(),
   notification_choice: z.enum(["all", "personal", "off"]),
   notification_categories: z.array(z.string().max(50)).max(100),
-  notification_merchants: z.array(z.string().uuid()).max(500),
+  notification_merchants: z.array(z.string().uuid()).max(500).optional().default([]),
 }).strict();
 
 function bad(status: number, message: string) {

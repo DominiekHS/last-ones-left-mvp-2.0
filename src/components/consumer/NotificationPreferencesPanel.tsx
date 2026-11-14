@@ -14,28 +14,25 @@ export function NotificationPreferencesPanel() {
   const { data: choices, refetch } = useNotificationChoices();
   const [choice, setChoice] = useState<NotificationChoice>("all");
   const [categories, setCategories] = useState<string[]>([]);
-  const [merchants, setMerchants] = useState<string[]>([]);
   const [enabled, setEnabled] = useState(false);
   const [saving, setSaving] = useState(false);
   useEffect(() => {
     if (!profile) return;
     setChoice(profile.notification_mode === "personal" ? "personal" : "all");
     setCategories(profile.notification_categories);
-    setMerchants(profile.notification_merchants);
     setEnabled(profile.email_notifications_enabled);
   }, [profile]);
 
   const save = async () => {
     if (!user) return;
-    if (enabled && choice === "personal" && !hasAvailablePreference({ notification_categories: categories, notification_merchants: merchants }, choices || [])) {
-      toast({ title: "Kies minimaal één beschikbare activiteit of één bedrijf", variant: "destructive" });
+    if (enabled && choice === "personal" && !hasAvailablePreference({ notification_categories: categories }, choices || [])) {
+      toast({ title: "Kies minimaal één beschikbare activiteit", variant: "destructive" });
       return;
     }
     setSaving(true);
     const { error } = await supabase.from("profiles").update({
       notification_mode: choice,
       notification_categories: categories,
-      notification_merchants: merchants,
       email_notifications_enabled: enabled,
     }).eq("user_id", user.id);
     if (error) {
@@ -52,7 +49,7 @@ export function NotificationPreferencesPanel() {
       <Label htmlFor="preferences-enabled">E-mailmeldingen ontvangen</Label>
       <Switch id="preferences-enabled" checked={enabled} onCheckedChange={setEnabled} disabled={saving} />
     </div>
-    <NotificationPreferenceFields choice={choice} categories={categories} merchants={merchants} onChoice={setChoice} onCategories={setCategories} onMerchants={setMerchants} disabled={saving} />
+    <NotificationPreferenceFields choice={choice} categories={categories} onChoice={setChoice} onCategories={setCategories} disabled={saving} />
     <Button onClick={save} disabled={saving} className="w-full bg-success text-success-foreground hover:bg-success/90">{saving ? "Opslaan…" : "Voorkeuren opslaan"}</Button>
   </section>;
 }
