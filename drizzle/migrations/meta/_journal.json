@@ -22,6 +22,13 @@
       "when": 1794654748587,
       "tag": "0002_personal_notification_preferences",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794657876999,
+      "tag": "0003_preserve_signup_birth_date",
+      "breakpoints": true
     }
   ]
 }
