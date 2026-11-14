@@ -277,7 +277,7 @@ export default function MerchantProfile() {
                 <Label>Logo</Label>
                 <div className="flex items-center gap-4">
                   {logoUrl ? (
-                    <img src={logoUrl} alt="Logo" className="w-16 h-16 rounded-full object-cover border" />
+                    <img src={logoUrl} alt={companyName ? `Logo van ${companyName}` : "Bedrijfslogo"} className="w-16 h-16 rounded-full object-cover border" />
                   ) : (
                     <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center text-muted-foreground text-xl font-bold">
                       {companyName?.charAt(0)?.toUpperCase() || "?"}
@@ -381,7 +381,7 @@ export default function MerchantProfile() {
             <CardContent>
               <div className="flex items-center gap-4 py-2">
                 {logoUrl ? (
-                  <img src={logoUrl} alt="Logo" className="w-16 h-16 rounded-full object-cover border" />
+                  <img src={logoUrl} alt={companyName ? `Logo van ${companyName}` : "Bedrijfslogo"} className="w-16 h-16 rounded-full object-cover border" />
                 ) : (
                   <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center text-muted-foreground text-xl font-bold">
                     {companyName?.charAt(0)?.toUpperCase() || "?"}
