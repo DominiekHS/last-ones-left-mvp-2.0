@@ -669,12 +669,32 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_choices: {
+        Row: {
+          enabled: boolean
+          key: string
+          kind: string
+        }
+        Insert: {
+          enabled?: boolean
+          key: string
+          kind: string
+        }
+        Update: {
+          enabled?: boolean
+          key?: string
+          kind?: string
+        }
+        Relationships: []
+      }
       notification_log: {
         Row: {
           deal_id: string
           error_details: string | null
           errors_count: number
           id: string
+          selected_all_count: number
+          selected_personal_count: number
           sent_at: string
           sent_count: number
         }
@@ -683,6 +703,8 @@ export type Database = {
           error_details?: string | null
           errors_count?: number
           id?: string
+          selected_all_count?: number
+          selected_personal_count?: number
           sent_at?: string
           sent_count?: number
         }
@@ -691,6 +713,8 @@ export type Database = {
           error_details?: string | null
           errors_count?: number
           id?: string
+          selected_all_count?: number
+          selected_personal_count?: number
           sent_at?: string
           sent_count?: number
         }
@@ -705,6 +729,9 @@ export type Database = {
           email_notifications_updated_at: string | null
           full_name: string
           id: string
+          notification_categories: string[]
+          notification_merchants: string[]
+          notification_mode: string
           referral_code: string | null
           updated_at: string
           user_id: string
@@ -717,6 +744,9 @@ export type Database = {
           email_notifications_updated_at?: string | null
           full_name?: string
           id?: string
+          notification_categories?: string[]
+          notification_merchants?: string[]
+          notification_mode?: string
           referral_code?: string | null
           updated_at?: string
           user_id: string
@@ -729,6 +759,9 @@ export type Database = {
           email_notifications_updated_at?: string | null
           full_name?: string
           id?: string
+          notification_categories?: string[]
+          notification_merchants?: string[]
+          notification_mode?: string
           referral_code?: string | null
           updated_at?: string
           user_id?: string
@@ -1169,6 +1202,14 @@ export type Database = {
       get_cron_secret: { Args: never; Returns: string }
       get_my_deal_code: { Args: { p_deal_id: string }; Returns: string }
       get_my_referral_count: { Args: never; Returns: number }
+      get_notification_choices: {
+        Args: never
+        Returns: {
+          key: string
+          kind: string
+          label: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1181,6 +1222,15 @@ export type Database = {
         Returns: boolean
       }
       is_merchant_active: { Args: { _merchant_id: string }; Returns: boolean }
+      notification_recipients: {
+        Args: { p_category: string; p_merchant_id: string }
+        Returns: {
+          email: string
+          full_name: string
+          notification_mode: string
+          user_id: string
+        }[]
+      }
       run_deal_publication: { Args: { p_deal_id: string }; Returns: undefined }
     }
     Enums: {
