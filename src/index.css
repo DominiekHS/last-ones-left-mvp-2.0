@@ -49,6 +49,10 @@
     --success-foreground: 0 0% 98%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 5%;
+
+    /* Aanbevolen meldingskaart: lichtgeel vlak met gele rand */
+    --recommended-surface: 48 100% 95%;
+    --recommended-surface-foreground: 0 0% 5%;
   }
 
   .dark {
@@ -93,6 +97,9 @@
     --success-foreground: 0 0% 98%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 5%;
+
+    --recommended-surface: 48 45% 12%;
+    --recommended-surface-foreground: 0 0% 95%;
   }
 }
 
