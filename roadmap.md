@@ -4,6 +4,11 @@
 - [x] Consumentenmelding en relevante advertentieweergaven aanpassen.
 - [x] Regeltests en schermcontroles uitvoeren; tijdelijke testadvertentie en claim verwijderd.
 
+# Google Search Console
+- [x] Bestaande koppeling en toegang controleren; live sitemap aanwezig.
+- [x] Google-verificatietag toevoegen.
+- [ ] Met goedkeuring publiceren, live tag controleren, eigendom verifiëren en sitemap indienen.
+
 # Persoonlijke meldingen
 - [x] Voorkeuren, openbare keuzes en beveiligde adminselectie opslaan.
 - [x] Registratie, consumententab en bestaande meldingenknoppen aansluiten.
