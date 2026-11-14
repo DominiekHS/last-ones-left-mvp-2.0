@@ -2,6 +2,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNotificationChoices } from "@/hooks/useNotificationChoices";
+import { cn } from "@/lib/utils";
 import type { NotificationChoice } from "@/lib/notification-preferences";
 
 interface Props {
@@ -15,18 +16,53 @@ interface Props {
   disabled?: boolean;
 }
 
+const MODE_OPTIONS: { value: NotificationChoice; label: string; description: string; recommended?: boolean }[] = [
+  {
+    value: "personal",
+    label: "Alleen deals die bij mij passen",
+    description: "Ontvang aanbiedingen op basis van je favoriete activiteiten en bedrijven.",
+    recommended: true,
+  },
+  {
+    value: "all",
+    label: "Alle deals ontvangen",
+    description: "Mis geen nieuwe aanbiedingen en ontdek alle activiteiten.",
+  },
+  {
+    value: "off",
+    label: "Geen meldingsmails ontvangen",
+    description: "Bekijk aanbiedingen wanneer je zelf de website bezoekt.",
+  },
+];
+
 export function NotificationPreferenceFields({ choice, categories, merchants, onChoice, onCategories, onMerchants, registration = false, disabled = false }: Props) {
   const { data: available = [], isPending, isError } = useNotificationChoices();
-  const options = registration
-    ? [{ value: "all", label: "Alle deals ontvangen" }, { value: "personal", label: "Alleen deals die bij mij passen" }, { value: "off", label: "Geen meldingsmails ontvangen" }]
-    : [{ value: "all", label: "Alle deals ontvangen" }, { value: "personal", label: "Alleen deals die bij mij passen" }];
+  const options = registration ? MODE_OPTIONS : MODE_OPTIONS.filter(o => o.value !== "off");
   return <div className="space-y-4">
-    <RadioGroup value={choice} onValueChange={v => onChoice(v as NotificationChoice)} disabled={disabled} aria-label="Meldingsvoorkeur" className="gap-3">
-      {options.map(o => <div key={o.value} className="flex items-start gap-2">
-        <RadioGroupItem value={o.value} id={`notification-${o.value}`} className="mt-0.5 shrink-0" />
-        <Label htmlFor={`notification-${o.value}`} className="leading-5 cursor-pointer">{o.label}</Label>
-      </div>)}
+    <div className="space-y-1">
+      <p className="font-display text-lg font-bold text-foreground">Welke deals wil jij ontvangen?{registration && <span aria-hidden="true"> *</span>}</p>
+      <p className="text-sm text-muted-foreground">Ontvang nieuwe aanbiedingen in je mailbox. Kies wat bij jou past.</p>
+    </div>
+    <RadioGroup value={choice} onValueChange={v => onChoice(v as NotificationChoice)} disabled={disabled} aria-label="Meldingsvoorkeur" className="gap-2">
+      {options.map(o => <Label
+        key={o.value}
+        htmlFor={`notification-${o.value}`}
+        className={cn(
+          "flex cursor-pointer items-start gap-3 rounded-xl border bg-card p-4 transition-colors",
+          choice === o.value ? "border-primary ring-1 ring-primary" : "border-border hover:border-muted-foreground/40",
+        )}
+      >
+        <RadioGroupItem value={o.value} id={`notification-${o.value}`} className="mt-1 shrink-0" />
+        <span className="min-w-0">
+          {o.recommended && <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Aanbevolen</span>}
+          <span className="block font-semibold leading-5 text-foreground">
+            {o.label}
+            <span className="ml-1 font-normal text-sm text-muted-foreground">{o.description}</span>
+          </span>
+        </span>
+      </Label>)}
     </RadioGroup>
+    {registration && <p className="text-xs text-muted-foreground">Je kunt je voorkeuren later altijd aanpassen in je profiel.</p>}
     {choice === "personal" && <div className="space-y-4">
       {isPending && <p className="text-sm text-muted-foreground">Keuzes laden…</p>}
       {isError && <p role="alert" className="text-sm text-destructive">De keuzes konden niet worden geladen. Probeer het opnieuw.</p>}

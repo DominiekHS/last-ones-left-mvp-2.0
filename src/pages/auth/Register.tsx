@@ -174,7 +174,7 @@ export default function Register() {
               </div>
             </div>
             <fieldset className="space-y-3 border-t pt-4" disabled={loading}>
-              <legend className="font-semibold pt-4">Meldingsvoorkeuren *</legend>
+              <legend className="sr-only">Meldingsvoorkeuren *</legend>
               <NotificationPreferenceFields registration choice={notificationChoice} categories={notificationCategories} merchants={notificationMerchants} onChoice={setNotificationChoice} onCategories={setNotificationCategories} onMerchants={setNotificationMerchants} disabled={loading} />
             </fieldset>
             <Button type="submit" className="w-full" disabled={loading}>
