@@ -14,6 +14,9 @@ const SignupSchema = z.object({
   phone: z.string().trim().max(40).optional().nullable(),
   date_of_birth: z.string().trim().max(20).optional().nullable(),
   referral_code: z.string().trim().max(20).optional().nullable(),
+  notification_choice: z.enum(["all", "personal", "off"]),
+  notification_categories: z.array(z.string().max(50)).max(100),
+  notification_merchants: z.array(z.string().uuid()).max(500),
 }).strict();
 
 function bad(status: number, message: string) {
@@ -31,8 +34,9 @@ Deno.serve(async (req) => {
   if (parsed instanceof Response) return parsed;
   const body = parsed;
 
-  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl || !serviceKey) return bad(500, "Instellingen ontbreken");
   const admin = createClient(supabaseUrl, serviceKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
@@ -53,6 +57,10 @@ Deno.serve(async (req) => {
     password: body.password,
     email_confirm: true,
     user_metadata: {
+      notification_choice: body.notification_choice,
+      notification_categories: body.notification_categories,
+      notification_merchants: body.notification_merchants,
+      date_of_birth: body.date_of_birth,
       full_name: body.full_name,
       phone: body.phone ?? undefined,
       role: "consumer",

@@ -14,6 +14,8 @@ export interface DealForMail {
   id: string;
   title: string;
   city: string;
+  category: string;
+  merchant_id: string;
   discount_percentage: number;
   expiry_time: string;
 }
@@ -40,17 +42,16 @@ export async function sendDealNotifications(
   if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
   if (!BREVO_API_KEY) throw new Error("BREVO_API_KEY not configured");
 
-  const { data: profiles } = await admin
-    .from("profiles")
-    .select("user_id, email, full_name")
-    .eq("email_notifications_enabled", true);
-
-  const { data: dummyRows } = await admin.from("dummy_accounts").select("user_id");
-  const dummyIds = new Set((dummyRows ?? []).map((d: { user_id: string }) => d.user_id));
-
-  const recipients = (profiles ?? []).filter(
-    (p: { user_id: string; email: string | null }) => p.email && !dummyIds.has(p.user_id),
-  );
+  const recipients: Array<{ user_id: string; email: string; full_name: string; notification_mode: string }> = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await admin.rpc("notification_recipients", { p_category: deal.category, p_merchant_id: deal.merchant_id })
+      .order("user_id").range(from, from + 999);
+    if (error) throw error;
+    recipients.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  const selectedAll = recipients.filter(r => r.notification_mode === "all").length;
+  const selectedPersonal = recipients.length - selectedAll;
 
   const origin = "https://lastonesleft.nl";
   const dealLink = `${origin}/deal/${deal.id}`;
@@ -88,8 +89,8 @@ export async function sendDealNotifications(
         </p>
         <hr/>
         <p style="font-size:12px;color:#666;">
-          Je ontvangt deze mail omdat 'E-mail meldingen' aan staat.
-          <a href="${origin}/profiel">Meldingen uitzetten</a>.
+          Je ontvangt deze mail volgens je meldingsvoorkeuren.
+          <a href="${origin}/profiel?tab=meldingen">Meldingsvoorkeuren aanpassen</a>.
         </p>
       </div>`;
 
@@ -124,6 +125,8 @@ export async function sendDealNotifications(
 
   await admin.from("notification_log").insert({
     deal_id: deal.id,
+    selected_all_count: selectedAll,
+    selected_personal_count: selectedPersonal,
     sent_count: sent,
     errors_count: errors,
     error_details: errorDetails.slice(0, 20).join("\n") || null,

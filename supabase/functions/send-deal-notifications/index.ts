@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
     // 2. Authorization: gebruiker moet admin zijn OF eigenaar van de deal-merchant
     const { data: deal, error: dealErr } = await admin
       .from("deals")
-      .select("id, title, city, discount_percentage, expiry_time, notification_sent_at, merchant_id, publish_at")
+      .select("id, title, city, category, discount_percentage, expiry_time, notification_sent_at, merchant_id, publish_at")
       .eq("id", dealId)
       .maybeSingle();
 
@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
 
     const { sent, errors } = await sendDealNotifications(
       admin,
-      deal as never,
+      deal,
       merchantRow?.company_name,
     );
 

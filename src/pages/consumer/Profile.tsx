@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { NotificationPreferencesPanel } from "@/components/consumer/NotificationPreferencesPanel";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { friendlyDbError } from "@/lib/friendly-errors";
 import { Navigate, Link } from "react-router-dom";
@@ -18,8 +20,7 @@ export default function Profile() {
   const isConsumer = roles.includes("consumer") || (!isMerchant && !isAdmin);
   const [fullName, setFullName] = useState("");
   const [dob, setDob] = useState("");
-  const [emailNotifications, setEmailNotifications] = useState(false);
-  const [savingNotifications, setSavingNotifications] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -30,9 +31,7 @@ export default function Profile() {
     }
     if (profile) {
       setDob(profile.date_of_birth || "");
-      setEmailNotifications(
-        !!(profile as { email_notifications_enabled?: boolean }).email_notifications_enabled,
-      );
+
     }
   }, [profile, merchant, isMerchant]);
 
@@ -40,12 +39,13 @@ export default function Profile() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
     setSaving(true);
 
     if (isMerchant && merchant) {
       const [merchantRes, profileRes] = await Promise.all([
         supabase.from("merchants").update({ company_name: fullName }).eq("id", merchant.id),
-        supabase.from("profiles").update({ full_name: fullName }).eq("user_id", user!.id),
+        supabase.from("profiles").update({ full_name: fullName }).eq("user_id", user.id),
       ]);
       const error = merchantRes.error || profileRes.error;
       if (error) {
@@ -62,7 +62,7 @@ export default function Profile() {
       const { error } = await supabase
         .from("profiles")
         .update(updateData)
-        .eq("user_id", user!.id);
+        .eq("user_id", user.id);
       if (error) {
         toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
       } else {
@@ -73,28 +73,11 @@ export default function Profile() {
     setSaving(false);
   };
 
-  const handleToggleNotifications = async (checked: boolean) => {
-    setEmailNotifications(checked);
-    setSavingNotifications(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        email_notifications_enabled: checked,
-        email_notifications_updated_at: new Date().toISOString(),
-      } as never)
-      .eq("user_id", user!.id);
-    if (error) {
-      setEmailNotifications(!checked);
-      toast({ title: "Fout", description: friendlyDbError(error), variant: "destructive" });
-    } else {
-      await refreshProfile();
-      toast({ title: "Instelling opgeslagen" });
-    }
-    setSavingNotifications(false);
-  };
-
   return (
     <div className="container py-6 max-w-md">
+      <Tabs value={searchParams.get("tab") === "meldingen" && isConsumer && !isAdmin && !isMerchant ? "meldingen" : "profiel"} onValueChange={v => setSearchParams(v === "meldingen" ? { tab: "meldingen" } : {})}>
+        {isConsumer && !isAdmin && !isMerchant && <TabsList className="w-full"><TabsTrigger value="profiel" className="flex-1">Mijn profiel</TabsTrigger><TabsTrigger value="meldingen" className="flex-1">Meldingsvoorkeuren</TabsTrigger></TabsList>}
+        <TabsContent value="profiel">
       <Card>
         <CardHeader>
           <CardTitle className="font-display text-2xl">Mijn Profiel</CardTitle>
@@ -122,32 +105,6 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      {isConsumer && !isAdmin && !isMerchant && (
-        <Card className="mt-4">
-          <CardHeader>
-            <CardTitle className="font-display text-lg">Notificaties</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-start justify-between gap-4">
-              <div className="space-y-1">
-                <Label htmlFor="email-notif" className="cursor-pointer">
-                  E-mail meldingen ontvangen
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  Ontvang een mail wanneer er een nieuwe last-minute deal is.
-                </p>
-              </div>
-              <Switch
-                id="email-notif"
-                checked={emailNotifications}
-                onCheckedChange={handleToggleNotifications}
-                disabled={savingNotifications}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {isConsumer && !isAdmin && !isMerchant && <ReferralShareCard />}
 
 
@@ -169,6 +126,9 @@ export default function Profile() {
           </CardContent>
         </Card>
       )}
+        </TabsContent>
+        {isConsumer && !isAdmin && !isMerchant && <TabsContent value="meldingen"><NotificationPreferencesPanel /></TabsContent>}
+      </Tabs>
     </div>
   );
 }
