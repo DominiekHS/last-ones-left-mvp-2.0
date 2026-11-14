@@ -8,10 +8,8 @@ import type { NotificationChoice } from "@/lib/notification-preferences";
 interface Props {
   choice: NotificationChoice | "";
   categories: string[];
-  merchants: string[];
   onChoice: (value: NotificationChoice) => void;
   onCategories: (values: string[]) => void;
-  onMerchants: (values: string[]) => void;
   registration?: boolean;
   disabled?: boolean;
 }
@@ -20,7 +18,7 @@ const MODE_OPTIONS: { value: NotificationChoice; label: string; description: str
   {
     value: "personal",
     label: "Alleen deals die bij mij passen",
-    description: "Ontvang aanbiedingen op basis van je favoriete activiteiten en bedrijven.",
+    description: "Ontvang aanbiedingen op basis van je favoriete activiteiten.",
     recommended: true,
   },
   {
@@ -35,9 +33,10 @@ const MODE_OPTIONS: { value: NotificationChoice; label: string; description: str
   },
 ];
 
-export function NotificationPreferenceFields({ choice, categories, merchants, onChoice, onCategories, onMerchants, registration = false, disabled = false }: Props) {
+export function NotificationPreferenceFields({ choice, categories, onChoice, onCategories, registration = false, disabled = false }: Props) {
   const { data: available = [], isPending, isError } = useNotificationChoices();
   const options = registration ? MODE_OPTIONS : MODE_OPTIONS.filter(o => o.value !== "off");
+  const rows = available.filter(c => c.kind === "category");
   return <div className="space-y-4">
     <div className="space-y-1">
       <p className="font-display text-lg font-bold text-foreground">Welke deals wil jij ontvangen?{registration && <span aria-hidden="true"> *</span>}</p>
@@ -67,40 +66,35 @@ export function NotificationPreferenceFields({ choice, categories, merchants, on
     {choice === "personal" && <div className="space-y-4">
       {isPending && <p className="text-sm text-muted-foreground">Keuzes laden…</p>}
       {isError && <p role="alert" className="text-sm text-destructive">De keuzes konden niet worden geladen. Probeer het opnieuw.</p>}
-      {!isPending && !isError && ["category", "merchant"].map(kind => {
-        const rows = available.filter(c => c.kind === kind);
-        const selected = kind === "category" ? categories : merchants;
-        const onChange = kind === "category" ? onCategories : onMerchants;
-        return <div key={kind} className="space-y-2" role="group" aria-labelledby={`pref-${kind}-title`}>
-          <div className="flex items-baseline justify-between gap-2">
-            <p id={`pref-${kind}-title`} className="font-semibold text-sm">{kind === "category" ? "Favoriete activiteiten" : "Favoriete bedrijven"}</p>
-            <span className="text-xs text-muted-foreground">{selected.length} geselecteerd</span>
-          </div>
-          {!rows.length && <p className="text-sm text-muted-foreground">Nog geen {kind === "category" ? "activiteiten" : "bedrijven"} beschikbaar.</p>}
-          <div className="flex flex-wrap gap-2">
-            {rows.map(c => {
-              const isOn = selected.includes(c.key);
-              return <button
-                key={c.key}
-                type="button"
-                aria-pressed={isOn}
-                disabled={disabled}
-                onClick={() => onChange(isOn ? selected.filter(v => v !== c.key) : [...selected, c.key])}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm leading-5 transition-colors",
-                  isOn
-                    ? "border-primary bg-recommended font-semibold text-foreground ring-1 ring-primary"
-                    : "border-border bg-card text-foreground hover:border-muted-foreground/40",
-                )}
-              >
-                {isOn && <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
-                <span className="min-w-0 break-words">{c.label}</span>
-              </button>;
-            })}
-          </div>
-          {selected.some(key => !rows.some(c => c.key === key)) && <p className="text-xs text-muted-foreground">Eerdere keuzes die tijdelijk niet beschikbaar zijn, blijven bewaard.</p>}
-        </div>;
-      })}
+      {!isPending && !isError && <div className="space-y-2" role="group" aria-labelledby="pref-category-title">
+        <div className="flex items-baseline justify-between gap-2">
+          <p id="pref-category-title" className="font-semibold text-sm">Favoriete activiteiten</p>
+          <span className="text-xs text-muted-foreground">{categories.length} geselecteerd</span>
+        </div>
+        {!rows.length && <p className="text-sm text-muted-foreground">Nog geen activiteiten beschikbaar.</p>}
+        <div className="flex flex-wrap gap-2">
+          {rows.map(c => {
+            const isOn = categories.includes(c.key);
+            return <button
+              key={c.key}
+              type="button"
+              aria-pressed={isOn}
+              disabled={disabled}
+              onClick={() => onCategories(isOn ? categories.filter(v => v !== c.key) : [...categories, c.key])}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm leading-5 transition-colors",
+                isOn
+                  ? "border-primary bg-recommended font-semibold text-foreground ring-1 ring-primary"
+                  : "border-border bg-card text-foreground hover:border-muted-foreground/40",
+              )}
+            >
+              {isOn && <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
+              <span className="min-w-0 break-words">{c.label}</span>
+            </button>;
+          })}
+        </div>
+        {categories.some(key => !rows.some(c => c.key === key)) && <p className="text-xs text-muted-foreground">Eerdere keuzes die tijdelijk niet beschikbaar zijn, blijven bewaard.</p>}
+      </div>}
     </div>}
   </div>;
 }
