@@ -26,12 +26,12 @@ const MODE_OPTIONS: { value: NotificationChoice; label: string; description: str
   {
     value: "all",
     label: "Alle deals ontvangen",
-    description: "Mis geen nieuwe aanbiedingen en ontdek alle activiteiten.",
+    description: "Ontvang alle nieuwe deals en mis geen enkele aanbieding.",
   },
   {
     value: "off",
     label: "Geen meldingsmails ontvangen",
-    description: "Bekijk aanbiedingen wanneer je zelf de website bezoekt.",
+    description: "Je ontvangt geen e-mails over nieuwe deals.",
   },
 ];
 
