@@ -37,7 +37,7 @@ const Index = () => {
           <p className="font-display text-sm sm:text-base font-semibold uppercase tracking-wider text-primary-foreground/70">
             Bezoek. Beleef. Bespaar.
           </p>
-          <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">
+          <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight max-w-2xl mx-auto">
             Last-minute activiteiten met korting in Groningen
           </h1>
           <p className="text-primary-foreground/70 text-lg max-w-lg mx-auto">
