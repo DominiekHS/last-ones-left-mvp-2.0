@@ -55,10 +55,8 @@ export function NotificationPreferenceFields({ choice, categories, merchants, on
         <RadioGroupItem value={o.value} id={`notification-${o.value}`} className="mt-1 shrink-0" />
         <span className="min-w-0">
           {o.recommended && <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Aanbevolen</span>}
-          <span className="block font-semibold leading-5 text-foreground">
-            {o.label}
-            <span className="ml-1 font-normal text-sm text-muted-foreground">{o.description}</span>
-          </span>
+          <span className="block font-semibold leading-5 text-foreground">{o.label}</span>
+          <span className="block text-sm leading-5 text-muted-foreground">{o.description}</span>
         </span>
       </Label>)}
     </RadioGroup>
