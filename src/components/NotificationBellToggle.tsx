@@ -80,7 +80,7 @@ export function NotificationBellToggle() {
             disabled={saving}
           />
         </div>
-        <Button variant="link" asChild className="mt-3 px-0"><Link to="/profiel?tab=meldingen">Meldingsvoorkeuren aanpassen</Link></Button>
+        <Button variant="default" asChild className="mt-3 w-full"><Link to="/profiel?tab=meldingen">Voorkeur aanpassen</Link></Button>
       </PopoverContent>
     </Popover>
   );
