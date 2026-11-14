@@ -39,6 +39,7 @@ import AdminVoucherUsage from "./pages/admin/AdminVoucherUsage";
 import AdminAuditLog from "./pages/admin/AdminAuditLog";
 import AdminTeaserForm from "./pages/admin/AdminTeaserForm";
 import TestInfo from "./pages/TestInfo";
+import { PageTitle } from "@/components/PageTitle";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
         >
           <AuthProvider>
             <AuthRedirectErrorHandler />
+            <PageTitle />
             <Routes>
             <Route element={<AppLayout />}>
               <Route path="/" element={<Index />} />
