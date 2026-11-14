@@ -7,7 +7,7 @@
 # Google Search Console
 - [x] Bestaande koppeling en toegang controleren; live sitemap aanwezig.
 - [x] Google-verificatietag toevoegen.
-- [ ] Met goedkeuring publiceren, live tag controleren, eigendom verifiëren en sitemap indienen.
+- [x] Publicatie aangevraagd, live tag gecontroleerd, eigendom geverifieerd en sitemap ingediend; Google heeft 13 URLs ontvangen zonder fouten of waarschuwingen.
 
 # Persoonlijke meldingen
 - [x] Voorkeuren, openbare keuzes en beveiligde adminselectie opslaan.
