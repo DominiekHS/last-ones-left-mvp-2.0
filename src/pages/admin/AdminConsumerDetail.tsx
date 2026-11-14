@@ -78,6 +78,39 @@ export default function AdminConsumerDetail() {
         </div>
       )}
 
+      {profile && (
+        <Card>
+          <CardContent className="p-4 space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="font-display text-lg font-semibold">Meldingsvoorkeuren</h2>
+              {!profile.email_notifications_enabled || (profile as any).notification_mode === "off" ? (
+                <Badge variant="outline" className="text-xs text-muted-foreground">
+                  <BellOff className="h-3 w-3 mr-1" /> Meldingen uit
+                </Badge>
+              ) : (profile as any).notification_mode === "personal" ? (
+                <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
+                  <Bell className="h-3 w-3 mr-1" /> Persoonlijk
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
+                  <Bell className="h-3 w-3 mr-1" /> Alle deals
+                </Badge>
+              )}
+            </div>
+            {profile.email_notifications_enabled && (profile as any).notification_mode === "personal" && (
+              <p className="text-sm text-muted-foreground">
+                Activiteiten:{" "}
+                {Array.isArray((profile as any).notification_categories) && (profile as any).notification_categories.length > 0
+                  ? (profile as any).notification_categories
+                      .map((key: string) => (CATEGORY_LABELS as Record<string, string>)[key] || key)
+                      .join(", ")
+                  : "geen gekozen"}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       <div>
         <h2 className="font-display text-lg font-semibold mb-3">
           Geclaimde kortingscodes ({filteredHistory?.length || 0})
