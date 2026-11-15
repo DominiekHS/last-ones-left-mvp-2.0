@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -126,7 +126,7 @@ export default function Contact() {
     <div className="container py-12 max-w-md">
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="font-display text-2xl">Contact</CardTitle>
+          <h1 className="font-display text-2xl font-semibold leading-none">Contact</h1>
           <CardDescription>Heb je een vraag? Neem contact op!</CardDescription>
         </CardHeader>
         <CardContent>

@@ -15,3 +15,8 @@
 - [x] Persoonlijke ontvangersselectie en verzendlog aansluiten.
 - [x] Regeltests en desktop/mobiele registratie-profiel-flow controleren; consument kan adminkeuzes en ontvangers niet benaderen. Testaccount en testselectie verwijderd.
 - [ ] Gecontroleerde daadwerkelijke mailverzending en registratie zonder verificatie volledig controleren: vereist gecontroleerd ontvangstadres/testcredentials en een veilige testomgeving voor de globale verificatie-instelling; productie-instelling niet gewijzigd.
+
+# Paginakoppen
+- [x] Hoofdkoppen op Contact, registratie, wachtwoord, verificatie, profiel en ontbrekende hulpcategorie corrigeren.
+- [x] Kopvolgorde op dealpagina’s en stappenplan corrigeren zonder vormgevingswijzigingen.
+- [x] Openbare pagina’s, een echte deal en ingelogd profiel in de browser gecontroleerd; meldingen-tab en open bedrijfsregistratie statisch gecontroleerd (adminaccount/registratie gesloten).

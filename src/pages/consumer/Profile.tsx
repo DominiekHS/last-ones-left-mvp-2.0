@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -80,7 +80,7 @@ export default function Profile() {
         <TabsContent value="profiel">
       <Card>
         <CardHeader>
-          <CardTitle className="font-display text-2xl">Mijn Profiel</CardTitle>
+          <h1 className="font-display text-2xl font-semibold leading-none">Mijn Profiel</h1>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSave} className="space-y-4">
@@ -127,7 +127,7 @@ export default function Profile() {
         </Card>
       )}
         </TabsContent>
-        {isConsumer && !isAdmin && !isMerchant && <TabsContent value="meldingen"><NotificationPreferencesPanel /></TabsContent>}
+        {isConsumer && !isAdmin && !isMerchant && <TabsContent value="meldingen"><h1 className="sr-only">Meldingsvoorkeuren</h1><NotificationPreferencesPanel /></TabsContent>}
       </Tabs>
     </div>
   );

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CATEGORIES } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
@@ -100,7 +100,7 @@ export default function MerchantRegister() {
             <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
               <Lock className="h-6 w-6 text-muted-foreground" />
             </div>
-            <CardTitle className="font-display text-2xl">Registratie tijdelijk gesloten</CardTitle>
+            <h1 className="font-display text-2xl font-semibold leading-none">Registratie tijdelijk gesloten</h1>
             <CardDescription>
               Registreren als ondernemer is op dit moment niet mogelijk. Wil je toch partner worden? Neem contact met ons op.
             </CardDescription>
@@ -122,7 +122,7 @@ export default function MerchantRegister() {
     <div className="container flex items-center justify-center py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="font-display text-2xl">Registreren als ondernemer</CardTitle>
+          <h1 className="font-display text-2xl font-semibold leading-none">Registreren als ondernemer</h1>
           <CardDescription>Plaats deals en bereik nieuwe klanten</CardDescription>
         </CardHeader>
         <CardContent>

@@ -30,7 +30,7 @@ export default function HelpCategory() {
     return (
       <div className="container py-16 text-center space-y-3">
         <HelpCircle className="h-12 w-12 mx-auto text-muted-foreground" />
-        <h2 className="font-display text-xl font-semibold">Categorie niet gevonden</h2>
+        <h1 className="font-display text-xl font-semibold">Categorie niet gevonden</h1>
         <p className="text-muted-foreground">Deze helpcategorie bestaat niet.</p>
         <Button variant="link" asChild>
           <Link to="/help">Terug naar Helpcenter</Link>
@@ -94,7 +94,7 @@ export default function HelpCategory() {
       <Card className="border-primary/20">
         <CardContent className="p-4 text-center space-y-2">
           <MessageCircle className="h-6 w-6 mx-auto text-primary" />
-          <p className="text-sm font-semibold">Nog steeds hulp nodig?</p>
+          <h2 className="text-sm font-semibold">Nog steeds hulp nodig?</h2>
           <Button size="sm" asChild>
             <Link to="/contact">Contact opnemen</Link>
           </Button>

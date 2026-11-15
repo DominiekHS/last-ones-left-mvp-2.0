@@ -104,7 +104,7 @@ export default function DealDetail() {
   if (!deal) {
     return (
       <div className="container py-16 text-center">
-        <h2 className="font-display text-xl font-semibold">Deal niet gevonden</h2>
+        <h1 className="font-display text-xl font-semibold">Deal niet gevonden</h1>
         <Button variant="link" asChild className="mt-4">
           <Link to="/">Terug naar deals</Link>
         </Button>
@@ -188,7 +188,7 @@ export default function DealDetail() {
         {(deal as any).pricing_model === "per_person_variable" ? (
           <Card className="border-primary/20 bg-primary/5">
             <CardContent className="p-4 space-y-2">
-              <h3 className="font-display font-semibold text-sm">Prijs</h3>
+              <h2 className="font-display font-semibold text-sm">Prijs</h2>
               {(deal as any).price_per_person ? (
                 <>
                   <p className="text-sm text-muted-foreground">Normale prijs: <span className="font-semibold text-foreground">€{Number((deal as any).price_per_person).toFixed(2)} p.p.</span></p>
@@ -221,7 +221,7 @@ export default function DealDetail() {
         {/* Verzilvermethode */}
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="p-4 space-y-1">
-            <h3 className="font-display font-semibold text-sm">Hoe wordt de korting verzilverd?</h3>
+            <h2 className="font-display font-semibold text-sm">Hoe wordt de korting verzilverd?</h2>
             {noCodeCheckout && (
               <>
                 <p className="text-sm font-medium">Online afrekenen zonder kortingscode</p>
@@ -267,13 +267,13 @@ export default function DealDetail() {
           <div className="flex items-center gap-2">
             <FileText className="h-4 w-4 text-muted-foreground" />
             <div>
-              <p className="font-medium text-sm">Kleine lettertjes</p>
+              <h2 className="font-medium text-sm">Kleine lettertjes</h2>
               <p className="text-xs text-muted-foreground">Inwisselen, annuleren en voorwaarden</p>
             </div>
           </div>
           <div className="space-y-4">
             <div>
-              <h4 className="font-semibold text-sm mb-1">📋 Inwisselinstructies</h4>
+              <h3 className="font-semibold text-sm mb-1">📋 Inwisselinstructies</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {(deal as any).redemption_instructions || (
                   noCodeCheckout ? NO_CODE_MESSAGE : (deal as any).counter_discount_mode === "variable_amount"
@@ -283,13 +283,13 @@ export default function DealDetail() {
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-sm mb-1">🚫 Annuleringsbeleid</h4>
+              <h3 className="font-semibold text-sm mb-1">🚫 Annuleringsbeleid</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {(deal as any).cancellation_policy || "Annuleren en wijzigingen lopen via de aanbieder. Last-minute deals kunnen beperkingen hebben."}
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-sm mb-1">📜 Algemene voorwaarden</h4>
+              <h3 className="font-semibold text-sm mb-1">📜 Algemene voorwaarden</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {(deal as any).terms_summary || "Door deze deal te claimen ga je akkoord met de voorwaarden van Last Ones Left en de aanbieder."}
               </p>

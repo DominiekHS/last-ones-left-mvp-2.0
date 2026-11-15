@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { friendlyAuthError } from "@/lib/friendly-errors";
@@ -66,9 +66,9 @@ export default function VerifyEmail() {
               <Mail className="h-8 w-8 text-primary" />
             )}
           </div>
-          <CardTitle className="font-display text-2xl">
+          <h1 className="font-display text-2xl font-semibold leading-none">
             {linkFailed ? "Deze link werkt niet meer" : "Bevestig je e-mailadres"}
-          </CardTitle>
+          </h1>
           <CardDescription>
             {linkFailed
               ? "De verificatielink is verlopen of was al gebruikt. Vraag hieronder een nieuwe link aan — die is direct weer geldig."
