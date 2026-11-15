@@ -4,7 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { friendlyAuthError } from "@/lib/friendly-errors";
@@ -72,7 +72,7 @@ export default function ResetPassword() {
       <div className="container flex items-center justify-center py-12">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="font-display text-2xl">Wachtwoord resetten</CardTitle>
+            <h1 className="font-display text-2xl font-semibold leading-none">Wachtwoord resetten</h1>
             <CardDescription>Even geduld, we verifiëren je resetlink…</CardDescription>
           </CardHeader>
         </Card>
@@ -84,7 +84,7 @@ export default function ResetPassword() {
     <div className="container flex items-center justify-center py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="font-display text-2xl">Nieuw wachtwoord instellen</CardTitle>
+          <h1 className="font-display text-2xl font-semibold leading-none">Nieuw wachtwoord instellen</h1>
           <CardDescription>Kies een nieuw wachtwoord voor je account.</CardDescription>
         </CardHeader>
         <CardContent>

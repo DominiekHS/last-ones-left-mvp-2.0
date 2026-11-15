@@ -23,7 +23,7 @@ export default function PaymentStepsDisplay({ steps }: Props) {
     <>
       <Card>
         <CardContent className="p-4 space-y-4">
-          <h3 className="font-display font-semibold text-sm">📝 Zo reserveer/betaal je</h3>
+          <h2 className="font-display font-semibold text-sm">📝 Zo reserveer/betaal je</h2>
           <div className="space-y-3">
             {sorted.map((step, i) => (
               <div key={i} className="flex gap-3">
