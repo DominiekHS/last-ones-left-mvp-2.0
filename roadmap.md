@@ -24,4 +24,5 @@
 # Groningen informatiepagina
 - [x] Eén vaste pagina met zes activiteitbeschrijvingen, zonder dealoverzicht, FAQ, foto's of vaste prijsbeloften.
 - [x] Menulink naast Over ons, paginatitel en omschrijving, en sitemapvermelding toevoegen zonder lastmod-fallback.
-- [ ] Desktop- en mobiele navigatie, pagina en metadata controleren.
+- [x] Desktop- en mobiele navigatie, pagina en metadata gecontroleerd; geen runtimefouten of horizontale overflow.
+- [x] Regeltest toegevoegd en uitgevoerd: Groningen haalt geen dealaanbod op.
