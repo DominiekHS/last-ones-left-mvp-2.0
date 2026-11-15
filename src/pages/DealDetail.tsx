@@ -36,6 +36,15 @@ export default function DealDetail() {
   const isAdmin = roles.includes("admin");
   const isConsumer = roles.includes("consumer") && !isAdmin && !merchant;
 
+  // Losse deals (actief, verlopen, niet gevonden, Binnenkort) niet opnemen in Google; links wel volgen
+  useEffect(() => {
+    const meta = document.createElement("meta");
+    meta.name = "robots";
+    meta.content = "noindex,follow";
+    document.head.appendChild(meta);
+    return () => { document.head.removeChild(meta); };
+  }, []);
+
   // Track view (skip if merchant is viewing their own deal)
   useEffect(() => {
     if (id && !isMerchantOwner) {
@@ -499,14 +508,6 @@ function MerchantPreviewCTA({ dealId }: { dealId: string }) {
 }
 
 function TeaserView({ deal }: { deal: any }) {
-  // noindex voor zoekmachines
-  useEffect(() => {
-    const meta = document.createElement("meta");
-    meta.name = "robots";
-    meta.content = "noindex,nofollow";
-    document.head.appendChild(meta);
-    return () => { document.head.removeChild(meta); };
-  }, []);
 
   const ctaLabel = deal.teaser_cta_label || "Deel met vrienden";
   const ctaUrl = deal.teaser_cta_url || null;
