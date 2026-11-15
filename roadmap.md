@@ -29,4 +29,4 @@
 
 # Adres Over ons
 - [x] Menu, voetmenu, paginatitel en sitemap wijzigen naar /over-ons; /testversie doorverwijzen.
-- [ ] Nieuwe link en oude verwijzing in de browser controleren.
+- [x] Menulink, voetmenulink, paginatitel en doorverwijzing vanaf het oude adres in de browser gecontroleerd.
