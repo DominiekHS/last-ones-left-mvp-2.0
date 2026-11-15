@@ -39,6 +39,7 @@ import AdminVoucherUsage from "./pages/admin/AdminVoucherUsage";
 import AdminAuditLog from "./pages/admin/AdminAuditLog";
 import AdminTeaserForm from "./pages/admin/AdminTeaserForm";
 import TestInfo from "./pages/TestInfo";
+import Groningen from "./pages/Groningen";
 import { PageTitle } from "@/components/PageTitle";
 import NotFound from "./pages/NotFound";
 
@@ -76,6 +77,7 @@ const App = () => (
               <Route path="/algemene-voorwaarden" element={<Terms />} />
               <Route path="/privacybeleid" element={<Privacy />} />
               <Route path="/testversie" element={<TestInfo />} />
+              <Route path="/groningen" element={<Groningen />} />
               <Route path="/help" element={<HelpCenter />} />
               <Route path="/help/:categorySlug" element={<HelpCategory />} />
               <Route path="/merchant" element={<MerchantDashboard />} />

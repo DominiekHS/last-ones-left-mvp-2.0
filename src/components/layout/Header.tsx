@@ -64,14 +64,25 @@ export function Header() {
           {user && !isMerchant && !isAdmin ? (
             <NotificationBellToggle />
           ) : (
-            <Link to="/testversie" className="inline-flex items-center whitespace-nowrap rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted transition-colors">
-              Over ons
-            </Link>
+            <div className="hidden md:flex items-center gap-2">
+              <Button variant="outline" size="sm" asChild className="rounded-full text-xs">
+                <Link to="/testversie">Over ons</Link>
+              </Button>
+              <Button variant="outline" size="sm" asChild className="rounded-full text-xs">
+                <Link to="/groningen">Groningen</Link>
+              </Button>
+            </div>
           )}
         </div>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-2">
+          {user && !isMerchant && !isAdmin && (
+            <>
+              <Button variant="ghost" size="sm" asChild><Link to="/testversie">Over ons</Link></Button>
+              <Button variant="ghost" size="sm" asChild><Link to="/groningen">Groningen</Link></Button>
+            </>
+          )}
           {user ? (
             <>
               {isMerchant && (
@@ -146,6 +157,12 @@ export function Header() {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden border-t bg-card p-4 space-y-2">
+          <Button variant="ghost" asChild className="w-full justify-start">
+            <Link to="/testversie" onClick={() => setMobileOpen(false)}>Over ons</Link>
+          </Button>
+          <Button variant="ghost" asChild className="w-full justify-start">
+            <Link to="/groningen" onClick={() => setMobileOpen(false)}>Groningen</Link>
+          </Button>
           {user ? (
             <>
               <Link to="/profiel" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>

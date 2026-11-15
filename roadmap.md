@@ -20,3 +20,8 @@
 - [x] Hoofdkoppen op Contact, registratie, wachtwoord, verificatie, profiel en ontbrekende hulpcategorie corrigeren.
 - [x] Kopvolgorde op dealpagina’s en stappenplan corrigeren zonder vormgevingswijzigingen.
 - [x] Openbare pagina’s, een echte deal en ingelogd profiel in de browser gecontroleerd; meldingen-tab en open bedrijfsregistratie statisch gecontroleerd (adminaccount/registratie gesloten).
+
+# Groningen informatiepagina
+- [x] Eén vaste pagina met zes activiteitbeschrijvingen, zonder dealoverzicht, FAQ, foto's of vaste prijsbeloften.
+- [x] Menulink naast Over ons, paginatitel en omschrijving, en sitemapvermelding toevoegen zonder lastmod-fallback.
+- [ ] Desktop- en mobiele navigatie, pagina en metadata controleren.
