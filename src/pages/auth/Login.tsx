@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { friendlyAuthError } from "@/lib/friendly-errors";
@@ -51,7 +51,7 @@ export default function Login() {
     <div className="container flex items-center justify-center py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="font-display text-2xl">Inloggen</CardTitle>
+          <h1 className="font-display text-2xl font-semibold leading-none">Inloggen</h1>
           <CardDescription>Welkom terug bij Last Ones Left</CardDescription>
         </CardHeader>
         <CardContent>
