@@ -19,4 +19,4 @@
 # Paginakoppen
 - [x] Hoofdkoppen op Contact, registratie, wachtwoord, verificatie, profiel en ontbrekende hulpcategorie corrigeren.
 - [x] Kopvolgorde op dealpagina’s en stappenplan corrigeren zonder vormgevingswijzigingen.
-- [ ] Gewijzigde pagina’s in de browser controleren.
+- [x] Openbare pagina’s, een echte deal en ingelogd profiel in de browser gecontroleerd; meldingen-tab en open bedrijfsregistratie statisch gecontroleerd (adminaccount/registratie gesloten).
