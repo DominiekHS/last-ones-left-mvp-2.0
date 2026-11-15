@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 const DEFAULT_TITLE = "Last-minute activiteiten met korting in Groningen | Last Ones Left";
 
 const TITLES: Record<string, string> = {
-  "/testversie": "Over ons | Last Ones Left",
+  "/over-ons": "Over ons | Last Ones Left",
   "/groningen": "Activiteiten met korting in Groningen | Last Ones Left",
   "/help": "Helpcenter | Last Ones Left",
   "/contact": "Contact | Last Ones Left",

@@ -26,3 +26,7 @@
 - [x] Menulink naast Over ons, paginatitel en omschrijving, en sitemapvermelding toevoegen zonder lastmod-fallback.
 - [x] Desktop- en mobiele navigatie, pagina en metadata gecontroleerd; geen runtimefouten of horizontale overflow.
 - [x] Regeltest toegevoegd en uitgevoerd: Groningen haalt geen dealaanbod op.
+
+# Adres Over ons
+- [x] Menu, voetmenu, paginatitel en sitemap wijzigen naar /over-ons; /testversie doorverwijzen.
+- [ ] Nieuwe link en oude verwijzing in de browser controleren.

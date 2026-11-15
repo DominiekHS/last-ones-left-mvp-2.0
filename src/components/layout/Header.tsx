@@ -66,7 +66,7 @@ export function Header() {
           ) : (
             <div className="hidden md:flex items-center gap-2">
               <Button variant="outline" size="sm" asChild className="rounded-full text-xs">
-                <Link to="/testversie">Over ons</Link>
+                <Link to="/over-ons">Over ons</Link>
               </Button>
               <Button variant="outline" size="sm" asChild className="rounded-full text-xs">
                 <Link to="/groningen">Groningen</Link>
@@ -79,7 +79,7 @@ export function Header() {
         <nav className="hidden md:flex items-center gap-2">
           {user && !isMerchant && !isAdmin && (
             <>
-              <Button variant="ghost" size="sm" asChild><Link to="/testversie">Over ons</Link></Button>
+              <Button variant="ghost" size="sm" asChild><Link to="/over-ons">Over ons</Link></Button>
               <Button variant="ghost" size="sm" asChild><Link to="/groningen">Groningen</Link></Button>
             </>
           )}
@@ -158,7 +158,7 @@ export function Header() {
       {mobileOpen && (
         <div className="md:hidden border-t bg-card p-4 space-y-2">
           <Button variant="ghost" asChild className="w-full justify-start">
-            <Link to="/testversie" onClick={() => setMobileOpen(false)}>Over ons</Link>
+            <Link to="/over-ons" onClick={() => setMobileOpen(false)}>Over ons</Link>
           </Button>
           <Button variant="ghost" asChild className="w-full justify-start">
             <Link to="/groningen" onClick={() => setMobileOpen(false)}>Groningen</Link>
