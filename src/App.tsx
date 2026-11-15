@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -76,7 +76,8 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/algemene-voorwaarden" element={<Terms />} />
               <Route path="/privacybeleid" element={<Privacy />} />
-              <Route path="/testversie" element={<TestInfo />} />
+              <Route path="/over-ons" element={<TestInfo />} />
+              <Route path="/testversie" element={<Navigate to="/over-ons" replace />} />
               <Route path="/groningen" element={<Groningen />} />
               <Route path="/help" element={<HelpCenter />} />
               <Route path="/help/:categorySlug" element={<HelpCategory />} />
