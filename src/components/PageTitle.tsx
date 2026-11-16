@@ -3,6 +3,8 @@ import { useLocation } from "react-router-dom";
 
 const DEFAULT_TITLE = "Last-minute activiteiten met korting in Groningen | Last Ones Left";
 
+const NOINDEX_PATH = /^\/(login|registreren|wachtwoord-vergeten|reset-password|verify-email|merchant\/registreren)(\/|$)/;
+
 const TITLES: Record<string, string> = {
   "/over-ons": "Over ons | Last Ones Left",
   "/groningen": "Activiteiten met korting in Groningen | Last Ones Left",
@@ -25,6 +27,14 @@ export function PageTitle() {
     let title = TITLES[pathname];
     if (!title && pathname.startsWith("/help/")) title = "Helpcenter | Last Ones Left";
     document.title = title ?? DEFAULT_TITLE;
+    // Inlog-, registratie-, wachtwoord- en verificatiepagina's niet in Google opnemen
+    if (NOINDEX_PATH.test(pathname)) {
+      const meta = document.createElement("meta");
+      meta.name = "robots";
+      meta.content = "noindex,follow";
+      document.head.appendChild(meta);
+      return () => { meta.remove(); };
+    }
     if (pathname === "/groningen") {
       const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
       if (!description) return;

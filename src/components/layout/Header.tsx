@@ -15,6 +15,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const AUTH_PATH = /^\/(login|registreren|wachtwoord-vergeten|reset-password|verify-email|merchant\/registreren)(\/|$)/;
+
 export function Header() {
   const { user, profile, roles, merchant, signOut } = useAuth();
   const navigate = useNavigate();
@@ -49,7 +51,12 @@ export function Header() {
     }
   };
 
-  const redirectTarget = `${location.pathname}${location.search}${location.hash}`;
+  // Op inlog-/registratiepagina's het oorspronkelijke doel hergebruiken, zodat het terugstuuradres niet dubbel verpakt wordt
+  const isAuthPage = AUTH_PATH.test(location.pathname);
+  const existingRedirect = new URLSearchParams(location.search).get("redirect");
+  const redirectTarget = isAuthPage
+    ? (existingRedirect && existingRedirect.startsWith("/") && !existingRedirect.startsWith("//") && !AUTH_PATH.test(existingRedirect.split("?")[0]) ? existingRedirect : "/")
+    : `${location.pathname}${location.search}${location.hash}`;
 
   return (
     <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
