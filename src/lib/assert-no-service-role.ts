@@ -39,7 +39,7 @@ const _markerParts = ["InJvbGUiOiJ", "zZXJ2aWNs", "X3JvbGUi"];
 const SERVICE_ROLE_JWT_MARKER = _markerParts.join("").replace("ZXJ2aWNs", "ZXJ2aWNl");
 
 export function assertNoServiceRoleInClient(): void {
-  const env = (import.meta as ImportMeta).env as Record<string, unknown>;
+  const env = (import.meta.env ?? {}) as Record<string, unknown>;
 
   for (const name of FORBIDDEN_KEY_NAMES) {
     const value = env[name];
