@@ -36,3 +36,36 @@ describe("consumer export", () => {
     expect(CONSUMER_EXPORT_HEADERS.join(" ").toLowerCase()).not.toContain("geboorte");
   });
 });
+
+describe("consumer export confirmation method", () => {
+  const rows = buildConsumerExportRows({
+    consumers: [p("self"), p("manual"), p("open"), p("pending")],
+    dummyIds: new Set(),
+    referrals: [],
+    emailStatuses: [
+      { user_id: "self", confirmation_sent_at: "2026-11-01T10:00:00Z", email_confirmed_at: "2026-11-01T10:05:00Z", confirmation_method: null },
+      { user_id: "manual", confirmation_sent_at: "2026-11-01T10:00:00Z", email_confirmed_at: "2026-11-01T11:00:00Z", confirmation_method: "manual" },
+      { user_id: "open", confirmation_sent_at: null, email_confirmed_at: "2026-11-01T10:00:00Z", confirmation_method: null },
+      { user_id: "pending", confirmation_sent_at: "2026-11-01T10:00:00Z", email_confirmed_at: null, confirmation_method: null },
+    ],
+    claims: [],
+  });
+  const byEmail = (email: string) => rows.find((row) => row[1] === email)!;
+  const method = (email: string) => byEmail(email)[col("Wijze van bevestiging")];
+
+  it("marks consumers who confirmed through their own email link", () => {
+    expect(method("self@x.nl")).toBe("Zelf via bevestigingslink");
+  });
+
+  it("marks manually confirmed consumers", () => {
+    expect(method("manual@x.nl")).toBe("Handmatig bevestigd");
+  });
+
+  it("marks consumers who signed up while verification was disabled", () => {
+    expect(method("open@x.nl")).toBe("Geen verificatie nodig");
+  });
+
+  it("keeps unconfirmed consumers recognizable", () => {
+    expect(method("pending@x.nl")).toBe("Niet bevestigd");
+  });
+});

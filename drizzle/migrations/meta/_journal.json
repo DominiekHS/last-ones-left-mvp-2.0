@@ -36,6 +36,13 @@
       "when": 1794665366963,
       "tag": "0004_notification_preferences_categories_only",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795027336114,
+      "tag": "0005_add_consumer_email_confirmation_methods",
+      "breakpoints": true
     }
   ]
 }

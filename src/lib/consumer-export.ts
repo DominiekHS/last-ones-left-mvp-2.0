@@ -19,7 +19,9 @@ export interface ExportReferral {
 }
 export interface ExportEmailStatus {
   user_id: string;
+  confirmation_sent_at: string | null;
   email_confirmed_at: string | null;
+  confirmation_method?: "manual" | "not_required" | "self" | null;
 }
 export interface ExportClaim {
   user_id: string;
@@ -32,6 +34,7 @@ export const CONSUMER_EXPORT_HEADERS = [
   "Account aangemaakt",
   "E-mail bevestigd",
   "Bevestigd op",
+  "Wijze van bevestiging",
   "Herkomst",
   "Doorverwezen door (naam)",
   "Doorverwezen door (e-mail)",
@@ -52,6 +55,16 @@ export function notificationLabel(p: ExportProfile): string {
   return "Alle deals";
 }
 
+export function confirmationMethodLabel(status: ExportEmailStatus | undefined): string {
+  if (!status?.email_confirmed_at) return "Niet bevestigd";
+  if (status.confirmation_method === "manual") return "Handmatig bevestigd";
+  if (status.confirmation_method === "self") return "Zelf via bevestigingslink";
+  if (status.confirmation_method === "not_required" || !status.confirmation_sent_at) {
+    return "Geen verificatie nodig";
+  }
+  return "Zelf via bevestigingslink";
+}
+
 /** Builds one row per consumer; dummy accounts are left out. */
 export function buildConsumerExportRows(input: {
   consumers: ExportProfile[];
@@ -70,7 +83,7 @@ export function buildConsumerExportRows(input: {
     if (r.verified_at && !dummyIds.has(r.referred_user_id))
       verifiedCount.set(r.referrer_user_id, (verifiedCount.get(r.referrer_user_id) ?? 0) + 1);
   });
-  const confirmed = new Map(emailStatuses.map((s) => [s.user_id, s.email_confirmed_at]));
+  const emailStatusById = new Map(emailStatuses.map((s) => [s.user_id, s]));
   const claimStats = new Map<string, { count: number; last: string }>();
   claims.forEach((c) => {
     const s = claimStats.get(c.user_id) ?? { count: 0, last: c.claimed_at };
@@ -85,7 +98,8 @@ export function buildConsumerExportRows(input: {
     .map((c) => {
       const ref = referredBy.get(c.user_id);
       const referrer = ref ? people.get(ref.referrer_user_id) : undefined;
-      const conf = confirmed.get(c.user_id) ?? null;
+      const emailStatus = emailStatusById.get(c.user_id);
+      const conf = emailStatus?.email_confirmed_at ?? null;
       const mode = notificationLabel(c);
       const stats = claimStats.get(c.user_id);
       return [
@@ -94,6 +108,7 @@ export function buildConsumerExportRows(input: {
         fmt(c.created_at),
         conf ? "Ja" : "Nee",
         fmt(conf),
+        confirmationMethodLabel(emailStatus),
         ref ? "Referral" : "Organisch",
         ref ? referrer?.full_name ?? "" : "",
         ref ? referrer?.email ?? "" : "",

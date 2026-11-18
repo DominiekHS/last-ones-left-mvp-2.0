@@ -30,3 +30,8 @@
 # Adres Over ons
 - [x] Menu, voetmenu, paginatitel en sitemap wijzigen naar /over-ons; /testversie doorverwijzen.
 - [x] Menulink, voetmenulink, paginatitel en doorverwijzing vanaf het oude adres in de browser gecontroleerd.
+
+# Bevestigingswijze in consumentenexport
+- [x] Beveiligde registratie voor handmatige bevestigingen toevoegen en bekende historische bevestigingen terugwerken.
+- [x] Export uitbreiden met zelf bevestigd, handmatig bevestigd en geen verificatie nodig.
+- [x] Acht regeltests en de daadwerkelijke Excel-download met 978 consumenten en alle bevestigingswijzen gecontroleerd.

@@ -209,6 +209,32 @@ export type Database = {
         }
         Relationships: []
       }
+      consumer_email_confirmation_methods: {
+        Row: {
+          created_at: string
+          method: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          method: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          method?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consumer_email_confirmation_methods_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       deal_events: {
         Row: {
           created_at: string
@@ -1154,6 +1180,7 @@ export type Database = {
       admin_get_consumer_email_statuses: {
         Args: never
         Returns: {
+          confirmation_method: string
           confirmation_sent_at: string
           email_confirmed_at: string
           user_id: string
