@@ -26,7 +26,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket, CalendarDays, MapPin, Inbox, Settings, FileText, Share2, Bell, BellOff, MailCheck, MailWarning } from "lucide-react";
+import { Ban, CheckCircle, Trash2, Store, Tag, Users, Search, ChevronRight, ShieldAlert, Ticket, CalendarDays, MapPin, Inbox, Settings, FileText, Share2, Bell, BellOff, MailCheck, MailWarning, Download } from "lucide-react";
 import { ActivityRequestsTab } from "@/components/admin/ActivityRequestsTab";
 import { NotificationChoicesTab } from "@/components/admin/NotificationChoicesTab";
 import { PlatformSettingsTab } from "@/components/admin/PlatformSettingsTab";
@@ -38,6 +38,7 @@ import { CATEGORY_LABELS } from "@/lib/constants";
 import { getMerchantEffectiveStatus, STATUS_LABELS, STATUS_VARIANTS } from "@/lib/merchant-status";
 import { useNavigate } from "react-router-dom";
 import { recordAdminAction } from "@/lib/audit";
+import { buildConsumerExportRows, downloadConsumerExport } from "@/lib/consumer-export";
 
 export default function AdminDashboard() {
   const { user, roles, loading } = useAuth();
@@ -161,6 +162,29 @@ export default function AdminDashboard() {
     () => new Set((dummyRows ?? []).map((d) => d.user_id)),
     [dummyRows]
   );
+
+  const [exportingConsumers, setExportingConsumers] = useState(false);
+  const exportConsumers = async () => {
+    setExportingConsumers(true);
+    try {
+      const referrals = await fetchAllRows((from, to) =>
+        supabase.from("referrals").select("referrer_user_id, referred_user_id, verified_at").order("id").range(from, to)
+      );
+      const rows = buildConsumerExportRows({
+        consumers: (consumers ?? []) as any,
+        dummyIds: dummySet,
+        referrals,
+        emailStatuses: (consumerEmailStatuses ?? []) as any,
+        claims: (allClaims ?? []) as any,
+      });
+      await downloadConsumerExport(rows);
+      toast({ title: `${rows.length} consumenten geëxporteerd` });
+    } catch (e) {
+      toast({ title: "Exporteren mislukt", description: friendlyDbError(e as any), variant: "destructive" });
+    } finally {
+      setExportingConsumers(false);
+    }
+  };
 
   const toggleDummy = async (userId: string, value: boolean) => {
     const { error } = value
@@ -598,6 +622,15 @@ export default function AdminDashboard() {
                     className="w-40"
                   />
                 </div>
+                <Button
+                  variant="outline"
+                  className="gap-2 ml-auto"
+                  onClick={exportConsumers}
+                  disabled={exportingConsumers || !consumers || !allClaims || !consumerEmailStatuses || !dummyRows}
+                >
+                  <Download className="h-4 w-4" />
+                  {exportingConsumers ? "Bezig met exporteren…" : "Alle consumenten exporteren"}
+                </Button>
               </div>
             </CardContent>
           </Card>
