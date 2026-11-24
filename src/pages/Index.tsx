@@ -31,7 +31,7 @@ const Index = () => {
 
   return (
     <>
-      <section className="bg-primary text-primary-foreground py-8 sm:py-12">
+      <section className="bg-[#D3EBF7] text-primary-foreground py-8 sm:py-12">
         <div className="container relative text-center space-y-3">
           <img src={logoZwartAsset.url} alt="Last Ones Left logo" className="absolute left-0 top-1/2 -translate-y-1/2 h-20 w-auto hidden lg:block" />
           <p className="font-display text-sm sm:text-base font-semibold uppercase tracking-wider text-primary-foreground/70">
