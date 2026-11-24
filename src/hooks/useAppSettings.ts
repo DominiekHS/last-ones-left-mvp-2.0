@@ -4,21 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 export interface AppSetting {
   key: string;
   value: unknown;
-  updated_at: string;
-  updated_by: string | null;
 }
 
 export function useAppSetting(key: string) {
   return useQuery({
-    queryKey: ["app_setting", key],
+    queryKey: ["public_app_setting", key],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("app_settings")
-        .select("*")
-        .eq("key", key)
-        .maybeSingle();
+      const { data, error } = await supabase.rpc("get_public_app_settings");
       if (error) throw error;
-      return (data as AppSetting | null) ?? null;
+      return data?.find((setting) => setting.key === key) ?? null;
     },
     staleTime: 30_000,
   });

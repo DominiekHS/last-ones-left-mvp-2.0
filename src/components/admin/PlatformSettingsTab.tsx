@@ -42,6 +42,7 @@ function useSettingToggle(key: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["app_setting", key] });
+      queryClient.invalidateQueries({ queryKey: ["public_app_setting", key] });
     },
     onError: (err: any) => {
       toast({ title: "Fout", description: err.message, variant: "destructive" });

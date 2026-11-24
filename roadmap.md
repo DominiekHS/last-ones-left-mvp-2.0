@@ -35,3 +35,8 @@
 - [x] Beveiligde registratie voor handmatige bevestigingen toevoegen en bekende historische bevestigingen terugwerken.
 - [x] Export uitbreiden met zelf bevestigd, handmatig bevestigd en geen verificatie nodig.
 - [x] Acht regeltests en de daadwerkelijke Excel-download met 978 consumenten en alle bevestigingswijzen gecontroleerd.
+
+# Geselecteerde beveiligingsmeldingen
+- [x] Instellingen afschermen; alleen noodzakelijke aan/uitwaarden openbaar beschikbaar maken.
+- [x] Helpcenter-categorieën beperken tot expliciet gepubliceerde categorieën; bestaande categorieën behouden.
+- [x] Vier live tests, ingelogde niet-admin-toegang, registratie en beide Helpcenter-paden gecontroleerd; tijdelijke testcategorie verwijderd en uitsluitend de twee gekozen meldingen als opgelost gemarkeerd. Adminpagina alleen via code en toegangsregels gecontroleerd: beschikbare sessie heeft geen adminrol.

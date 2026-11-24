@@ -5,3 +5,5 @@
 - Keep the Groningen information page static and independent of deal queries; this preserves its availability when offers change, while route metadata uses the existing PageTitle component and social metadata stays sitewide.
 - Keep legacy information-page URLs as replace redirects when renaming routes; internal links and the sitemap use only the current URL to avoid broken bookmarks and duplicate navigation entries.
 - When manually confirming a consumer email, also upsert `public.consumer_email_confirmation_methods` with method `manual`; the admin export relies on that record to distinguish manual confirmation from self-confirmation and signups without verification.
+- Public setting reads use a boolean-only allowlisted RPC and a separate query cache from admin rows; this prevents disclosure of admin metadata or future private settings.
+- Help categories require explicit publication for public reads; preserve existing public categories when introducing visibility controls.

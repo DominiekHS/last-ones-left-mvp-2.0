@@ -43,6 +43,13 @@
       "when": 1795027336114,
       "tag": "0005_add_consumer_email_confirmation_methods",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795542835207,
+      "tag": "0006_restrict_public_settings_and_help_categories",
+      "breakpoints": true
     }
   ]
 }
