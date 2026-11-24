@@ -539,6 +539,7 @@ export type Database = {
           description: string
           icon: string
           id: string
+          is_published: boolean
           slug: string
           sort_order: number
           title: string
@@ -548,6 +549,7 @@ export type Database = {
           description?: string
           icon?: string
           id?: string
+          is_published?: boolean
           slug: string
           sort_order?: number
           title: string
@@ -557,6 +559,7 @@ export type Database = {
           description?: string
           icon?: string
           id?: string
+          is_published?: boolean
           slug?: string
           sort_order?: number
           title?: string
@@ -1235,6 +1238,13 @@ export type Database = {
           key: string
           kind: string
           label: string
+        }[]
+      }
+      get_public_app_settings: {
+        Args: never
+        Returns: {
+          key: string
+          value: Json
         }[]
       }
       has_role: {
